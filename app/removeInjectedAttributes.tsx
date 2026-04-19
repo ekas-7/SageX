@@ -7,7 +7,7 @@ export default function RemoveInjectedAttributes() {
     try {
       // Remove common extension-injected attributes that can pollute the DOM
       document.body.removeAttribute("cz-shortcut-listen");
-    } catch (e) {
+    } catch {
       // noop
     }
   }, []);

@@ -145,8 +145,45 @@ export default function StatsPage() {
         )}
 
         {loading && (
-          <div className="glass-card rounded-2xl p-6 text-sm text-[var(--text-secondary)]">
-            Loading your stats...
+          <div className="flex flex-col gap-6">
+            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={`stat-skeleton-${index}`}
+                  className="glass-card rounded-2xl p-5"
+                >
+                  <div className="h-3 w-24 animate-pulse rounded-full bg-white/10" />
+                  <div className="mt-4 h-8 w-32 animate-pulse rounded-full bg-white/15" />
+                  <div className="mt-3 h-3 w-40 animate-pulse rounded-full bg-white/10" />
+                </div>
+              ))}
+            </section>
+            <section className="glass-card rounded-2xl p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="h-3 w-24 animate-pulse rounded-full bg-white/10" />
+                  <div className="mt-3 h-5 w-48 animate-pulse rounded-full bg-white/15" />
+                </div>
+                <div className="h-6 w-28 animate-pulse rounded-full bg-white/10" />
+              </div>
+              <div className="mt-6 grid gap-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div
+                    key={`leaderboard-skeleton-${index}`}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-1)] px-4 py-3"
+                  >
+                    <div>
+                      <div className="h-3 w-32 animate-pulse rounded-full bg-white/10" />
+                      <div className="mt-2 h-3 w-40 animate-pulse rounded-full bg-white/10" />
+                    </div>
+                    <div className="text-right">
+                      <div className="h-3 w-20 animate-pulse rounded-full bg-white/10" />
+                      <div className="mt-2 h-3 w-24 animate-pulse rounded-full bg-white/10" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
         )}
 

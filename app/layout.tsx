@@ -12,7 +12,7 @@ try {
   const p = path.resolve(process.cwd(), `public${faviconRel}`);
   const stat = fs.statSync(p);
   faviconHref = `${faviconRel}?v=${stat.mtimeMs}`;
-} catch (e) {
+} catch {
   // file missing or inaccessible fall back to the raw path
   faviconHref = faviconRel;
 }

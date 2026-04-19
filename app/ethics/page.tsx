@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import ethicsData from "../../src/data/ethicsScenarios.json";
 
 /* ─── Types ─── */
@@ -187,7 +187,8 @@ export default function EthicsPage() {
 
         {/* Hero Card */}
         <div className="relative z-10 mx-auto w-full max-w-5xl overflow-hidden rounded-3xl border border-[var(--border-default)] bg-gradient-to-br from-[var(--surface-2)] via-[var(--surface-1)] to-[var(--surface-0)]">
-          <div className="grid md:grid-cols-[1.3fr_1fr]">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--surface-0)] via-transparent to-transparent" />
+          <div className="relative grid md:grid-cols-[1.3fr_1fr]">
             {/* Left */}
             <div className="flex flex-col justify-center gap-6 p-8 md:p-12">
               <p className="font-display text-[0.65rem] font-medium uppercase tracking-[0.35em] text-[var(--sagex-accent)] opacity-80">Module E.1</p>
@@ -195,12 +196,16 @@ export default function EthicsPage() {
               <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                 Real-world scenarios across bias, privacy, transparency, and accountability. Choose wisely -- your decisions shape your understanding of responsible AI.
               </p>
-              <a href="#modules" className="btn-primary w-fit gap-2 text-sm">
+              <button
+                type="button"
+                onClick={() => document.getElementById("modules")?.scrollIntoView({ behavior: "smooth" })}
+                className="btn-primary w-fit gap-2 text-sm"
+              >
                 Continue Learning
                 <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-                  <path fillRule="evenodd" d="M2 10a.75.75 0 0 1 .75-.75h12.59l-2.1-1.95a.75.75 0 1 1 1.02-1.1l3.5 3.25a.75.75 0 0 1 0 1.1l-3.5 3.25a.75.75 0 1 1-1.02-1.1l2.1-1.95H2.75A.75.75 0 0 1 2 10Z" clipRule="evenodd" />
+                  <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
                 </svg>
-              </a>
+              </button>
               {/* Progress */}
               <div className="mt-2 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
@@ -303,7 +308,6 @@ export default function EthicsPage() {
                         {/* Banner image */}
                         <div className="relative mb-2 h-36 w-full overflow-hidden rounded-xl sm:h-44">
                           <Image src={ETHICS_IMAGES[catIdx % ETHICS_IMAGES.length]} alt={category.label} fill sizes="(min-width: 768px) 60vw, 90vw" className="object-cover" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-0)] via-transparent to-transparent" />
                           <div className="absolute bottom-3 left-4">
                             <p className="font-display text-xs font-semibold text-[var(--text-primary)] drop-shadow-lg">{category.label}</p>
                             <p className="text-[0.6rem] text-[var(--text-secondary)] drop-shadow-lg">{category.scenarios.length} scenarios &middot; {catCompleted} completed</p>
