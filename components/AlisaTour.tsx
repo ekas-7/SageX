@@ -37,8 +37,10 @@ const DIRECTION_ROW: Record<AlisaDirection, number> = {
   W: 3,
 };
 
-const WALK_FRAME_MS = 140;
-const WALK_SPEED_PCT_PER_SEC = 22; // % of map per second — matches player run speed
+// Walking animation tuning. Lower PCT_PER_SEC = slower movement across the map.
+// Higher FRAME_MS = slower leg-swap animation on the sprite.
+const WALK_FRAME_MS = 220;
+const WALK_SPEED_PCT_PER_SEC = 9;
 
 type Position = { x: number; y: number }; // % of map
 
@@ -294,7 +296,12 @@ export default function AlisaTour({
             transform: `translate(-50%, -100%)`,
           }}
         >
-          <div className="relative w-[min(22rem,80vw)] rounded-2xl border border-[var(--border-accent)] bg-[var(--surface-1)]/95 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur">
+          <div
+            className="relative w-[min(22rem,80vw)] p-4"
+            style={{
+              textShadow: "0 2px 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.9)",
+            }}
+          >
             <div className="flex items-center justify-between">
               <p className="font-display text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--sagex-accent)]">
                 {waypoint.label}
@@ -342,11 +349,6 @@ export default function AlisaTour({
                 </button>
               </div>
             </div>
-            {/* Tail pointing to sprite */}
-            <div
-              className="absolute left-1/2 -bottom-2 h-4 w-4 -translate-x-1/2 rotate-45 border-b border-r border-[var(--border-accent)] bg-[var(--surface-1)]/95"
-              aria-hidden
-            />
           </div>
         </div>
       )}
