@@ -103,7 +103,7 @@
       "y": 1382,
       "width": 768,
       "height": 1382,
-      "source": "public/assests/skins/skin-1-animations/A-animation/mov2.png"
+      "source": "public/assests/skins/skin-1-animations/A-animation/mov1.png"
     },
     {
       "direction": "A",
@@ -113,7 +113,7 @@
       "y": 1382,
       "width": 768,
       "height": 1382,
-      "source": "public/assests/skins/skin-1-animations/A-animation/mov3.png"
+      "source": "public/assests/skins/skin-1-animations/A-animation/mov2.png"
     },
     {
       "direction": "A",
@@ -123,7 +123,7 @@
       "y": 1382,
       "width": 768,
       "height": 1382,
-      "source": "public/assests/skins/skin-1-animations/A-animation/mov4.png"
+      "source": "public/assests/skins/skin-1-animations/A-animation/mov3.png"
     },
     {
       "direction": "A",

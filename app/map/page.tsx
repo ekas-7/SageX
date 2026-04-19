@@ -61,6 +61,8 @@ type PlayerProfile = {
   skill: string;
 };
 
+type MovementDirection = "S" | "A" | "D" | "W";
+
 export default function MapPage() {
   const router = useRouter();
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -76,7 +78,12 @@ export default function MapPage() {
   const [chunkRatio, setChunkRatio] = useState(1);
   const [pressedKeys, setPressedKeys] = useState<Record<string, boolean>>({});
   const [interactionZone, setInteractionZone] = useState<string | null>(null);
+  const [direction, setDirection] = useState<MovementDirection>("S");
+  const [frameIndex, setFrameIndex] = useState(0);
   const lastFrameRef = useRef<number | null>(null);
+  const frameTimerRef = useRef(0);
+  const directionRef = useRef<MovementDirection>("S");
+  const frameRef = useRef(0);
   const collisionRects = collisions as CollisionRect[];
   const minMapX = 0;
   const maxMapX = 100;
@@ -197,6 +204,17 @@ export default function MapPage() {
     hydrated && profile?.avatar?.startsWith("/assests/")
       ? profile.avatar
       : "/assests/skins/skin-1.png";
+  const spriteFrameCount = 4;
+  const spriteDirectionCount = 4;
+  const spriteSheetSrc = "/assests/skins/skin-1-spritesheet.png";
+  const spriteSize = Math.round(playerMarkerSize );
+  const usesSpriteSheet = avatarSrc.includes("skin-1");
+  const directionRowMap: Record<MovementDirection, number> = {
+    S: 0,
+    A: 1,
+    D: 2,
+    W: 3,
+  };
 
   const visibleCols = useMemo(() => {
     if (!tileWidth) return [] as number[];
@@ -237,6 +255,18 @@ export default function MapPage() {
         (pressedKeys["ArrowUp"] || pressedKeys["w"] ? 1 : 0);
 
       if (dx !== 0 || dy !== 0) {
+        const nextDirection: MovementDirection =
+          Math.abs(dx) > Math.abs(dy)
+            ? dx > 0
+              ? "D"
+              : "A"
+            : dy > 0
+              ? "S"
+              : "W";
+        if (directionRef.current !== nextDirection) {
+          directionRef.current = nextDirection;
+          setDirection(nextDirection);
+        }
         const magnitude = Math.hypot(dx, dy) || 1;
         const normalizedX = dx / magnitude;
         const normalizedY = dy / magnitude;
@@ -260,6 +290,20 @@ export default function MapPage() {
 
           return { x: nextX, y: nextY };
         });
+
+        frameTimerRef.current += deltaMs;
+        const frameDuration = 140;
+        if (frameTimerRef.current >= frameDuration) {
+          frameTimerRef.current = 0;
+          frameRef.current = (frameRef.current + 1) % spriteFrameCount;
+          setFrameIndex(frameRef.current);
+        }
+      } else {
+        frameTimerRef.current = 0;
+        if (frameRef.current !== 0) {
+          frameRef.current = 0;
+          setFrameIndex(0);
+        }
       }
 
       animationFrame = window.requestAnimationFrame(update);
@@ -385,19 +429,38 @@ export default function MapPage() {
               top: playerY + offsetY,
             }}
           >
-            <Image
-              src={avatarSrc}
-              alt={
-                hydrated
-                  ? profile?.avatarName
-                    ? `${profile.avatarName} avatar`
+            {usesSpriteSheet ? (
+              <div
+                className="rounded-full border border-white/20"
+                aria-label="Player avatar"
+                style={{
+                  width: spriteSize,
+                  height: spriteSize,
+                  backgroundImage: `url(${spriteSheetSrc})`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: `${spriteFrameCount * spriteSize}px ${
+                    spriteDirectionCount * spriteSize
+                  }px`,
+                  backgroundPosition: `-${
+                    frameIndex * spriteSize
+                  }px -${directionRowMap[direction] * spriteSize}px`,
+                }}
+              />
+            ) : (
+              <Image
+                src={avatarSrc}
+                alt={
+                  hydrated
+                    ? profile?.avatarName
+                      ? `${profile.avatarName} avatar`
+                      : "Player avatar"
                     : "Player avatar"
-                  : "Player avatar"
-              }
-              width={Math.round(playerMarkerSize * 0.6)}
-              height={Math.round(playerMarkerSize * 0.6)}
-              className="rounded-full border border-white/20 object-cover"
-            />
+                }
+                width={Math.round(playerMarkerSize * 0.6)}
+                height={Math.round(playerMarkerSize * 0.6)}
+                className="rounded-full border border-white/20 object-cover"
+              />
+            )}
           </div>
           <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3 py-1 text-xs text-slate-200">
             {hydrated ? subtitle : "Global Metaverse Map"} · Click to move · Arrow keys / WASD · Shift to run
