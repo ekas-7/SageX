@@ -4,6 +4,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
 const buildings = [
   {
@@ -53,10 +54,24 @@ export default function HubPage() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("sagex.player");
+    const stored = readStoredPlayer();
     const completed = localStorage.getItem("sagex.firstQuestCompleted");
     if (stored) {
-      setProfile(JSON.parse(stored) as PlayerProfile);
+      setProfile({
+        name: stored.name,
+        avatar: stored.avatar ?? "",
+        avatarName: stored.avatarName,
+        skill: stored.skill ?? "",
+      });
+      // Background sign-in so the DB has the player.
+      void signInPlayer(stored).then((next) => {
+        setProfile({
+          name: next.name,
+          avatar: next.avatar ?? "",
+          avatarName: next.avatarName,
+          skill: next.skill ?? "",
+        });
+      });
     }
     setQuestCompleted(completed === "true");
     setHydrated(true);

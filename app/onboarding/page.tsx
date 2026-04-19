@@ -5,6 +5,11 @@ import { useState } from "react";
 import AvatarCard from "../../components/AvatarCard";
 import PreviewCard from "../../components/PreviewCard";
 import SkillToggle from "../../components/SkillToggle";
+import {
+  buildOnboardingPayload,
+  signInPlayer,
+  writeStoredPlayer,
+} from "@/src/lib/playerClient";
 
 const avatars = [
   {
@@ -48,6 +53,8 @@ type InterestId = (typeof interestOptions)[number]["id"];
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [pilotName, setPilotName] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState<AvatarId>("orion");
   const [skillLevel, setSkillLevel] = useState<SkillLevel>("Beginner");
@@ -58,20 +65,41 @@ export default function OnboardingPage() {
     .filter((option) => interests.includes(option.id))
     .map((option) => option.label);
 
-  const handleEnter = () => {
+  const handleEnter = async () => {
+    if (submitting) return;
+    setSubmitError(null);
+    setSubmitting(true);
+
+    const draft = buildOnboardingPayload({
+      name: pilotName,
+      avatar: activeAvatar.src,
+      avatarName: activeAvatar.name,
+      skill: skillLevel,
+      interests,
+    });
+
+    // Persist locally immediately so the UI feels instant.
+    writeStoredPlayer(draft);
     if (typeof window !== "undefined") {
-      const payload = {
-        name: pilotName.trim() || "Unnamed Pilot",
-        avatar: activeAvatar.src,
-        avatarName: activeAvatar.name,
-        skill: skillLevel,
-        interests,
-        createdAt: new Date().toISOString(),
-      };
-      localStorage.setItem("sagex.player", JSON.stringify(payload));
       localStorage.setItem("sagex.firstQuestCompleted", "false");
     }
-    router.push("/onboarding/guide");
+
+    try {
+      // Persist to the server. If this fails, we still let the user
+      // continue (signInPlayer is idempotent and will retry on next page).
+      await signInPlayer(draft);
+      router.push("/onboarding/guide");
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error
+          ? err.message
+          : "Couldn't save your pilot. You can continue, we'll try again."
+      );
+      // Still let them continue — their local profile is saved.
+      router.push("/onboarding/guide");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -171,15 +199,25 @@ export default function OnboardingPage() {
             </div>
           </div>
 
-          <PreviewCard
-            pilotName={pilotName.trim()}
-            avatarName={activeAvatar.name}
-            avatarSrc={activeAvatar.src}
-            avatarDescription={activeAvatar.desc}
-            skillLevel={skillLevel}
-            interests={selectedInterestLabels}
-            onEnter={handleEnter}
-          />
+          <div className="flex flex-col gap-3">
+            <PreviewCard
+              pilotName={pilotName.trim()}
+              avatarName={activeAvatar.name}
+              avatarSrc={activeAvatar.src}
+              avatarDescription={activeAvatar.desc}
+              skillLevel={skillLevel}
+              interests={selectedInterestLabels}
+              onEnter={handleEnter}
+            />
+            {submitting && (
+              <p className="text-xs text-[var(--text-muted)]">
+                Saving your pilot...
+              </p>
+            )}
+            {submitError && (
+              <p className="text-xs text-rose-300">{submitError}</p>
+            )}
+          </div>
         </section>
       </div>
     </div>

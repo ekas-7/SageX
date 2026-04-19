@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import collisions from "../../src/data/mapCollisions.json";
+import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
 const buildingZones = [
   {
@@ -60,6 +61,7 @@ type CollisionRect = {
 };
 
 type PlayerProfile = {
+  playerId: string;
   name: string;
   avatar: string;
   avatarName?: string;
@@ -97,14 +99,31 @@ export default function MapPage() {
   const maxMapY = 100;
 
   useEffect(() => {
-    const stored = localStorage.getItem("sagex.player");
-    if (stored) {
-      setProfile(JSON.parse(stored) as PlayerProfile);
-    } else {
+    const stored = readStoredPlayer();
+    if (!stored) {
       router.replace("/onboarding");
       return;
     }
+    // Show cached profile immediately for snappy UX.
+    setProfile({
+      playerId: stored.playerId ?? "",
+      name: stored.name,
+      avatar: stored.avatar ?? "",
+      avatarName: stored.avatarName,
+      skill: stored.skill ?? "",
+    });
     setHydrated(true);
+    // Fire-and-forget sign-in so the backend has the player and any
+    // missing playerId is minted. Updates localStorage for future pages.
+    void signInPlayer(stored).then((next) => {
+      setProfile({
+        playerId: next.playerId,
+        name: next.name,
+        avatar: next.avatar ?? "",
+        avatarName: next.avatarName,
+        skill: next.skill ?? "",
+      });
+    });
   }, [router]);
 
   useEffect(() => {

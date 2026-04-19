@@ -16,6 +16,7 @@ export const XpController = {
     }
     const data = parsed.data as XpAwardBody;
     const result = await XpOrchestrator.award({
+      playerId: data.playerId,
       name: data.name,
       source: data.source as XpSource,
       sourceRef: data.sourceRef,
@@ -29,13 +30,13 @@ export const XpController = {
   async summary(request: Request) {
     const { searchParams } = new URL(request.url);
     const parsed = xpSummaryQuerySchema.safeParse({
-      name: searchParams.get("name") ?? "",
+      playerId: searchParams.get("playerId") ?? "",
     });
     if (!parsed.success) {
       const issues = parsed.error.issues.map((i) => i.message).join("; ");
       throw new Error(`Invalid summary query: ${issues}`);
     }
-    const summary = await XpOrchestrator.getSummary(parsed.data.name);
+    const summary = await XpOrchestrator.getSummary(parsed.data.playerId);
     return { ok: true, summary };
   },
 };

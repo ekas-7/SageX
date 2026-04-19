@@ -1,7 +1,17 @@
+import { PlayerOrchestrator } from "../orchestrators/player.orchestrator";
 import { PlayerService } from "../services/player.service";
-import { playerProfileSchema } from "../vali/player.vali";
+import { PlayerRepository } from "../repositories/player.repo";
+import {
+  playerProfileSchema,
+  playerRehydrateSchema,
+} from "../vali/player.vali";
 
 export const PlayerController = {
+  /**
+   * POST /api/player — idempotent sign-in. Creates the player on first
+   * call, updates profile on subsequent calls. Always returns 200 with
+   * the canonical profile.
+   */
   async upsertProfile(request: Request) {
     const body = (await request.json().catch(() => ({}))) as unknown;
     const parsed = playerProfileSchema.safeParse(body);
@@ -11,35 +21,45 @@ export const PlayerController = {
           "Invalid player profile"
       );
     }
-    const player = await PlayerService.getOrCreatePlayer(parsed.data);
+    const player = await PlayerOrchestrator.upsertProfile(parsed.data);
+    return { ok: true, player };
+  },
+
+  /**
+   * POST /api/player/rehydrate — legacy clients who stored a name but no
+   * playerId call this once to find their record by name and adopt its
+   * playerId. Returns 200 with the player if found, or `{ ok: true, player: null }`.
+   */
+  async rehydrate(request: Request) {
+    const body = (await request.json().catch(() => ({}))) as unknown;
+    const parsed = playerRehydrateSchema.safeParse(body);
+    if (!parsed.success) {
+      throw new Error(
+        parsed.error.issues.map((i) => i.message).join("; ") ||
+          "Invalid rehydrate request"
+      );
+    }
+    const player = await PlayerOrchestrator.rehydrateByName(parsed.data.name);
     return { ok: true, player };
   },
 
   async getStats(request: Request) {
     const { searchParams } = new URL(request.url);
-  const name = searchParams.get("name");
-  const avatarValue = searchParams.get("avatar");
-  const skillValue = searchParams.get("skill");
-    const interestsValue = searchParams.get("interests");
-  const avatar = avatarValue && avatarValue.length > 0 ? avatarValue : undefined;
-  const skill = skillValue && skillValue.length > 0 ? skillValue : undefined;
-    const interests = interestsValue
-      ? interestsValue
-          .split(",")
-          .map((value) => value.trim())
-          .filter(Boolean)
-      : undefined;
+    const playerId = searchParams.get("playerId");
+    const name = searchParams.get("name");
 
-    if (!name) {
-      throw new Error("Player name is required");
+    if (!playerId && !name) {
+      throw new Error("playerId or name is required");
     }
 
-    const player = await PlayerService.getOrCreatePlayer({
-      name,
-      avatar,
-      skill,
-      interests,
-    });
+    const player = playerId
+      ? await PlayerRepository.findById(playerId)
+      : await PlayerRepository.findByName(name ?? "");
+
+    if (!player) {
+      throw new Error("Player not found");
+    }
+
     const { leaderboard, rank } = await PlayerService.getLeaderboard(player);
 
     return {
@@ -52,18 +72,24 @@ export const PlayerController = {
   },
 
   async updateStats(request: Request) {
-    const body = (await request.json()) as {
+    const body = (await request.json().catch(() => ({}))) as {
+      playerId?: string;
       name?: string;
       deltaChallenges?: number;
       deltaXp?: number;
     };
 
-    if (!body?.name) {
-      throw new Error("Player name is required");
+    let playerId = body?.playerId;
+    if (!playerId && body?.name) {
+      const legacy = await PlayerRepository.findByName(body.name);
+      playerId = legacy?.playerId;
+    }
+    if (!playerId) {
+      throw new Error("playerId is required");
     }
 
     const player = await PlayerService.updateStats({
-      name: body.name,
+      playerId,
       deltaChallenges: body.deltaChallenges,
       deltaXp: body.deltaXp,
     });

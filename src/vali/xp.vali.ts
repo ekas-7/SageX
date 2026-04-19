@@ -12,7 +12,8 @@ const difficultyValues = Object.keys(DIFFICULTY_MULTIPLIERS) as [
 ];
 
 export const xpAwardSchema = z.object({
-  name: z.string().trim().min(1, "Player name is required"),
+  playerId: z.string().trim().min(8, "playerId is required"),
+  name: z.string().trim().min(1).optional(),
   source: z.enum(xpSourceValues),
   sourceRef: z.string().trim().min(1).max(200).optional(),
   difficulty: z.enum(difficultyValues).optional(),
@@ -23,7 +24,7 @@ export const xpAwardSchema = z.object({
 export type XpAwardBody = z.infer<typeof xpAwardSchema>;
 
 export const xpSummaryQuerySchema = z.object({
-  name: z.string().trim().min(1, "Player name is required"),
+  playerId: z.string().trim().min(8, "playerId is required"),
 });
 
 export type XpSummaryQuery = z.infer<typeof xpSummaryQuerySchema>;

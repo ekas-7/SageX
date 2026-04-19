@@ -20,7 +20,12 @@ const PlayerStatsSchema = new Schema(
 
 const PlayerSchema = new Schema(
   {
-    name: { type: String, required: true, unique: true, index: true },
+    // Stable identifier (UUID). Generated client-side at onboarding.
+    // This is the true primary key for player lookups going forward.
+    playerId: { type: String, required: true, unique: true, index: true },
+    // Display name. No longer globally unique — two "Orion"s are allowed
+    // as long as they have different playerIds.
+    name: { type: String, required: true, index: true },
     avatar: { type: String },
     skill: { type: String },
     interests: { type: [String], default: [] },

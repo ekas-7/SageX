@@ -2,44 +2,90 @@ import { PlayerModel } from "../models/player.model";
 import { connectToDatabase } from "../lib/db";
 import type { PlayerProfile } from "../types/player";
 
+type CreateData = {
+  playerId: string;
+  name: string;
+  avatar?: string;
+  skill?: string;
+  interests?: string[];
+};
+
+const defaultStats = () => ({
+  dailyStreak: 1,
+  challengesCompleted: 0,
+  totalChallenges: 0,
+  totalXp: 0,
+  level: 1,
+  currentLevelXp: 0,
+  xpToNext: 100,
+  dailyXpEarned: 0,
+  dailyXpResetAt: new Date(),
+  milestonesClaimed: [],
+  lastActiveAt: new Date(),
+  lastStreakDate: new Date(),
+});
+
 export const PlayerRepository = {
+  async findById(playerId: string) {
+    await connectToDatabase();
+    return PlayerModel.findOne({ playerId }).lean() as unknown as PlayerProfile | null;
+  },
+
+  /**
+   * Legacy: lookup by name only. Returns the **first** match. Ambiguous
+   * with the new schema (duplicates allowed), so only use this for
+   * legacy-user rehydration, never for auth-sensitive operations.
+   */
   async findByName(name: string) {
     await connectToDatabase();
     return PlayerModel.findOne({ name }).lean() as unknown as PlayerProfile | null;
   },
 
-  async create(data: {
-    name: string;
-    avatar?: string;
-    skill?: string;
-    interests?: string[];
-  }) {
+  async create(data: CreateData) {
     await connectToDatabase();
     return PlayerModel.create({
+      playerId: data.playerId,
       name: data.name,
       avatar: data.avatar,
       skill: data.skill,
       interests: data.interests ?? [],
-      stats: {
-        dailyStreak: 1,
-        challengesCompleted: 0,
-        totalChallenges: 0,
-        totalXp: 0,
-        level: 1,
-        currentLevelXp: 0,
-        xpToNext: 100,
-        dailyXpEarned: 0,
-        dailyXpResetAt: new Date(),
-        milestonesClaimed: [],
-        lastActiveAt: new Date(),
-        lastStreakDate: new Date(),
-      },
+      stats: defaultStats(),
     });
   },
 
-  async updateByName(
-    name: string,
+  /**
+   * Atomic upsert keyed by playerId. Creates if missing, otherwise only
+   * updates the provided profile fields. Stats are never overwritten here.
+   */
+  async upsertById(data: CreateData) {
+    await connectToDatabase();
+    const now = new Date();
+    return (
+      PlayerModel.findOneAndUpdate(
+        { playerId: data.playerId },
+        {
+          $set: {
+            playerId: data.playerId,
+            name: data.name,
+            ...(data.avatar !== undefined ? { avatar: data.avatar } : {}),
+            ...(data.skill !== undefined ? { skill: data.skill } : {}),
+            ...(data.interests !== undefined ? { interests: data.interests } : {}),
+            "stats.lastActiveAt": now,
+          },
+          $setOnInsert: {
+            stats: defaultStats(),
+            createdAt: now,
+          },
+        },
+        { new: true, upsert: true, setDefaultsOnInsert: true }
+      ).lean() as unknown
+    ) as PlayerProfile;
+  },
+
+  async updateById(
+    playerId: string,
     update: Partial<{
+      name: string;
       avatar: string;
       skill: string;
       interests: string[];
@@ -47,31 +93,27 @@ export const PlayerRepository = {
     }>
   ) {
     await connectToDatabase();
-    return (PlayerModel.findOneAndUpdate({ name }, update, { new: true }).lean() as unknown) as
-      | PlayerProfile
-      | null;
+    return (
+      PlayerModel.findOneAndUpdate({ playerId }, update, { new: true }).lean() as unknown
+    ) as PlayerProfile | null;
   },
 
-  /**
-   * Atomic stat patch — only sets the provided `stats.*` fields so we
-   * don't clobber concurrent updates to unrelated fields.
-   */
-  async patchStats(name: string, statPatch: Record<string, unknown>) {
+  async patchStats(playerId: string, statPatch: Record<string, unknown>) {
     await connectToDatabase();
     const update: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(statPatch)) {
       update[`stats.${key}`] = value;
     }
     return (
-      PlayerModel.findOneAndUpdate({ name }, { $set: update }, { new: true }).lean() as unknown
+      PlayerModel.findOneAndUpdate({ playerId }, { $set: update }, { new: true }).lean() as unknown
     ) as PlayerProfile | null;
   },
 
-  async pushMilestone(name: string, milestone: number) {
+  async pushMilestone(playerId: string, milestone: number) {
     await connectToDatabase();
     return (
       PlayerModel.findOneAndUpdate(
-        { name },
+        { playerId },
         { $addToSet: { "stats.milestonesClaimed": milestone } },
         { new: true }
       ).lean() as unknown

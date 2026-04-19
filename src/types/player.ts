@@ -14,6 +14,7 @@ export type PlayerStats = {
 };
 
 export type PlayerProfile = {
+  playerId: string;
   name: string;
   avatar?: string;
   skill?: string;
@@ -24,6 +25,7 @@ export type PlayerProfile = {
 };
 
 export type LeaderboardEntry = {
+  playerId: string;
   name: string;
   avatar?: string;
   skill?: string;

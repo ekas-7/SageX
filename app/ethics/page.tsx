@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import ethicsData from "../../src/data/ethicsScenarios.json";
+import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
 /* ─── Types ─── */
 type Choice = {
@@ -172,31 +173,30 @@ export default function EthicsPage() {
     saveCompleted(updated);
 
     // Fire-and-forget XP award to backend
-    try {
-      const stored =
-        typeof window !== "undefined"
-          ? localStorage.getItem("sagex.player")
-          : null;
-      if (!stored) return;
-      const profile = JSON.parse(stored) as { name?: string };
-      if (!profile.name) return;
-      void fetch("/api/xp/award", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: profile.name,
-          source: choice.isCorrect
-            ? "ethics.scenario"
-            : "ethics.scenario.partial",
-          sourceRef: `ethics:${activeScenario.id}`,
-          difficulty: activeScenario.difficulty,
-          overrideBase: xpEarned,
-          metadata: { choiceId: selectedChoice },
-        }),
-      });
-    } catch {
-      // Non-fatal — local state already updated.
-    }
+    const stored = readStoredPlayer();
+    if (!stored) return;
+    (async () => {
+      try {
+        const authed = await signInPlayer(stored);
+        await fetch("/api/xp/award", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            playerId: authed.playerId,
+            name: authed.name,
+            source: choice.isCorrect
+              ? "ethics.scenario"
+              : "ethics.scenario.partial",
+            sourceRef: `ethics:${activeScenario.id}`,
+            difficulty: activeScenario.difficulty,
+            overrideBase: xpEarned,
+            metadata: { choiceId: selectedChoice },
+          }),
+        });
+      } catch {
+        // Non-fatal — local state already updated.
+      }
+    })();
   };
 
   const selectedChoiceData = activeScenario?.choices.find((c) => c.id === selectedChoice);
@@ -331,7 +331,7 @@ export default function EthicsPage() {
 
           {/* Category cards */}
           <div className="flex flex-col gap-4">
-            {categories.map((category, catIdx) => {
+            {categories.map((category) => {
               const isOpen = openCategories[category.id] ?? false;
               const catCompleted = category.scenarios.filter((s) => completedIds.has(s.id)).length;
               const catCorrect = category.scenarios.filter((s) => completed.find((c) => c.scenarioId === s.id)?.correct).length;
@@ -361,12 +361,11 @@ export default function EthicsPage() {
                   <div className={`grid transition-all duration-400 ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                     <div className="overflow-hidden">
                       <div className="flex flex-col gap-2.5 border-t border-[var(--border-subtle)] px-5 pb-5 pt-4">
-                        {/* Banner image */}
-                        <div className="relative mb-2 h-36 w-full overflow-hidden rounded-xl sm:h-44">
-                          <Image src={ETHICS_IMAGE} alt={category.label} fill sizes="(min-width: 768px) 60vw, 90vw" className="object-cover" />
-                          <div className="absolute bottom-3 left-4">
-                            <p className="font-display text-xs font-semibold text-[var(--text-primary)] drop-shadow-lg">{category.label}</p>
-                            <p className="text-[0.6rem] text-[var(--text-secondary)] drop-shadow-lg">{category.scenarios.length} scenarios &middot; {catCompleted} completed</p>
+                        {/* Banner header */}
+                        <div className="relative mb-2 flex h-28 w-full items-end overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-1)] px-4 pb-3 sm:h-36">
+                          <div>
+                            <p className="font-display text-xs font-semibold text-[var(--text-primary)]">{category.label}</p>
+                            <p className="text-[0.6rem] text-[var(--text-secondary)]">{category.scenarios.length} scenarios · {catCompleted} completed</p>
                           </div>
                         </div>
 

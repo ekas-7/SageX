@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { QuestDatasetRow, QuestResponse } from "@/src/types/quest";
+import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
 export default function LabPage() {
   const [quest, setQuest] = useState<QuestResponse | null>(null);
@@ -57,10 +58,11 @@ export default function LabPage() {
     if (!correct) return;
 
     try {
-      const stored = localStorage.getItem("sagex.player");
+      const stored = readStoredPlayer();
       if (!stored) return;
-      const profile = JSON.parse(stored) as { name?: string };
-      if (!profile.name) return;
+      // Make sure the player exists on the server before awarding XP,
+      // and mint a playerId if this is a legacy user.
+      const authed = await signInPlayer(stored);
 
       const source =
         score >= 300 ? "quest.perfect" : "quest.complete";
@@ -69,7 +71,8 @@ export default function LabPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: profile.name,
+          playerId: authed.playerId,
+          name: authed.name,
           source,
           sourceRef: `quest:${quest.questId ?? quest.seed}`,
           difficulty: quest.difficulty,

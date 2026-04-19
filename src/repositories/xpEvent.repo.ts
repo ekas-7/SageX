@@ -8,24 +8,24 @@ export const XpEventRepository = {
     return XpEventModel.create(event);
   },
 
-  async findBySourceRef(playerName: string, source: string, sourceRef: string) {
+  async findBySourceRef(playerId: string, source: string, sourceRef: string) {
     await connectToDatabase();
-    return XpEventModel.findOne({ playerName, source, sourceRef }).lean();
+    return XpEventModel.findOne({ playerId, source, sourceRef }).lean();
   },
 
-  async recentForPlayer(playerName: string, limit = 10) {
+  async recentForPlayer(playerId: string, limit = 10) {
     await connectToDatabase();
-    const docs = await XpEventModel.find({ playerName })
+    const docs = await XpEventModel.find({ playerId })
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
     return docs as unknown as XpEventRecord[];
   },
 
-  async sumXpSince(playerName: string, since: Date) {
+  async sumXpSince(playerId: string, since: Date) {
     await connectToDatabase();
     const result = await XpEventModel.aggregate<{ total: number }>([
-      { $match: { playerName, createdAt: { $gte: since } } },
+      { $match: { playerId, createdAt: { $gte: since } } },
       { $group: { _id: null, total: { $sum: "$finalAmount" } } },
     ]);
     return result[0]?.total ?? 0;

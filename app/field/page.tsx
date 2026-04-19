@@ -1,7 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+
+import { useEffect, useMemo, useState } from "react";
 import fieldTracks from "@/src/data/fieldTracks.json";
+import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
 type PlayerProfile = {
   name: string;
@@ -33,11 +36,14 @@ const fallbackTrack: FieldTrack = {
 };
 
 export default function FieldPage() {
-  const [profile] = useState<PlayerProfile | null>(() => {
-    if (typeof window === "undefined") return null;
-    const stored = localStorage.getItem("sagex.player");
-    return stored ? (JSON.parse(stored) as PlayerProfile) : null;
-  });
+  const [profile, setProfile] = useState<PlayerProfile | null>(null);
+
+  useEffect(() => {
+    const stored = readStoredPlayer();
+    if (!stored) return;
+    setProfile({ name: stored.name, interests: stored.interests });
+    void signInPlayer(stored);
+  }, []);
 
   const selectedTracks = useMemo(() => {
     const interestKeys = profile?.interests ?? [];
@@ -49,8 +55,11 @@ export default function FieldPage() {
   }, [profile]);
 
   return (
-    <div className="min-h-screen px-6 py-12">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
+    <div className="relative min-h-screen overflow-hidden px-6 py-12">
+      <div className="absolute inset-0 bg-[url('/assests/background/field/background.png')] bg-cover bg-center" />
+      <div className="absolute inset-0 bg-black/55" />
+      <div className="absolute inset-0 backdrop-blur-[1px]" />
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-10">
         <header className="space-y-3">
           <p className="page-label">Field Missions</p>
           <h1 className="page-title text-3xl">

@@ -1,3 +1,44 @@
+import Link from "next/link";
+
+const TOOL_MODULES = [
+  {
+    slug: "prompt-studio",
+    title: "Prompt Studio",
+    description: "Design prompts that stay on track and produce structured outputs.",
+    tag: "Beginner",
+  },
+  {
+    slug: "tool-chains",
+    title: "Tool Chains",
+    description: "Connect APIs, data sources, and memory to build richer agents.",
+    tag: "Builder",
+  },
+  {
+    slug: "safety-checks",
+    title: "Safety Checks",
+    description: "Learn red-teaming and guardrails for responsible AI workflows.",
+    tag: "Essential",
+  },
+  {
+    slug: "evaluation-lab",
+    title: "Evaluation Lab",
+    description: "Score outputs, catch regressions, and automate quality checks.",
+    tag: "Advanced",
+  },
+  {
+    slug: "deployment-runbook",
+    title: "Deployment Runbook",
+    description: "Ship your agents with monitoring, rollback, and alerting.",
+    tag: "Ops",
+  },
+  {
+    slug: "team-playbooks",
+    title: "Team Playbooks",
+    description: "Collaborate with squads and keep shared agent knowledge.",
+    tag: "Collab",
+  },
+];
+
 export default function ToolsPage() {
   return (
     <div className="relative min-h-screen overflow-hidden px-6 py-12">
@@ -24,38 +65,7 @@ export default function ToolsPage() {
         </header>
 
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {[
-            {
-              title: "Prompt Studio",
-              description: "Design prompts that stay on track and produce structured outputs.",
-              tag: "Beginner",
-            },
-            {
-              title: "Tool Chains",
-              description: "Connect APIs, data sources, and memory to build richer agents.",
-              tag: "Builder",
-            },
-            {
-              title: "Safety Checks",
-              description: "Learn red-teaming and guardrails for responsible AI workflows.",
-              tag: "Essential",
-            },
-            {
-              title: "Evaluation Lab",
-              description: "Score outputs, catch regressions, and automate quality checks.",
-              tag: "Advanced",
-            },
-            {
-              title: "Deployment Runbook",
-              description: "Ship your agents with monitoring, rollback, and alerting.",
-              tag: "Ops",
-            },
-            {
-              title: "Team Playbooks",
-              description: "Collaborate with squads and keep shared agent knowledge.",
-              tag: "Collab",
-            },
-          ].map((item) => (
+          {TOOL_MODULES.map((item) => (
             <article
               key={item.title}
               className="glass-card glass-card-hover flex h-full flex-col gap-4 rounded-2xl p-5"
@@ -67,9 +77,9 @@ export default function ToolsPage() {
                 <span className="tag">{item.tag}</span>
               </div>
               <p className="text-sm text-[var(--text-secondary)]">{item.description}</p>
-              <button className="btn-ghost mt-auto text-xs">
+              <Link href={`/tools/${item.slug}`} className="btn-ghost mt-auto text-xs">
                 Open Module
-              </button>
+              </Link>
             </article>
           ))}
         </section>

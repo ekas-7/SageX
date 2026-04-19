@@ -76,13 +76,11 @@ function ChartCard({
   subtitle,
   right,
   children,
-  height = 280,
 }: {
   title: string;
   subtitle?: string;
   right?: React.ReactNode;
   children: React.ReactNode;
-  height?: number;
 }) {
   return (
     <section className="glass-card rounded-2xl p-5">
@@ -95,9 +93,7 @@ function ChartCard({
         </div>
         {right}
       </div>
-      <div className="mt-4" style={{ width: "100%", height }}>
-        {children}
-      </div>
+      <div className="mt-4">{children}</div>
     </section>
   );
 }
@@ -259,7 +255,7 @@ export default function AnalyticsPage() {
               title="XP Awarded Over Time"
               subtitle={`Daily XP and event volume · last ${range} days`}
             >
-              <ResponsiveContainer>
+              <ResponsiveContainer width="100%" height={280} minWidth={0}>
                 <AreaChart
                   data={xpChartData}
                   margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
@@ -311,7 +307,7 @@ export default function AnalyticsPage() {
                 title="XP Sources"
                 subtitle="How players are earning XP"
               >
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height={280} minWidth={0}>
                   <PieChart>
                     <Pie
                       data={sourceChartData}
@@ -354,7 +350,7 @@ export default function AnalyticsPage() {
                 title="Level Distribution"
                 subtitle="Players grouped by level band"
               >
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height={280} minWidth={0}>
                   <BarChart
                     data={data.levelDistribution}
                     margin={{ top: 10, right: 10, left: 0, bottom: 0 }}

@@ -1,6 +1,7 @@
 import type { Difficulty, XpSource } from "../config/xp";
 
 export type XpEventRecord = {
+  playerId: string;
   playerName: string;
   source: XpSource;
   sourceRef?: string;
@@ -16,7 +17,8 @@ export type XpEventRecord = {
 };
 
 export type XpAwardInput = {
-  name: string;
+  playerId: string;
+  name?: string; // optional display-name fallback for first-time create
   source: XpSource;
   sourceRef?: string;
   difficulty?: Difficulty;
@@ -45,6 +47,7 @@ export type XpAwardResult = {
 };
 
 export type XpSummary = {
+  playerId: string;
   name: string;
   totalXp: number;
   level: number;

@@ -15,32 +15,41 @@ const diffInDays = (from: Date, to: Date) => {
 };
 
 /**
- * PlayerService — thin profile/stat operations.
- * XP awards go through XpOrchestrator, not here. This service still
- * owns profile upserts, streak rollover, and leaderboard shaping.
+ * PlayerService — profile operations keyed by stable playerId.
+ * Identity is now:
+ *   - playerId (UUID, required, unique) → true primary key
+ *   - name (display only, may be duplicated across players)
  */
 export const PlayerService = {
-  async getOrCreatePlayer(payload: {
+  /**
+   * Idempotent sign-in. Upserts the player by playerId, refreshes their
+   * profile fields, advances the daily streak, and returns the full profile.
+   */
+  async signIn(payload: {
+    playerId: string;
     name: string;
     avatar?: string;
     skill?: string;
     interests?: string[];
   }) {
-    let player = await PlayerRepository.findByName(payload.name);
-    if (!player) {
-      await PlayerRepository.create(payload);
-      player = await PlayerRepository.findByName(payload.name);
+    if (!payload.playerId) {
+      throw new Error("playerId is required");
     }
 
-    if (!player) {
-      throw new Error("Failed to load player");
-    }
+    // Atomic upsert so two onboarding calls can't race-duplicate a player.
+    const upserted = await PlayerRepository.upsertById({
+      playerId: payload.playerId,
+      name: payload.name,
+      avatar: payload.avatar,
+      skill: payload.skill,
+      interests: payload.interests,
+    });
 
     const now = new Date();
-    const lastStreakDate = player.stats?.lastStreakDate
-      ? new Date(player.stats.lastStreakDate)
+    const lastStreakDate = upserted.stats?.lastStreakDate
+      ? new Date(upserted.stats.lastStreakDate)
       : undefined;
-    let dailyStreak = player.stats?.dailyStreak ?? 1;
+    let dailyStreak = upserted.stats?.dailyStreak ?? 1;
 
     if (!lastStreakDate) {
       dailyStreak = 1;
@@ -53,33 +62,35 @@ export const PlayerService = {
       }
     }
 
-    const updatedPlayer = await PlayerRepository.updateByName(payload.name, {
-      avatar: payload.avatar ?? player.avatar,
-      skill: payload.skill ?? player.skill,
-      interests: payload.interests ?? player.interests,
-      stats: {
-        ...player.stats,
-        dailyStreak,
-        lastStreakDate: now,
-        lastActiveAt: now,
-      },
+    const patched = await PlayerRepository.patchStats(payload.playerId, {
+      dailyStreak,
+      lastStreakDate: now,
+      lastActiveAt: now,
     });
 
-    return (updatedPlayer ?? player) as PlayerProfile;
+    return (patched ?? upserted) as PlayerProfile;
   },
 
   /**
-   * Update challenge counters. XP is no longer awarded here — callers
-   * should invoke XpOrchestrator.award directly for typed XP flows.
-   * `deltaXp` is kept for legacy compatibility and routed through a
-   * manual-grant style patch that also updates level.
+   * Legacy helper: rehydrate by name only (used once when a legacy client
+   * has `sagex.player` but not `sagex.playerId`). Returns the first match
+   * or null. Callers must persist the returned playerId back to localStorage.
+   */
+  async rehydrateByName(name: string) {
+    const player = await PlayerRepository.findByName(name);
+    return player ?? null;
+  },
+
+  /**
+   * Legacy challenge-counter updates. XP flows should go through
+   * XpOrchestrator.award, not here.
    */
   async updateStats(payload: {
-    name: string;
+    playerId: string;
     deltaChallenges?: number;
     deltaXp?: number;
   }) {
-    const player = await PlayerRepository.findByName(payload.name);
+    const player = await PlayerRepository.findById(payload.playerId);
     if (!player) {
       throw new Error("Player not found");
     }
@@ -106,7 +117,10 @@ export const PlayerService = {
       statPatch.xpToNext = snap.xpToNext;
     }
 
-    const updated = await PlayerRepository.patchStats(payload.name, statPatch);
+    const updated = await PlayerRepository.patchStats(
+      payload.playerId,
+      statPatch
+    );
     return (updated ?? player) as PlayerProfile;
   },
 
@@ -120,6 +134,7 @@ export const PlayerService = {
       const totalXp = entry.stats?.totalXp ?? 0;
       const snap = XpService.levelSnapshot(totalXp);
       return {
+        playerId: entry.playerId,
         name: entry.name,
         avatar: entry.avatar,
         skill: entry.skill,

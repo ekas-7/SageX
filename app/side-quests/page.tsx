@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 import {
   ControlBar,
   GridLayout,
@@ -48,17 +49,11 @@ function SideQuestsRoom() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem("sagex.player");
+    const stored = readStoredPlayer();
     if (!stored) return;
-    try {
-      const payload = JSON.parse(stored) as { name?: string };
-      if (payload?.name) {
-        setIdentity(payload.name);
-      }
-    } catch (error) {
-      console.warn("Unable to parse stored player", error);
-    }
+    if (stored.name) setIdentity(stored.name);
+    // Background sign-in so the DB knows about this player.
+    void signInPlayer(stored);
   }, []);
 
   const inviteLink = useMemo(() => {

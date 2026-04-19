@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
 type StatsResponse = {
   player: {
@@ -59,6 +60,7 @@ type XpSummaryResponse = {
 };
 
 type PlayerProfile = {
+  playerId: string;
   name: string;
   avatar?: string;
   skill?: string;
@@ -99,16 +101,25 @@ export default function StatsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("sagex.player");
-    if (stored) {
-      setProfile(JSON.parse(stored) as PlayerProfile);
-    } else {
+    const stored = readStoredPlayer();
+    if (!stored) {
       setLoading(false);
+      return;
     }
+    // Ensure the backend has a record + the client has a playerId.
+    void signInPlayer(stored).then((next) => {
+      setProfile({
+        playerId: next.playerId,
+        name: next.name,
+        avatar: next.avatar,
+        skill: next.skill,
+        interests: next.interests,
+      });
+    });
   }, []);
 
   useEffect(() => {
-    if (!profile?.name) return;
+    if (!profile?.playerId) return;
     const controller = new AbortController();
 
     const load = async () => {
@@ -116,17 +127,14 @@ export default function StatsPage() {
         setLoading(true);
         setError(null);
         const params = new URLSearchParams({
-          name: profile.name,
-          avatar: profile.avatar ?? "",
-          skill: profile.skill ?? "",
-          interests: profile.interests?.join(",") ?? "",
+          playerId: profile.playerId,
         });
         const [statsRes, xpRes] = await Promise.all([
           fetch(`/api/stats?${params.toString()}`, {
             signal: controller.signal,
           }),
           fetch(
-            `/api/xp/summary?name=${encodeURIComponent(profile.name)}`,
+            `/api/xp/summary?playerId=${encodeURIComponent(profile.playerId)}`,
             { signal: controller.signal }
           ),
         ]);
