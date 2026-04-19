@@ -1,13 +1,10 @@
 "use client";
 
-import { Inter } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AvatarCard from "../../components/AvatarCard";
 import PreviewCard from "../../components/PreviewCard";
 import SkillToggle from "../../components/SkillToggle";
-
-const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
 const avatars = [
   {
@@ -78,9 +75,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div
-      className={`${inter.className} relative min-h-screen overflow-hidden bg-[#0e0e0e] text-slate-100`}
-    >
+    <div className="relative min-h-screen overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
       <div className="absolute inset-0 pointer-events-none">
         <video
           className="h-full w-full object-cover"
@@ -92,36 +87,35 @@ export default function OnboardingPage() {
           <source src="/assests/background/onboarding/hero.mp4" type="video/mp4" />
         </video>
       </div>
-      <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+      <div className="absolute inset-0 bg-black/45 pointer-events-none" />
       <div className="absolute inset-0 backdrop-blur-xs pointer-events-none" />
+
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-16 pt-14">
         <header className="flex flex-col gap-4">
-          <p className="text-xs uppercase tracking-[0.45em] text-slate-400">
-            Onboarding
-          </p>
-          <h1 className="text-3xl font-bold text-white md:text-5xl">
+          <p className="page-label">Onboarding</p>
+          <h1 className="page-title text-3xl md:text-5xl">
             Choose your space identity.
           </h1>
-          <p className="max-w-2xl text-base text-slate-400">
+          <p className="page-description max-w-2xl text-base">
             Your avatar and skill level shape the pace of missions. You can
             update this later inside the hub.
           </p>
         </header>
 
         <section className="grid gap-8 md:grid-cols-[3fr_2fr]">
-          <div className="flex flex-col gap-8 rounded-3xl border border-white/10 bg-black/40 p-6">
-            <label className="flex flex-col gap-2 text-sm text-slate-300">
-              Pilot Name
+          <div className="glass-card flex flex-col gap-8 rounded-2xl p-6">
+            <label className="flex flex-col gap-2 text-sm text-[var(--text-secondary)]">
+              <span className="font-display text-xs font-medium uppercase tracking-widest">Pilot Name</span>
               <input
                 value={pilotName}
                 onChange={(event) => setPilotName(event.target.value)}
                 placeholder="Enter your callsign"
-                className="h-12 rounded-2xl border border-white/10  px-4 text-white placeholder:text-slate-500"
+                className="h-12 rounded-xl border border-[var(--border-default)] bg-[var(--surface-1)] px-4 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition focus:border-[var(--border-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--sagex-accent)]/30"
               />
             </label>
 
             <div className="flex flex-col gap-4">
-              <p className="text-sm text-slate-300">Select Avatar</p>
+              <p className="font-display text-xs font-medium uppercase tracking-widest text-[var(--text-secondary)]">Select Avatar</p>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {avatars.map((option) => (
                   <AvatarCard
@@ -136,7 +130,7 @@ export default function OnboardingPage() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <p className="text-sm text-slate-300">Skill Level</p>
+              <p className="font-display text-xs font-medium uppercase tracking-widest text-[var(--text-secondary)]">Skill Level</p>
               <SkillToggle
                 options={skillLevels}
                 value={skillLevel}
@@ -145,7 +139,7 @@ export default function OnboardingPage() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <p className="text-sm text-slate-300">Interests</p>
+              <p className="font-display text-xs font-medium uppercase tracking-widest text-[var(--text-secondary)]">Interests</p>
               <div className="flex flex-wrap gap-2">
                 {interestOptions.map((option) => {
                   const selected = interests.includes(option.id);
@@ -160,10 +154,10 @@ export default function OnboardingPage() {
                             : [...current, option.id]
                         );
                       }}
-                      className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition ${
+                      className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] transition ${
                         selected
-                          ? "bg-[#00E5A0] text-slate-900"
-                          : "border border-white/10 bg-black/40 text-slate-200 hover:border-[#00E5A0]/60"
+                          ? "bg-[var(--sagex-accent)] text-[var(--surface-0)] shadow-[0_0_16px_var(--sagex-accent-glow)]"
+                          : "border border-[var(--border-default)] bg-[var(--surface-1)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
                       }`}
                     >
                       {option.label}
@@ -171,7 +165,7 @@ export default function OnboardingPage() {
                   );
                 })}
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[var(--text-muted)]">
                 Select one or more fields so SageX can tailor missions.
               </p>
             </div>

@@ -18,10 +18,10 @@ export default function SkillToggle({
             key={option}
             type="button"
             onClick={() => onChange(option)}
-            className={`rounded-full border px-4 py-2 text-sm transition ${
+            className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${
               selected
-                ? "border-white text-white"
-                : "border-white/20 text-slate-400 hover:border-white/50 hover:text-slate-200"
+                ? "border-[var(--border-accent)] bg-[var(--sagex-accent-muted)] text-[var(--sagex-accent)] shadow-[0_0_12px_var(--sagex-accent-glow)]"
+                : "border-[var(--border-default)] text-[var(--text-muted)] hover:border-[var(--border-hover)] hover:text-[var(--text-secondary)]"
             }`}
           >
             {option}

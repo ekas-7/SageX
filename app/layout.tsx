@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Orbitron, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import RemoveInjectedAttributes from './removeInjectedAttributes';
 import fs from 'fs';
@@ -17,24 +17,30 @@ try {
   faviconHref = faviconRel;
 }
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const orbitron = Orbitron({
+  variable: "--font-orbitron",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
-  title: "SageX Learn AI Through Play",
+  title: "SageX | Learn AI Through Play",
   description:
-    "A 2D RPG where players learn AI concepts through quests and challenges.",
+    "A 2D RPG where players learn AI concepts through quests and challenges in the SageX Space Academy.",
   icons: {
-    // favicon (.ico) served from public/assests/logo/main_logo.ico
     icon: faviconHref,
-    // provide a shortcut and apple touch icon fallback
     shortcut: faviconHref,
     apple: '/assests/logo/main_logo.png',
   },
@@ -48,17 +54,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-  className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${orbitron.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <head>
-        {/* explicit favicon links to ensure browsers pick it up */}
         <link rel="icon" href={faviconHref} />
         <link rel="shortcut icon" href={faviconHref} />
         <link rel="apple-touch-icon" href="/assests/logo/main_logo.png" />
       </head>
       <body
         {...{"cz-shortcut-listen": "true"}}
-        className="min-h-full flex flex-col bg-[#07090f] text-slate-100"
+        className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]"
       >
         <RemoveInjectedAttributes />
         {children}

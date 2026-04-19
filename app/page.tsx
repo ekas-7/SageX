@@ -1,14 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Space_Grotesk } from "next/font/google";
 import { useEffect, useMemo, useRef } from "react";
 import { gsap } from "gsap";
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -119,8 +113,9 @@ export default function Home() {
         </video>
       </div>
       <div className="home-video-overlay" aria-hidden="true" />
-  <main className="home-content relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col gap-12 px-6 pb-20 pt-16">
-        <section className="flex flex-col items-center gap-10 md:flex-row md:items-center">
+
+      <main className="home-content relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col gap-12 px-6 pb-20 pt-16">
+        <section className="flex flex-col items-center gap-12 md:flex-row md:items-center">
           <div className="flex w-full justify-center md:w-1/2 md:justify-start">
             <div ref={parallaxRef} className="home-parallax relative">
               <div className="home-glow" aria-hidden="true" />
@@ -134,13 +129,13 @@ export default function Home() {
               />
             </div>
           </div>
-          <header className="flex w-full flex-col gap-6 md:w-1/2">
-            <p className="home-reveal text-sm uppercase tracking-[0.4em] text-sagex-teal/80">
+
+          <header className="flex w-full flex-col gap-7 md:w-1/2">
+            <p className="home-reveal page-label">
               SageX Space Academy
             </p>
-            <h1
-              className={`${spaceGrotesk.className} home-reveal text-4xl font-semibold leading-tight text-white md:text-6xl`}
-            >
+
+            <h1 className="home-reveal font-display text-4xl font-semibold leading-tight text-white md:text-5xl lg:text-6xl">
               {headlineWords.map((word, index) => (
                 <span key={`${word}-${index}`} className="headline-word">
                   {word}
@@ -148,18 +143,17 @@ export default function Home() {
                 </span>
               ))}
             </h1>
-            <p className="home-reveal max-w-2xl text-lg text-slate-300">
+
+            <p className="home-reveal page-description max-w-2xl text-lg">
               Step into the AI City, complete quests generated from real AI
               concepts, and unlock abilities as your space core evolves.
             </p>
+
             <div className="home-reveal flex flex-col gap-4 sm:flex-row">
-              <a
-                href="/onboarding"
-                className="inline-flex h-12 items-center justify-center rounded-full bg-sagex-teal px-6 text-base font-semibold text-slate-900 shadow-lg shadow-sagex-teal/30 transition duration-300 hover:-translate-y-1 hover:shadow-sagex-teal/40"
-              >
+              <a href="/onboarding" className="btn-primary">
                 Start Journey
               </a>
-              <button className="inline-flex h-12 items-center justify-center rounded-full border border-white/15 px-6 text-base font-semibold text-white/80 transition duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/5 hover:text-white">
+              <button className="btn-ghost">
                 View Map Preview
               </button>
             </div>

@@ -206,7 +206,7 @@ export default function EthicsPage() {
   }, [hydrated, mapHeight, mapWidth, updateMovement]);
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[#07060f] text-slate-100">
+    <div className="relative min-h-screen w-full overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
       <div ref={mapRef} className="absolute inset-0">
         <div
           className="absolute inset-0"
@@ -270,8 +270,8 @@ export default function EthicsPage() {
             />
           )}
         </div>
-        <div className="absolute bottom-3 left-4 rounded-full bg-black/60 px-3 py-1 text-xs text-slate-200">
-          Arrow keys / WASD · Shift to run
+        <div className="glass-card absolute bottom-3 left-4 rounded-full px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)]">
+          Arrow keys / WASD &middot; Shift to run
         </div>
       </div>
 

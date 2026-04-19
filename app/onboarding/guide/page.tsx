@@ -1,11 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Inter } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-
-const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
 type GuideStep = {
   id: string;
@@ -45,9 +42,9 @@ const guideSteps: GuideStep[] = [
   {
     id: "support",
     title: "How SageX Helps You",
-    subtitle: "You’ll get guidance, feedback, and a clear path forward.",
+    subtitle: "You'll get guidance, feedback, and a clear path forward.",
     bullets: [
-      "Smart tips appear when you’re stuck or short on time.",
+      "Smart tips appear when you're stuck or short on time.",
       "Progress dashboards track skills, streaks, and mission rewards.",
       "Your hub recommends next quests based on your goals.",
     ],
@@ -65,9 +62,7 @@ export default function OnboardingGuidePage() {
   const isLast = stepIndex === guideSteps.length - 1;
 
   return (
-    <div
-      className={`${inter.className} relative min-h-screen overflow-hidden bg-[#0e0e0e] text-slate-100`}
-    >
+    <div className="relative min-h-screen overflow-hidden bg-[var(--background)]">
       <div className="absolute inset-0 pointer-events-none">
         <video
           className="h-full w-full object-cover"
@@ -84,36 +79,36 @@ export default function OnboardingGuidePage() {
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-between gap-10 px-6 pb-16 pt-14">
         <header className="flex flex-col gap-4">
-          <p className="text-xs uppercase tracking-[0.45em] text-slate-400">Guide</p>
-          <h1 className="text-3xl font-bold text-white md:text-5xl">
+          <p className="page-label">Guide</p>
+          <h1 className="page-title text-3xl md:text-5xl">
             {currentStep.title}
           </h1>
-          <p className="max-w-3xl text-base text-slate-300 md:text-lg">
+          <p className="page-description max-w-3xl text-base md:text-lg">
             {currentStep.subtitle}
           </p>
         </header>
 
-        <section className="grid gap-8 rounded-3xl border border-white/10 bg-black/45 p-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)] md:p-10">
-          <div className="relative aspect-[4/3] w-full max-w-md overflow-hidden rounded-3xl md:mx-auto">
+        <section className="glass-card grid gap-8 rounded-2xl p-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)] md:p-10">
+          <div className="relative aspect-[4/3] w-full max-w-md overflow-hidden rounded-2xl md:mx-auto">
             <Image
               src={currentStep.imageSrc}
               alt={currentStep.title}
               fill
               sizes="(min-width: 768px) 45vw, 100vw"
-              className="object-cover animate-flot"
+              className="object-cover animate-float"
               priority
             />
           </div>
           <div className="flex flex-col justify-center">
             <ul className="grid gap-4">
               {currentStep.bullets.map((item) => (
-                <li key={item} className="flex items-start gap-3 text-sm text-slate-200">
-                  <span className="mt-1 h-2 w-2 rounded-full bg-[#00E5A0]" />
+                <li key={item} className="flex items-start gap-3 text-sm text-[var(--text-secondary)]">
+                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[var(--sagex-accent)]" />
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
-            <p className="mt-6 text-sm text-slate-400">{currentStep.helper}</p>
+            <p className="mt-6 text-sm text-[var(--text-muted)]">{currentStep.helper}</p>
           </div>
         </section>
 
@@ -122,8 +117,10 @@ export default function OnboardingGuidePage() {
             {guideSteps.map((step, index) => (
               <span
                 key={step.id}
-                className={`h-2 w-10 rounded-full transition ${
-                  index === stepIndex ? "bg-[#00E5A0]" : "bg-white/10"
+                className={`h-1.5 w-10 rounded-full transition-all duration-500 ${
+                  index === stepIndex
+                    ? "bg-[var(--sagex-accent)] shadow-[0_0_8px_var(--sagex-accent-glow)]"
+                    : "bg-white/8"
                 }`}
               />
             ))}
@@ -134,7 +131,7 @@ export default function OnboardingGuidePage() {
               <button
                 type="button"
                 onClick={() => router.push("/onboarding")}
-                className="rounded-full border border-white/10 px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-200 hover:border-[#00E5A0]/60"
+                className="btn-ghost text-xs"
               >
                 Back to Setup
               </button>
@@ -142,7 +139,7 @@ export default function OnboardingGuidePage() {
                 <button
                   type="button"
                   onClick={() => setStepIndex((prev) => Math.max(0, prev - 1))}
-                  className="rounded-full border border-white/10 px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-200 hover:border-[#00E5A0]/60"
+                  className="btn-ghost text-xs"
                 >
                   Previous
                 </button>
@@ -153,7 +150,7 @@ export default function OnboardingGuidePage() {
               <button
                 type="button"
                 onClick={() => router.push("/map")}
-                className="rounded-full border border-white/10 px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-200 hover:border-[#00E5A0]/60"
+                className="btn-ghost text-xs"
               >
                 Skip
               </button>
@@ -166,7 +163,7 @@ export default function OnboardingGuidePage() {
                     setStepIndex((prev) => Math.min(guideSteps.length - 1, prev + 1));
                   }
                 }}
-                className="rounded-full bg-[#00E5A0] px-6 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-900"
+                className="btn-primary text-xs"
               >
                 {isLast ? "Launch" : "Next"}
               </button>
@@ -174,21 +171,6 @@ export default function OnboardingGuidePage() {
           </div>
         </footer>
       </div>
-      <style jsx>{`
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-10px);
-          }
-        }
-
-        :global(.animate-float) {
-          animation: float 6s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 }

@@ -22,14 +22,16 @@ export default function AvatarCard({
           onSelect();
         }
       }}
-      className={`flex cursor-pointer flex-col items-center gap-5 rounded-[32px] border px-6 py-8 text-center transition ${
+      className={`flex cursor-pointer flex-col items-center gap-5 rounded-2xl border px-5 py-6 text-center transition-all duration-300 ${
         selected
-          ? "border-white bg-white/5"
-          : "border-white/10 bg-black/40"
+          ? "border-[var(--border-accent)] bg-[var(--sagex-accent-muted)] shadow-[0_0_24px_var(--sagex-accent-glow)]"
+          : "border-[var(--border-default)] bg-[var(--surface-1)] hover:border-[var(--border-hover)] hover:bg-[var(--surface-2)]"
       }`}
     >
-      <div className="text-sm font-semibold text-white">{name}</div>
-      <div className="flex h-28 w-28 items-center justify-center rounded-3xl border border-white/10 bg-black/30">
+      <div className="font-display text-xs font-semibold uppercase tracking-wider text-[var(--text-primary)]">
+        {name}
+      </div>
+      <div className="flex h-28 w-28 items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-0)]/60">
         <img
           src={imageSrc}
           alt={`${name} avatar`}
@@ -39,10 +41,10 @@ export default function AvatarCard({
       <button
         type="button"
         onClick={onSelect}
-        className={`h-10 w-full rounded-full border text-sm font-semibold transition ${
+        className={`h-9 w-full rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
           selected
-            ? "border-[#00E5A0] bg-[#00E5A0] text-slate-900"
-            : "border-white/10 bg-black/40 text-slate-200 hover:border-[#00E5A0]/60"
+            ? "bg-[var(--sagex-accent)] text-[var(--surface-0)] shadow-[0_0_12px_var(--sagex-accent-glow)]"
+            : "border border-[var(--border-default)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
         }`}
       >
         {selected ? "Selected" : "Choose"}

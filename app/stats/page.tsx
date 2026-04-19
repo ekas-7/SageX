@@ -112,30 +112,30 @@ export default function StatsPage() {
   }, [stats]);
 
   return (
-    <div className="min-h-screen bg-slate-950 px-6 py-12 text-slate-100">
+    <div className="min-h-screen px-6 py-12">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
         <header className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.4em] text-slate-500">SageX Insights</p>
-          <h1 className="text-3xl font-semibold">Your Stats</h1>
-          <p className="text-sm text-slate-400">
+          <p className="page-label">SageX Insights</p>
+          <h1 className="page-title text-3xl">Your Stats</h1>
+          <p className="page-description text-sm">
             Track daily streaks, completed challenges, and your ranking across the SageX universe.
           </p>
         </header>
 
         {!profile && !loading && (
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 text-sm text-slate-300">
+          <div className="glass-card rounded-2xl p-6 text-sm text-[var(--text-secondary)]">
             Set up your profile on the onboarding screen to start tracking stats.
           </div>
         )}
 
         {error && (
-          <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-6 text-sm text-rose-200">
+          <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-6 text-sm text-rose-300">
             {error}
           </div>
         )}
 
         {loading && (
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 text-sm text-slate-300">
+          <div className="glass-card rounded-2xl p-6 text-sm text-[var(--text-secondary)]">
             Loading your stats...
           </div>
         )}
@@ -146,42 +146,46 @@ export default function StatsPage() {
               {cards.map((card) => (
                 <div
                   key={card.label}
-                  className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 shadow-[0_12px_30px_rgba(0,0,0,0.35)]"
+                  className="glass-card glass-card-hover rounded-2xl p-5"
                 >
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{card.label}</p>
-                  <p className="mt-3 text-2xl font-semibold text-white">{card.value}</p>
-                  <p className="mt-2 text-xs text-slate-400">{card.helper}</p>
+                  <p className="section-label">{card.label}</p>
+                  <p className="mt-3 font-display text-2xl font-semibold text-[var(--text-primary)]">
+                    {card.value}
+                  </p>
+                  <p className="mt-2 text-xs text-[var(--text-muted)]">{card.helper}</p>
                 </div>
               ))}
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+            <section className="glass-card rounded-2xl p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Leaderboard</p>
-                  <h2 className="mt-2 text-xl font-semibold text-white">Top SageX Explorers</h2>
+                  <p className="section-label">Leaderboard</p>
+                  <h2 className="mt-2 font-display text-lg font-semibold text-[var(--text-primary)]">
+                    Top SageX Explorers
+                  </h2>
                 </div>
-                <span className="rounded-full bg-slate-800/80 px-3 py-1 text-xs uppercase tracking-[0.3em] text-slate-300">
-                  You are #{stats.player.rank}
-                </span>
+                <span className="tag-accent">You are #{stats.player.rank}</span>
               </div>
               <div className="mt-6 grid gap-3">
                 {stats.leaderboard.map((entry) => (
                   <div
                     key={entry.name}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800/80 bg-slate-900/60 px-4 py-3"
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-1)] px-4 py-3 transition hover:border-[var(--border-hover)]"
                   >
                     <div>
-                      <p className="text-sm font-semibold text-white">
+                      <p className="text-sm font-semibold text-[var(--text-primary)]">
                         #{entry.rank} {entry.name}
                       </p>
-                      <p className="text-xs text-slate-400">
-                        {entry.skill ?? "Explorer"} · {entry.dailyStreak} day streak
+                      <p className="text-xs text-[var(--text-muted)]">
+                        {entry.skill ?? "Explorer"} &middot; {entry.dailyStreak} day streak
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-sagex-teal">{entry.totalXp} XP</p>
-                      <p className="text-xs text-slate-400">
+                      <p className="font-display text-sm font-semibold text-[var(--sagex-accent)]">
+                        {entry.totalXp} XP
+                      </p>
+                      <p className="text-xs text-[var(--text-muted)]">
                         {entry.challengesCompleted} challenges
                       </p>
                     </div>
@@ -192,9 +196,7 @@ export default function StatsPage() {
           </>
         )}
 
-        <a href="/map" className="text-sm text-sagex-teal">
-          Back to map
-        </a>
+        <a href="/map" className="back-link">Back to map</a>
       </div>
     </div>
   );

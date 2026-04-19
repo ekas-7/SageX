@@ -69,21 +69,19 @@ export default function HubPage() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-10 px-6 pb-16 pt-12">
       <header className="flex flex-col gap-4">
-        <p className="text-xs uppercase tracking-[0.35em] text-sagex-teal/70">
-          AI City Hub
-        </p>
-        <h1 className="text-3xl font-semibold text-white md:text-5xl">
+        <p className="page-label">AI City Hub</p>
+        <h1 className="page-title text-3xl md:text-5xl">
           {hydrated ? greeting : "Welcome, Explorer"}
         </h1>
-        <p className="max-w-2xl text-base text-slate-300">
+        <p className="page-description max-w-2xl text-base">
           Your NPC guide highlights key buildings. Choose where to explore next
           and keep upgrading your Space Core.
         </p>
       </header>
 
-      <section className="flex flex-wrap items-center gap-4 rounded-3xl border border-white/10 bg-white/5 p-6">
-        <div className="flex items-center gap-3">
-          <span className="relative h-12 w-12 overflow-hidden rounded-xl border border-white/10">
+      <section className="glass-card flex flex-wrap items-center gap-4 rounded-2xl p-6">
+        <div className="flex items-center gap-4">
+          <span className="relative h-14 w-14 overflow-hidden rounded-xl border border-[var(--border-default)] bg-[var(--surface-2)]">
             <Image
               src={avatarSrc}
               alt={
@@ -94,22 +92,22 @@ export default function HubPage() {
                   : "Player avatar"
               }
               fill
-              sizes="48px"
+              sizes="56px"
               className="object-cover"
             />
           </span>
           <div>
-            <p className="text-base font-semibold text-white">
+            <p className="text-base font-semibold text-[var(--text-primary)]">
               {hydrated ? profile?.name ?? "Unnamed Pilot" : "Loading..."}
             </p>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--text-muted)]">
               Skill: {hydrated ? profile?.skill ?? "--" : "--"}
             </p>
           </div>
         </div>
         <div className="ml-auto flex flex-col gap-1 text-right">
-          <span className="text-sm text-slate-300">Space Core Status</span>
-          <span className="text-base font-semibold text-white">
+          <span className="section-label">Space Core Status</span>
+          <span className="mt-1 font-display text-sm font-semibold text-[var(--text-primary)]">
             {hydrated
               ? questCompleted
                 ? "Core Ignited"
@@ -123,26 +121,25 @@ export default function HubPage() {
         {buildings.map((building) => (
           <div
             key={building.title}
-            className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-slate-950/70 p-6"
+            className={`glass-card glass-card-hover flex flex-col gap-4 rounded-2xl p-6 ${
+              building.active ? "" : "opacity-70"
+            }`}
           >
             <div>
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="font-display text-lg font-semibold text-[var(--text-primary)]">
                 {building.title}
               </h2>
-              <p className="mt-2 text-sm text-slate-400">
+              <p className="mt-2 text-sm text-[var(--text-secondary)]">
                 {building.description}
               </p>
             </div>
             {building.active ? (
-              <a
-                href={building.href}
-                className="mt-auto inline-flex h-11 items-center justify-center rounded-full bg-sagex-teal text-sm font-semibold text-slate-900"
-              >
+              <a href={building.href} className="btn-primary mt-auto text-sm">
                 Enter
               </a>
             ) : (
-              <div className="mt-auto inline-flex h-11 items-center justify-center rounded-full border border-white/10 text-sm text-slate-500">
-                Locked Coming soon
+              <div className="mt-auto flex h-[2.875rem] items-center justify-center rounded-full border border-[var(--border-subtle)] text-sm text-[var(--text-muted)]">
+                Locked -- Coming soon
               </div>
             )}
           </div>

@@ -1,11 +1,11 @@
 export default function ToolsPage() {
   return (
-    <div className="min-h-screen bg-slate-950 px-6 py-12 text-slate-100">
+    <div className="min-h-screen px-6 py-12">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
         <header className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.4em] text-slate-500">Learn Tools</p>
-          <h1 className="text-3xl font-semibold">AI Tools Workshop</h1>
-          <p className="text-sm text-slate-400">
+          <p className="page-label">Learn Tools</p>
+          <h1 className="page-title text-3xl">AI Tools Workshop</h1>
+          <p className="page-description text-sm">
             Master the tools that power SageX agents. Explore prompt crafting, workflows, and safe deployment.
           </p>
         </header>
@@ -45,40 +45,38 @@ export default function ToolsPage() {
           ].map((item) => (
             <article
               key={item.title}
-              className="flex h-full flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5"
+              className="glass-card glass-card-hover flex h-full flex-col gap-4 rounded-2xl p-5"
             >
               <div className="flex items-start justify-between gap-4">
-                <h2 className="text-lg font-semibold text-white">{item.title}</h2>
-                <span className="rounded-full border border-slate-700 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-slate-400">
-                  {item.tag}
-                </span>
+                <h2 className="font-display text-base font-semibold text-[var(--text-primary)]">
+                  {item.title}
+                </h2>
+                <span className="tag">{item.tag}</span>
               </div>
-              <p className="text-sm text-slate-300">{item.description}</p>
-              <button className="mt-auto rounded-full bg-slate-800/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-200">
+              <p className="text-sm text-[var(--text-secondary)]">{item.description}</p>
+              <button className="btn-ghost mt-auto text-xs">
                 Open Module
               </button>
             </article>
           ))}
         </section>
 
-        <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+        <section className="glass-card rounded-2xl p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Next Mission</p>
-              <h2 className="mt-2 text-xl font-semibold text-white">Build your first tool-powered agent</h2>
-              <p className="mt-2 text-sm text-slate-400">
+              <p className="section-label">Next Mission</p>
+              <h2 className="mt-2 font-display text-lg font-semibold text-[var(--text-primary)]">
+                Build your first tool-powered agent
+              </h2>
+              <p className="mt-2 text-sm text-[var(--text-secondary)]">
                 Follow the guided checklist to connect a knowledge base, add safety filters, and test end-to-end.
               </p>
             </div>
-            <button className="rounded-full bg-sagex-teal px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-950">
-              Start Mission
-            </button>
+            <button className="btn-primary text-xs">Start Mission</button>
           </div>
         </section>
 
-        <a href="/map" className="text-sm text-sagex-teal">
-          Back to map
-        </a>
+        <a href="/map" className="back-link">Back to map</a>
       </div>
     </div>
   );
