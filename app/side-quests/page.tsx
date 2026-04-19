@@ -24,12 +24,7 @@ function CallGrid() {
 
   return (
     <GridLayout tracks={tracks} className="h-[420px]">
-      {tracks.map((track) => (
-        <ParticipantTile
-          key={`${track.participant.identity}-${track.source}`}
-          trackRef={track}
-        />
-      ))}
+      <ParticipantTile />
     </GridLayout>
   );
 }

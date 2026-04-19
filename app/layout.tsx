@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Orbitron, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import "@livekit/components-styles";
 import RemoveInjectedAttributes from './removeInjectedAttributes';
+import EscapeToMap from './EscapeToMap';
 import fs from 'fs';
 import path from 'path';
 
@@ -66,6 +68,7 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]"
       >
         <RemoveInjectedAttributes />
+        <EscapeToMap />
         {children}
       </body>
     </html>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ethicsData from "../../src/data/ethicsScenarios.json";
 
 /* ─── Types ─── */
@@ -142,6 +142,19 @@ export default function EthicsPage() {
   const toggleCategory = (id: string) => setOpenCategories((prev) => ({ ...prev, [id]: !prev[id] }));
   const openScenario = (scenario: Scenario) => { setActiveScenario(scenario); setSelectedChoice(null); setSubmitted(false); };
   const closeScenario = () => { setActiveScenario(null); setSelectedChoice(null); setSubmitted(false); };
+
+  // Close modal on Escape and stop the global Escape-to-map handler from firing.
+  useEffect(() => {
+    if (!activeScenario) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      closeScenario();
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [activeScenario]);
 
   const handleSubmit = () => {
     if (!activeScenario || !selectedChoice) return;
@@ -394,7 +407,12 @@ export default function EthicsPage() {
           SCENARIO MODAL
           ════════════════════════════════════════════ */}
       {activeScenario && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          data-modal-open="true"
+        >
           <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" onClick={closeScenario} />
           <div className="relative z-10 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--surface-1)] shadow-2xl shadow-black/40">
             {/* Header */}
