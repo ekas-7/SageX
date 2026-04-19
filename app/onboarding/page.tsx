@@ -36,17 +36,30 @@ const avatars = [
   },
 ];
 const skillLevels = ["Beginner", "Builder", "Competitive"] as const;
+const interestOptions = [
+  { id: "product", label: "Product & UX" },
+  { id: "education", label: "Education" },
+  { id: "healthcare", label: "Healthcare" },
+  { id: "finance", label: "Finance" },
+  { id: "marketing", label: "Marketing" },
+  { id: "engineering", label: "Engineering" },
+] as const;
 
 type SkillLevel = (typeof skillLevels)[number];
 type AvatarId = (typeof avatars)[number]["id"];
+type InterestId = (typeof interestOptions)[number]["id"];
 
 export default function OnboardingPage() {
   const router = useRouter();
   const [pilotName, setPilotName] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState<AvatarId>("orion");
   const [skillLevel, setSkillLevel] = useState<SkillLevel>("Beginner");
+  const [interests, setInterests] = useState<InterestId[]>(["product"]);
   const activeAvatar = avatars.find((avatar) => avatar.id === selectedAvatar) ??
     avatars[0];
+  const selectedInterestLabels = interestOptions
+    .filter((option) => interests.includes(option.id))
+    .map((option) => option.label);
 
   const handleEnter = () => {
     if (typeof window !== "undefined") {
@@ -55,6 +68,7 @@ export default function OnboardingPage() {
         avatar: activeAvatar.src,
         avatarName: activeAvatar.name,
         skill: skillLevel,
+        interests,
         createdAt: new Date().toISOString(),
       };
       localStorage.setItem("sagex.player", JSON.stringify(payload));
@@ -129,6 +143,38 @@ export default function OnboardingPage() {
                 onChange={(value) => setSkillLevel(value as SkillLevel)}
               />
             </div>
+
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-slate-300">Interests</p>
+              <div className="flex flex-wrap gap-2">
+                {interestOptions.map((option) => {
+                  const selected = interests.includes(option.id);
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => {
+                        setInterests((current) =>
+                          current.includes(option.id)
+                            ? current.filter((item) => item !== option.id)
+                            : [...current, option.id]
+                        );
+                      }}
+                      className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition ${
+                        selected
+                          ? "bg-[#00E5A0] text-slate-900"
+                          : "border border-white/10 bg-black/40 text-slate-200 hover:border-[#00E5A0]/60"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-slate-500">
+                Select one or more fields so SageX can tailor missions.
+              </p>
+            </div>
           </div>
 
           <PreviewCard
@@ -137,6 +183,7 @@ export default function OnboardingPage() {
             avatarSrc={activeAvatar.src}
             avatarDescription={activeAvatar.desc}
             skillLevel={skillLevel}
+            interests={selectedInterestLabels}
             onEnter={handleEnter}
           />
         </section>

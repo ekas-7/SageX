@@ -4,6 +4,7 @@ type PreviewCardProps = {
   avatarSrc: string;
   avatarDescription: string;
   skillLevel: string;
+  interests?: string[];
   onEnter: () => void;
 };
 
@@ -13,6 +14,7 @@ export default function PreviewCard({
   avatarSrc,
   avatarDescription,
   skillLevel,
+  interests,
   onEnter,
 }: PreviewCardProps) {
   return (
@@ -31,6 +33,11 @@ export default function PreviewCard({
         </div>
       </div>
       <p className="text-sm text-slate-400">Skill: {skillLevel}</p>
+      {interests && interests.length > 0 && (
+        <p className="text-xs text-slate-500">
+          Interests: {interests.join(", ")}
+        </p>
+      )}
       <button
         onClick={onEnter}
         className="mt-auto h-12 rounded-full bg-[#00E5A0] text-base font-semibold text-slate-900 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#00E5A0]/40"

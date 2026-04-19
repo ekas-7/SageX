@@ -6,14 +6,26 @@ export const PlayerController = {
   const name = searchParams.get("name");
   const avatarValue = searchParams.get("avatar");
   const skillValue = searchParams.get("skill");
+    const interestsValue = searchParams.get("interests");
   const avatar = avatarValue && avatarValue.length > 0 ? avatarValue : undefined;
   const skill = skillValue && skillValue.length > 0 ? skillValue : undefined;
+    const interests = interestsValue
+      ? interestsValue
+          .split(",")
+          .map((value) => value.trim())
+          .filter(Boolean)
+      : undefined;
 
     if (!name) {
       throw new Error("Player name is required");
     }
 
-    const player = await PlayerService.getOrCreatePlayer({ name, avatar, skill });
+    const player = await PlayerService.getOrCreatePlayer({
+      name,
+      avatar,
+      skill,
+      interests,
+    });
     const { leaderboard, rank } = await PlayerService.getLeaderboard(player);
 
     return {

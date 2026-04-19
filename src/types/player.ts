@@ -11,6 +11,7 @@ export type PlayerProfile = {
   name: string;
   avatar?: string;
   skill?: string;
+  interests?: string[];
   stats: PlayerStats;
   createdAt?: string;
   updatedAt?: string;

@@ -18,6 +18,7 @@ export const PlayerService = {
     name: string;
     avatar?: string;
     skill?: string;
+    interests?: string[];
   }) {
     let player = await PlayerRepository.findByName(payload.name);
     if (!player) {
@@ -49,6 +50,7 @@ export const PlayerService = {
     const updatedPlayer = await PlayerRepository.updateByName(payload.name, {
       avatar: payload.avatar ?? player.avatar,
       skill: payload.skill ?? player.skill,
+      interests: payload.interests ?? player.interests,
       stats: {
         ...player.stats,
         dailyStreak,

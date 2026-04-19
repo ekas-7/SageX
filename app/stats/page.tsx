@@ -31,6 +31,7 @@ type PlayerProfile = {
   name: string;
   avatar?: string;
   skill?: string;
+  interests?: string[];
 };
 
 export default function StatsPage() {
@@ -60,6 +61,7 @@ export default function StatsPage() {
           name: profile.name,
           avatar: profile.avatar ?? "",
           skill: profile.skill ?? "",
+          interests: profile.interests?.join(",") ?? "",
         });
         const response = await fetch(`/api/stats?${params.toString()}`, {
           signal: controller.signal,

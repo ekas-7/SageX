@@ -17,6 +17,7 @@ const PlayerSchema = new Schema(
     name: { type: String, required: true, unique: true, index: true },
     avatar: { type: String },
     skill: { type: String },
+    interests: { type: [String], default: [] },
     stats: { type: PlayerStatsSchema, default: () => ({}) },
   },
   { timestamps: true }

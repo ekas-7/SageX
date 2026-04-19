@@ -1,0 +1,92 @@
+{
+  "product": {
+    "label": "Product & UX",
+    "hero": "Design AI-powered product experiences",
+    "focus": [
+      "User research synthesis",
+      "AI-assisted prototyping",
+      "Personalization strategies"
+    ],
+    "projects": [
+      "Prototype a smart onboarding flow",
+      "Create a feedback loop with AI summaries",
+      "Design a feature prioritization assistant"
+    ],
+    "tools": ["Journey mapping", "Prompt libraries", "Experiment dashboards"]
+  },
+  "education": {
+    "label": "Education",
+    "hero": "Teach with AI in the classroom",
+    "focus": [
+      "Lesson plan generation",
+      "Adaptive learning paths",
+      "Student feedback automation"
+    ],
+    "projects": [
+      "Build a personalized tutoring agent",
+      "Create classroom recap summaries",
+      "Design a quiz generator for topics"
+    ],
+    "tools": ["Rubric builders", "Knowledge maps", "Learning analytics"]
+  },
+  "healthcare": {
+    "label": "Healthcare",
+    "hero": "Support patient journeys with AI",
+    "focus": [
+      "Care plan summarization",
+      "Patient intake assistance",
+      "Clinical documentation support"
+    ],
+    "projects": [
+      "Design a patient FAQ agent",
+      "Automate appointment follow-ups",
+      "Create a clinical note organizer"
+    ],
+    "tools": ["HIPAA-safe prompts", "Data redaction", "Workflow checklists"]
+  },
+  "finance": {
+    "label": "Finance",
+    "hero": "Deploy AI for smarter money workflows",
+    "focus": [
+      "Portfolio insights",
+      "Risk detection",
+      "Customer support workflows"
+    ],
+    "projects": [
+      "Build a budgeting assistant",
+      "Summarize market signals",
+      "Create a compliance checklist agent"
+    ],
+    "tools": ["Alerting bots", "Scenario planning", "Regulatory checklists"]
+  },
+  "marketing": {
+    "label": "Marketing",
+    "hero": "Power campaigns with AI",
+    "focus": [
+      "Audience segmentation",
+      "Content ideation",
+      "Campaign analytics"
+    ],
+    "projects": [
+      "Launch an AI content studio",
+      "Create a campaign brief assistant",
+      "Build a social listening agent"
+    ],
+    "tools": ["Prompt swarms", "Brand voice guides", "A/B testing"]
+  },
+  "engineering": {
+    "label": "Engineering",
+    "hero": "Ship AI-enabled products",
+    "focus": [
+      "Code assistants",
+      "System observability",
+      "Automated QA"
+    ],
+    "projects": [
+      "Build a bug triage assistant",
+      "Create a release notes generator",
+      "Design an incident response bot"
+    ],
+    "tools": ["Code review copilots", "Runbooks", "Monitoring dashboards"]
+  }
+}
