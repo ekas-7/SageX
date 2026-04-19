@@ -49,6 +49,17 @@ export default function OnboardingPage() {
     avatars[0];
 
   const handleEnter = () => {
+    if (typeof window !== "undefined") {
+      const payload = {
+        name: pilotName.trim() || "Unnamed Pilot",
+        avatar: activeAvatar.src,
+        avatarName: activeAvatar.name,
+        skill: skillLevel,
+        createdAt: new Date().toISOString(),
+      };
+      localStorage.setItem("sagex.player", JSON.stringify(payload));
+      localStorage.setItem("sagex.firstQuestCompleted", "false");
+    }
     router.push("/map");
   };
 
