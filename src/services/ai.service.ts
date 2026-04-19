@@ -34,7 +34,53 @@ function extractJson(raw: string | null | undefined): unknown {
   }
 }
 
+const OPENCODE_SYSTEM_PROMPT = `You are OpenCode, the in-game advisor inside SageX \u2014 a 2D RPG that teaches players how to build AI agents.
+- You speak like a calm, direct senior engineer. Concise. Zero fluff. No emojis.
+- You help with: prompt engineering, agent design, tool chains, evals, safety, deployment, and SageX arena problems.
+- When a player shares context (level, current quest, code, prompt), use it. Otherwise, ask one short clarifying question.
+- Keep answers under 120 words unless the player explicitly asks for depth.
+- If asked something outside agents / SageX, politely redirect.`;
+
 export const AiService = {
+  /**
+   * OpenCode advisor. Cheap single-turn call that returns terse guidance.
+   */
+  async opencodeAdvise(args: {
+    query: string;
+    context?: {
+      playerName?: string;
+      level?: number;
+      rank?: string;
+      focus?: string;
+    };
+  }) {
+    if (!client) return null;
+
+    const contextLine = args.context
+      ? `Player context: ${[
+          args.context.playerName && `name=${args.context.playerName}`,
+          args.context.level !== undefined && `level=${args.context.level}`,
+          args.context.rank && `rank=${args.context.rank}`,
+          args.context.focus && `focus=${args.context.focus}`,
+        ]
+          .filter(Boolean)
+          .join(" ")}`
+      : "";
+
+    const response = await client.chat.completions.create({
+      model: env.groqModel,
+      messages: [
+        { role: "system", content: OPENCODE_SYSTEM_PROMPT },
+        ...(contextLine ? [{ role: "system" as const, content: contextLine }] : []),
+        { role: "user", content: args.query },
+      ],
+      temperature: 0.4,
+      max_tokens: 400,
+    });
+
+    return response.choices[0]?.message?.content?.trim() ?? null;
+  },
+
   async generateQuest(template: QuestTemplate, seed: number) {
     if (!client) return null;
 

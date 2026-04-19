@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getModuleBySlug, type ToolModule } from "@/src/data/toolsModules";
 import {
   readModuleProgress,
   resetModuleProgress,
+  subscribeToProgress,
   toggleStep,
   type ModuleProgress,
 } from "@/src/lib/toolsProgress";
@@ -20,17 +21,13 @@ export default function ToolsModulePage() {
     [slug]
   );
 
-  const [progress, setProgress] = useState<ModuleProgress>({
-    completedSteps: [],
-  });
-  const [hydrated, setHydrated] = useState(false);
+  const progress = useSyncExternalStore<ModuleProgress>(
+    subscribeToProgress,
+    () => (slug ? readModuleProgress(slug) : { completedSteps: [] }),
+    () => ({ completedSteps: [] })
+  );
+  const hydrated = typeof window !== "undefined" && !!slug;
   const [justCompleted, setJustCompleted] = useState(false);
-
-  useEffect(() => {
-    if (!moduleData) return;
-    setProgress(readModuleProgress(moduleData.slug));
-    setHydrated(true);
-  }, [moduleData]);
 
   const totalSteps = moduleData?.steps.length ?? 0;
   const completedSet = useMemo(
@@ -48,7 +45,6 @@ export default function ToolsModulePage() {
     if (!moduleData) return;
     const wasComplete = isComplete;
     const next = toggleStep(moduleData.slug, stepId, totalSteps);
-    setProgress(next);
     const nowComplete =
       moduleData.steps.filter((s) => next.completedSteps.includes(s.id))
         .length === totalSteps;
@@ -60,7 +56,7 @@ export default function ToolsModulePage() {
 
   const handleReset = () => {
     if (!moduleData) return;
-    setProgress(resetModuleProgress(moduleData.slug));
+    resetModuleProgress(moduleData.slug);
     setJustCompleted(false);
   };
 

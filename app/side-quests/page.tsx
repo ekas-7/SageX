@@ -12,8 +12,43 @@ import {
   useTracks,
 } from "@livekit/components-react";
 import { Track } from "livekit-client";
+import Terminal from "../../components/Terminal";
 
 const DEFAULT_ROOM = "sagex-side-quests";
+
+function SideQuestsGrid({
+  token,
+  livekitUrl,
+  onError,
+  onDisconnected,
+  children,
+}: {
+  token: string | null;
+  livekitUrl: string;
+  onError: (err: Error) => void;
+  onDisconnected: () => void;
+  children: React.ReactNode;
+}) {
+  const layout = "grid gap-6 lg:grid-cols-[1.7fr_1fr]";
+  if (!token) {
+    return <div className={layout}>{children}</div>;
+  }
+  return (
+    <LiveKitRoom
+      token={token}
+      serverUrl={livekitUrl}
+      connect
+      video
+      audio
+      data-lk-theme="default"
+      className={layout}
+      onError={onError}
+      onDisconnected={onDisconnected}
+    >
+      {children}
+    </LiveKitRoom>
+  );
+}
 
 function CallGrid() {
   const tracks = useTracks([
@@ -34,6 +69,7 @@ function SideQuestsRoom() {
   const searchParams = useSearchParams();
   const [roomName, setRoomName] = useState(DEFAULT_ROOM);
   const [identity, setIdentity] = useState("Pilot");
+  const [playerId, setPlayerId] = useState<string | undefined>(undefined);
   const [token, setToken] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "connecting" | "connected">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -52,8 +88,12 @@ function SideQuestsRoom() {
     const stored = readStoredPlayer();
     if (!stored) return;
     if (stored.name) setIdentity(stored.name);
+    if (stored.playerId) setPlayerId(stored.playerId);
     // Background sign-in so the DB knows about this player.
-    void signInPlayer(stored);
+    void signInPlayer(stored).then((next) => {
+      setIdentity(next.name);
+      setPlayerId(next.playerId);
+    });
   }, []);
 
   const inviteLink = useMemo(() => {
@@ -159,7 +199,19 @@ function SideQuestsRoom() {
           </div>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-[1.7fr_1fr]">
+        <SideQuestsGrid
+          token={token}
+          livekitUrl={livekitUrl}
+          onError={(err) => {
+            setError(`LiveKit error: ${err.message}`);
+            setStatus("idle");
+            setToken(null);
+          }}
+          onDisconnected={() => {
+            setStatus("idle");
+            setToken(null);
+          }}
+        >
           <section className="glass-card flex flex-col gap-6 rounded-2xl p-5">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -212,28 +264,11 @@ function SideQuestsRoom() {
 
             <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-0)] p-4">
               {token ? (
-                <LiveKitRoom
-                  token={token}
-                  serverUrl={livekitUrl}
-                  connect
-                  video
-                  audio
-                  data-lk-theme="default"
-                  className="flex flex-col gap-4"
-                  onError={(err) => {
-                    setError(`LiveKit error: ${err.message}`);
-                    setStatus("idle");
-                    setToken(null);
-                  }}
-                  onDisconnected={() => {
-                    setStatus("idle");
-                    setToken(null);
-                  }}
-                >
+                <div className="flex flex-col gap-4">
                   <RoomAudioRenderer />
                   <CallGrid />
                   <ControlBar variation="minimal" />
-                </LiveKitRoom>
+                </div>
               ) : (
                 <div className="flex h-[420px] flex-col items-center justify-center gap-3 text-center text-sm text-[var(--text-secondary)]">
                   <p className="text-base font-semibold text-[var(--text-primary)]">
@@ -261,63 +296,14 @@ function SideQuestsRoom() {
             </div>
           </section>
 
-          <aside className="flex flex-col gap-6">
-            <section className="glass-card rounded-2xl p-5">
-              <h3 className="font-display text-sm font-semibold text-[var(--text-primary)]">Agent Blueprint</h3>
-              <div className="mt-4 space-y-3 text-sm text-[var(--text-secondary)]">
-                {[
-                  { label: "Mission", content: "Design a helper agent that drafts onboarding flows for new players." },
-                  { label: "Persona", content: "Supportive strategist · Focus on clarity, empathy, and action steps." },
-                ].map((item) => (
-                  <div key={item.label} className="surface-card rounded-xl p-3">
-                    <p className="section-label">{item.label}</p>
-                    <p className="mt-2">{item.content}</p>
-                  </div>
-                ))}
-                <div className="surface-card rounded-xl p-3">
-                  <p className="section-label">Tools</p>
-                  <ul className="mt-2 space-y-1 text-[var(--text-secondary)]">
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--sagex-accent)]" />
-                      Player profile lookup
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--sagex-accent)]" />
-                      Quest recommendation API
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--sagex-accent)]" />
-                      LiveKit transcript summarizer
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </section>
-
-            <section className="glass-card rounded-2xl p-5">
-              <h3 className="font-display text-sm font-semibold text-[var(--text-primary)]">Collaboration Feed</h3>
-              <div className="mt-4 space-y-3 text-sm text-[var(--text-secondary)]">
-                <div className="surface-card rounded-xl p-3">
-                  <p className="section-label">Live Notes</p>
-                  <p className="mt-2">Zoe: We should add a “first quest summary” tool.</p>
-                </div>
-                <div className="surface-card rounded-xl p-3">
-                  <p className="section-label">Action Items</p>
-                  <ul className="mt-2 space-y-1">
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--sagex-accent)]" />
-                      Define success metrics for onboarding.
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--sagex-accent)]" />
-                      Agree on agent tone and safe responses.
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </section>
+          <aside className="flex min-h-[560px] flex-col">
+            <Terminal
+              ctx={{ playerId, playerName: identity }}
+              dataChannelEnabled={Boolean(token)}
+              className="h-full"
+            />
           </aside>
-        </div>
+        </SideQuestsGrid>
 
         <a href="/map" className="back-link">Back to map</a>
       </div>

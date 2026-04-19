@@ -6,6 +6,7 @@
  */
 
 const STORAGE_KEY = "sagex.toolsProgress";
+const PROGRESS_EVENT = "sagex.toolsProgress.updated";
 
 export type ModuleProgress = {
   completedSteps: string[];
@@ -42,6 +43,7 @@ export function writeModuleProgress(slug: string, progress: ModuleProgress) {
   const all = readAllProgress();
   all[slug] = progress;
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  window.dispatchEvent(new Event(PROGRESS_EVENT));
 }
 
 export function toggleStep(
@@ -70,4 +72,17 @@ export function resetModuleProgress(slug: string): ModuleProgress {
   const next: ModuleProgress = { completedSteps: [] };
   writeModuleProgress(slug, next);
   return next;
+}
+
+export function subscribeToProgress(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+  const handler = () => callback();
+  window.addEventListener(PROGRESS_EVENT, handler);
+  window.addEventListener("storage", handler);
+  window.addEventListener("focus", handler);
+  return () => {
+    window.removeEventListener(PROGRESS_EVENT, handler);
+    window.removeEventListener("storage", handler);
+    window.removeEventListener("focus", handler);
+  };
 }

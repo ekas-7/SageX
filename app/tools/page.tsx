@@ -1,27 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { TOOL_MODULES } from "@/src/data/toolsModules";
-import { readAllProgress, type ToolsProgress } from "@/src/lib/toolsProgress";
+import {
+  readAllProgress,
+  subscribeToProgress,
+  type ToolsProgress,
+} from "@/src/lib/toolsProgress";
 
 export default function ToolsPage() {
-  const [progress, setProgress] = useState<ToolsProgress>({});
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setProgress(readAllProgress());
-    setHydrated(true);
-    // If a user completes a module and comes back via browser back, this
-    // keeps the index in sync.
-    const handler = () => setProgress(readAllProgress());
-    window.addEventListener("storage", handler);
-    window.addEventListener("focus", handler);
-    return () => {
-      window.removeEventListener("storage", handler);
-      window.removeEventListener("focus", handler);
-    };
-  }, []);
+  const progress = useSyncExternalStore<ToolsProgress>(
+    subscribeToProgress,
+    readAllProgress,
+    () => ({})
+  );
+  const hydrated = typeof window !== "undefined";
 
   const totals = useMemo(() => {
     const totalModules = TOOL_MODULES.length;

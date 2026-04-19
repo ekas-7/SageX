@@ -121,7 +121,21 @@ export default function LabPage() {
   }, [result]);
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-8 px-6 pb-16 pt-12">
+    <div className="relative min-h-screen overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <video
+          className="h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+        >
+          <source src="/assests/background/codearea/background.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div className="absolute inset-0 bg-black/50 pointer-events-none" />
+      <div className="absolute inset-0 backdrop-blur-[1px] pointer-events-none" />
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-8 px-6 pb-16 pt-12">
       <header className="flex flex-col gap-3">
         <p className="page-label">AI Learning Lab</p>
         <h1 className="page-title text-3xl md:text-5xl">
@@ -242,6 +256,7 @@ export default function LabPage() {
           </div>
         )}
       </section>
+      </div>
     </div>
   );
 }
