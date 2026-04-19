@@ -13,9 +13,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SageX — Learn AI Through Play",
+  title: "SageX Learn AI Through Play",
   description:
     "A 2D RPG where players learn AI concepts through quests and challenges.",
+  icons: {
+    // favicon (.ico) served from public/assests/logo/main_logo.ico
+    icon: '/assests/logo/main_logo.ico',
+    // provide a shortcut and apple touch icon fallback
+    shortcut: '/assests/logo/main_logo.ico',
+    apple: '/assests/logo/main_logo.png',
+  },
 };
 
 export default function RootLayout({
