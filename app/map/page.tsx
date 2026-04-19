@@ -271,8 +271,8 @@ export default function MapPage() {
         const magnitude = Math.hypot(dx, dy) || 1;
         const normalizedX = dx / magnitude;
         const normalizedY = dy / magnitude;
-        const baseSpeed = 12;
-        const runMultiplier = pressedKeys["Shift"] ? 1.75 : 1;
+      const baseSpeed = 150;
+      const runMultiplier = pressedKeys["Shift"] ? 2 : 1;
         const speed = baseSpeed * runMultiplier;
         const deltaFactor = deltaMs / 1000;
         const moveX = (normalizedX * speed * deltaFactor) / mapWidth;
