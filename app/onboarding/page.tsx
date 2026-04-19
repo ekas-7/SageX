@@ -1,9 +1,31 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const avatars = ["🧑‍🚀", "🛰️", "🪐", "👩‍🚀", "🛸", "🌌"];
+const avatars = [
+  {
+    id: "skin-1",
+    name: "Orion",
+    src: "/assests/skins/skin-1.png",
+  },
+  {
+    id: "skin-2",
+    name: "Nova",
+    src: "/assests/skins/skin-2.png",
+  },
+  {
+    id: "skin-3",
+    name: "Vega",
+    src: "/assests/skins/skin-3.png",
+  },
+  {
+    id: "skin-4",
+    name: "Atlas",
+    src: "/assests/skins/skin-4.png",
+  },
+];
 const skillLevels = ["Beginner", "Builder", "Competitive"] as const;
 
 type SkillLevel = (typeof skillLevels)[number];
@@ -18,7 +40,8 @@ export default function OnboardingPage() {
     if (!name.trim()) return;
     const payload = {
       name: name.trim(),
-      avatar,
+      avatar: avatar.src,
+      avatarName: avatar.name,
       skill,
       createdAt: new Date().toISOString(),
     };
@@ -54,21 +77,42 @@ export default function OnboardingPage() {
             />
           </label>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <p className="text-sm text-slate-300">Select Avatar</p>
-            <div className="flex flex-wrap gap-3">
-              {avatars.map((icon) => (
-                <button
-                  key={icon}
-                  onClick={() => setAvatar(icon)}
-                  className={`flex h-14 w-14 items-center justify-center rounded-2xl border text-2xl transition ${
-                    avatar === icon
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {avatars.map((option) => (
+                <div
+                  key={option.id}
+                  className={`flex flex-col items-center gap-4 rounded-3xl border px-4 py-5 text-center transition ${
+                    avatar.id === option.id
                       ? "border-sagex-teal bg-sagex-teal/20"
                       : "border-white/10 bg-slate-950/70"
                   }`}
                 >
-                  {icon}
-                </button>
+                  <div className="text-sm font-semibold text-white">
+                    {option.name}
+                  </div>
+                  <div className="relative h-32 w-32 overflow-hidden rounded-2xl border border-white/10">
+                    <Image
+                      src={option.src}
+                      alt={`${option.name} avatar`}
+                      fill
+                      sizes="128px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAvatar(option)}
+                    className={`h-10 w-full rounded-full border text-sm font-semibold transition ${
+                      avatar.id === option.id
+                        ? "border-sagex-teal bg-sagex-teal text-slate-900"
+                        : "border-white/10 text-slate-200 hover:border-sagex-teal/60"
+                    }`}
+                  >
+                    {avatar.id === option.id ? "Selected" : "Choose"}
+                  </button>
+                </div>
               ))}
             </div>
           </div>
@@ -95,8 +139,16 @@ export default function OnboardingPage() {
 
         <aside className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-slate-950/70 p-5">
           <h2 className="text-lg font-semibold">Preview</h2>
-          <div className="flex items-center gap-3 text-2xl">
-            <span>{avatar}</span>
+          <div className="flex items-center gap-3">
+            <span className="relative h-12 w-12 overflow-hidden rounded-xl border border-white/10">
+              <Image
+                src={avatar.src}
+                alt={`${avatar.name} avatar`}
+                fill
+                sizes="48px"
+                className="object-cover"
+              />
+            </span>
             <span className="text-base text-slate-200">
               {name.trim() || "Unnamed Pilot"}
             </span>

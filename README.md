@@ -26,6 +26,19 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Sprite Sheet Generation
+
+To build the 4x4 WASD sprite sheet for skin 1 from the animation frames:
+
+```bash
+npm run spritesheet:skin1
+```
+
+This outputs:
+
+- `public/assests/skins/skin-1-spritesheet.png`
+- `public/assests/skins/skin-1-spritesheet.json`
+
 ## Notes
 
 - Backend follows the layered architecture in `BACKEND_RULES.md`.

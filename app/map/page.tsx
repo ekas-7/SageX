@@ -2,6 +2,7 @@
 
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @next/next/no-img-element */
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import collisions from "../../src/data/mapCollisions.json";
@@ -56,6 +57,7 @@ type CollisionRect = {
 type PlayerProfile = {
   name: string;
   avatar: string;
+  avatarName?: string;
   skill: string;
 };
 
@@ -191,6 +193,10 @@ export default function MapPage() {
   const centerRow = tileHeight
     ? Math.min(chunkRows - 1, Math.max(0, Math.round(playerY / tileHeight)))
     : 0;
+  const avatarSrc =
+    hydrated && profile?.avatar?.startsWith("/assests/")
+      ? profile.avatar
+      : "/assests/skins/skin-1.png";
 
   const visibleCols = useMemo(() => {
     if (!tileWidth) return [] as number[];
@@ -379,9 +385,19 @@ export default function MapPage() {
               top: playerY + offsetY,
             }}
           >
-            <span style={{ fontSize: playerMarkerSize * 0.45 }}>
-              {hydrated ? profile?.avatar ?? "🧑‍🚀" : "🧑‍🚀"}
-            </span>
+            <Image
+              src={avatarSrc}
+              alt={
+                hydrated
+                  ? profile?.avatarName
+                    ? `${profile.avatarName} avatar`
+                    : "Player avatar"
+                  : "Player avatar"
+              }
+              width={Math.round(playerMarkerSize * 0.6)}
+              height={Math.round(playerMarkerSize * 0.6)}
+              className="rounded-full border border-white/20 object-cover"
+            />
           </div>
           <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3 py-1 text-xs text-slate-200">
             {hydrated ? subtitle : "Global Metaverse Map"} · Click to move · Arrow keys / WASD · Shift to run

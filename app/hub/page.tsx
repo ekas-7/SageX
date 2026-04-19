@@ -2,6 +2,7 @@
 
 /* eslint-disable react-hooks/set-state-in-effect */
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 const buildings = [
@@ -36,6 +37,7 @@ const buildings = [
 type PlayerProfile = {
   name: string;
   avatar: string;
+  avatarName?: string;
   skill: string;
 };
 
@@ -59,6 +61,11 @@ export default function HubPage() {
     return `Welcome back, ${profile.name}`;
   }, [profile]);
 
+  const avatarSrc =
+    hydrated && profile?.avatar?.startsWith("/assests/")
+      ? profile.avatar
+      : "/assests/skins/skin-1.png";
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-10 px-6 pb-16 pt-12">
       <header className="flex flex-col gap-4">
@@ -75,8 +82,22 @@ export default function HubPage() {
       </header>
 
       <section className="flex flex-wrap items-center gap-4 rounded-3xl border border-white/10 bg-white/5 p-6">
-        <div className="flex items-center gap-3 text-2xl">
-          <span>{hydrated ? profile?.avatar ?? "🧑‍🚀" : "🧑‍🚀"}</span>
+        <div className="flex items-center gap-3">
+          <span className="relative h-12 w-12 overflow-hidden rounded-xl border border-white/10">
+            <Image
+              src={avatarSrc}
+              alt={
+                hydrated
+                  ? profile?.avatarName
+                    ? `${profile.avatarName} avatar`
+                    : "Player avatar"
+                  : "Player avatar"
+              }
+              fill
+              sizes="48px"
+              className="object-cover"
+            />
+          </span>
           <div>
             <p className="text-base font-semibold text-white">
               {hydrated ? profile?.name ?? "Unnamed Pilot" : "Loading..."}
