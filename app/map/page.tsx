@@ -74,7 +74,7 @@ export default function MapPage() {
   const chunkRows = 4;
   const chunkCols = 6;
   const viewTilesWide = 3;
-  const playerMarkerSize = 100;
+  const playerMarkerSize = 80;
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [position, setPosition] = useState({ x: 50, y: 60 });
