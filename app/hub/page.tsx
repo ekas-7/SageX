@@ -142,7 +142,7 @@ export default function HubPage() {
               </a>
             ) : (
               <div className="mt-auto inline-flex h-11 items-center justify-center rounded-full border border-white/10 text-sm text-slate-500">
-                Locked — Coming soon
+                Locked Coming soon
               </div>
             )}
           </div>

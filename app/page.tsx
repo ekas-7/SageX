@@ -1,69 +1,152 @@
+"use client";
+
+import Image from "next/image";
+import { Space_Grotesk } from "next/font/google";
+import { useEffect, useMemo, useRef } from "react";
+import { gsap } from "gsap";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
 export default function Home() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const parallaxRef = useRef<HTMLDivElement | null>(null);
+  const headlineWords = useMemo(
+    () => "Learn AI by exploring a living 2D universe.".split(" "),
+    []
+  );
+
+  useEffect(() => {
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (prefersReduced) {
+      containerRef.current
+        ?.querySelectorAll(".home-reveal")
+        .forEach((element) => {
+          (element as HTMLElement).style.opacity = "1";
+          (element as HTMLElement).style.transform = "translateY(0)";
+        });
+      return;
+    }
+
+    const context = gsap.context(() => {
+      gsap.set(".home-reveal", { opacity: 0, y: 24 });
+      gsap.to(".home-reveal", {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: "power3.out",
+        delay: 0.1,
+      });
+
+      gsap.fromTo(
+        ".headline-word",
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          stagger: 0.06,
+          ease: "power3.out",
+          delay: 0.2,
+        }
+      );
+
+      gsap.to(".home-astronaut", {
+        y: -12,
+        duration: 2.8,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+    }, containerRef);
+
+    const parallaxTarget = parallaxRef.current;
+    const xTo = parallaxTarget
+      ? gsap.quickTo(parallaxTarget, "x", {
+          duration: 0.4,
+          ease: "power2.out",
+        })
+      : null;
+    const yTo = parallaxTarget
+      ? gsap.quickTo(parallaxTarget, "y", {
+          duration: 0.4,
+          ease: "power2.out",
+        })
+      : null;
+
+    const handleMove = (event: MouseEvent) => {
+      if (!xTo || !yTo) return;
+      const { innerWidth, innerHeight } = window;
+      const x = (event.clientX / innerWidth - 0.5) * 12;
+      const y = (event.clientY / innerHeight - 0.5) * 12;
+      xTo(x);
+      yTo(y);
+    };
+
+    window.addEventListener("mousemove", handleMove);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      context.revert();
+    };
+  }, []);
+
   return (
-    <div className="flex min-h-screen flex-col bg-sagex-gradient">
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-12 px-6 pb-20 pt-16">
-        <header className="flex flex-col gap-6">
-          <p className="text-sm uppercase tracking-[0.4em] text-sagex-teal/80">
-            SageX — Space Academy
-          </p>
-          <h1 className="text-4xl font-semibold leading-tight text-white md:text-6xl">
-            Learn AI by exploring a living 2D universe.
-          </h1>
-          <p className="max-w-2xl text-lg text-slate-300">
-            Step into the AI City, complete quests generated from real AI
-            concepts, and unlock abilities as your space core evolves.
-          </p>
-          <div className="flex flex-col gap-4 sm:flex-row">
-            <a
-              href="/onboarding"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-sagex-teal px-6 text-base font-semibold text-slate-900 shadow-lg shadow-sagex-teal/30 transition hover:-translate-y-0.5"
-            >
-              Start Journey
-            </a>
-            <button className="inline-flex h-12 items-center justify-center rounded-full border border-white/15 px-6 text-base font-semibold text-white/80">
-              View Map Preview
-            </button>
-          </div>
-        </header>
-
-        <section className="grid gap-6 md:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">AI City Map Preview</h2>
-              <span className="text-xs text-slate-300">MVP Layout</span>
-            </div>
-            <div className="mt-6 grid grid-cols-3 gap-3 text-sm">
-              {[
-                "AI Learning Lab",
-                "Neural Data Center",
-                "Ethics Dock",
-                "Coding Arena",
-                "AI History Hall",
-                "Space Core",
-              ].map((label) => (
-                <div
-                  key={label}
-                  className="flex h-20 items-center justify-center rounded-2xl border border-white/10 bg-slate-950/70 text-center text-slate-200"
-                >
-                  {label}
-                </div>
-              ))}
+    <div
+      ref={containerRef}
+      className="home-scene flex min-h-screen flex-col bg-sagex-gradient"
+    >
+  <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col gap-12 px-6 pb-20 pt-16">
+  <section className="flex flex-col items-center gap-10 md:flex-row md:items-center">
+          <div className="flex w-full justify-center md:w-1/2 md:justify-start">
+            <div ref={parallaxRef} className="home-parallax relative">
+              <div className="home-glow" aria-hidden="true" />
+              <Image
+                src="/assests/skins/skin-4.png"
+                alt="SageX astronaut avatar"
+                width={360}
+                height={360}
+                className="home-astronaut h-auto w-64 bg-transparent sm:w-80"
+                priority
+              />
             </div>
           </div>
-
-          <div className="flex flex-col gap-6 rounded-3xl border border-white/10 bg-slate-950/70 p-6">
-            <h3 className="text-xl font-semibold">First Quest: Input ➜ Output</h3>
-            <p className="text-slate-300">
-              Meet your NPC guide, learn how models transform signals, and earn
-              your first Space Core upgrade.
+          <header className="flex w-full flex-col gap-6 md:w-1/2">
+            <p className="home-reveal text-sm uppercase tracking-[0.4em] text-sagex-teal/80">
+              SageX Space Academy
             </p>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <p className="text-sm text-slate-300">Core Loop</p>
-              <p className="mt-2 text-base text-white">
-                Explore → Receive AI quest → Solve → Score → Unlock ability
-              </p>
+            <h1
+              className={`${spaceGrotesk.className} home-reveal text-4xl font-semibold leading-tight text-white md:text-6xl`}
+            >
+              {headlineWords.map((word, index) => (
+                <span key={`${word}-${index}`} className="headline-word">
+                  {word}
+                  {index < headlineWords.length - 1 ? " " : ""}
+                </span>
+              ))}
+            </h1>
+            <p className="home-reveal max-w-2xl text-lg text-slate-300">
+              Step into the AI City, complete quests generated from real AI
+              concepts, and unlock abilities as your space core evolves.
+            </p>
+            <div className="home-reveal flex flex-col gap-4 sm:flex-row">
+              <a
+                href="/onboarding"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-sagex-teal px-6 text-base font-semibold text-slate-900 shadow-lg shadow-sagex-teal/30 transition duration-300 hover:-translate-y-1 hover:shadow-sagex-teal/40"
+              >
+                Start Journey
+              </a>
+              <button className="inline-flex h-12 items-center justify-center rounded-full border border-white/15 px-6 text-base font-semibold text-white/80 transition duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/5 hover:text-white">
+                View Map Preview
+              </button>
             </div>
-          </div>
+          </header>
         </section>
       </main>
     </div>

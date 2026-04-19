@@ -38,3 +38,87 @@ body {
 .bg-sagex-teal {
   background-color: var(--sagex-teal);
 }
+
+.home-scene {
+  position: relative;
+  isolation: isolate;
+}
+
+.home-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, rgba(255, 255, 255, 0.5), transparent 50%),
+    radial-gradient(1px 1px at 35% 18%, rgba(255, 255, 255, 0.35), transparent 50%),
+    radial-gradient(1px 1px at 68% 26%, rgba(255, 255, 255, 0.45), transparent 50%),
+    radial-gradient(1px 1px at 82% 62%, rgba(255, 255, 255, 0.4), transparent 55%),
+    radial-gradient(1px 1px at 18% 72%, rgba(255, 255, 255, 0.38), transparent 45%),
+    radial-gradient(1px 1px at 52% 78%, rgba(255, 255, 255, 0.3), transparent 55%),
+    radial-gradient(1px 1px at 72% 84%, rgba(255, 255, 255, 0.35), transparent 50%);
+  opacity: 0.35;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.home-scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+  opacity: 0.22;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.home-parallax {
+  position: relative;
+  z-index: 1;
+  will-change: transform;
+}
+
+.home-glow {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: min(380px, 80vw);
+  aspect-ratio: 1 / 1;
+  background: radial-gradient(circle, rgba(55, 246, 194, 0.35), transparent 70%);
+  filter: blur(12px);
+  transform: translate(-50%, -50%);
+  z-index: -1;
+}
+
+.home-astronaut {
+  filter: drop-shadow(0 24px 50px rgba(0, 0, 0, 0.45));
+}
+
+.home-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.headline-word {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}

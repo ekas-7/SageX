@@ -56,7 +56,7 @@ export default function LabPage() {
           AI Learning Lab
         </p>
         <h1 className="text-3xl font-semibold text-white md:text-5xl">
-          Quest 01 — Input → Output
+          Quest 01 Input → Output
         </h1>
         <p className="max-w-2xl text-base text-slate-300">
           Follow the NPC guidance to understand how a model maps signals into

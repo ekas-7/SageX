@@ -1,4 +1,4 @@
-# SageX — AI Learning RPG MVP
+# SageX AI Learning RPG MVP
 
 SageX is a 2D RPG-style learning experience where players explore an AI city, complete quests, and unlock abilities as they master AI concepts.
 

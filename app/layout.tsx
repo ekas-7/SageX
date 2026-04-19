@@ -13,7 +13,7 @@ try {
   const stat = fs.statSync(p);
   faviconHref = `${faviconRel}?v=${stat.mtimeMs}`;
 } catch (e) {
-  // file missing or inaccessible — fall back to the raw path
+  // file missing or inaccessible fall back to the raw path
   faviconHref = faviconRel;
 }
 
