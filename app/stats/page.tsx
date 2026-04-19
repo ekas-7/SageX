@@ -112,8 +112,18 @@ export default function StatsPage() {
   }, [stats]);
 
   return (
-    <div className="min-h-screen px-6 py-12">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
+    <div className="relative min-h-screen overflow-hidden px-6 py-12">
+      <video
+        className="absolute inset-0 h-full w-full object-cover"
+        autoPlay
+        loop
+        muted
+        playsInline
+      >
+        <source src="/assests/background/stats/stats.mp4" type="video/mp4" />
+      </video>
+      <div className="absolute inset-0 bg-slate-950/70" aria-hidden="true" />
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-10">
         <header className="space-y-2">
           <p className="page-label">SageX Insights</p>
           <h1 className="page-title text-3xl">Your Stats</h1>

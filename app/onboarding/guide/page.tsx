@@ -24,7 +24,7 @@ const guideSteps: GuideStep[] = [
       "Completing tasks upgrades your pilot profile and unlocks new hubs.",
     ],
     helper: "You can replay any quest for practice and better rewards.",
-    imageSrc: "/assests/background/onboarding-guide/img-1.png",
+    imageSrc: "/assests/background/ethics/img-1.png",
   },
   {
     id: "controls",
@@ -37,7 +37,7 @@ const guideSteps: GuideStep[] = [
       "Pause: Esc",
     ],
     helper: "Touch devices show on-screen controls automatically.",
-    imageSrc: "/assests/background/onboarding-guide/img-2.png",
+    imageSrc: "/assests/background/ethics/img-2.png",
   },
   {
     id: "support",
@@ -49,7 +49,7 @@ const guideSteps: GuideStep[] = [
       "Your hub recommends next quests based on your goals.",
     ],
     helper: "You can change your interests and difficulty at any time in the hub.",
-    imageSrc: "/assests/background/onboarding-guide/img-3.png",
+    imageSrc: "/assests/background/ethics/img-3.png",
   },
 ];
 
