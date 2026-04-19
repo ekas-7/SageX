@@ -75,7 +75,9 @@ export default function SideQuestsPage() {
       return;
     }
     if (!livekitUrl) {
-      setError("Missing NEXT_PUBLIC_LIVEKIT_URL in your environment.");
+      setError(
+        "Missing NEXT_PUBLIC_LIVEKIT_URL. Add your LiveKit server URL (wss://...) to .env.local and restart the dev server."
+      );
       return;
     }
 
@@ -87,14 +89,18 @@ export default function SideQuestsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ room: roomName.trim(), identity: identity.trim() || "Pilot" }),
       });
-      const payload = await response.json();
+      const payload = (await response.json()) as { token?: string; error?: string };
       if (!response.ok) {
         throw new Error(payload?.error ?? "Unable to create LiveKit token.");
+      }
+      if (typeof payload.token !== "string" || payload.token.length === 0) {
+        throw new Error("LiveKit token response was empty.");
       }
       setToken(payload.token);
       setStatus("connected");
     } catch (error) {
       setStatus("idle");
+      setToken(null);
       setError(error instanceof Error ? error.message : "Unable to connect to LiveKit.");
     }
   };
@@ -106,9 +112,25 @@ export default function SideQuestsPage() {
 
   const handleCopyInvite = async () => {
     if (!inviteLink) return;
-    await navigator.clipboard.writeText(inviteLink);
-    setInviteCopied(true);
-    window.setTimeout(() => setInviteCopied(false), 2000);
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(inviteLink);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = inviteLink;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "absolute";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setInviteCopied(true);
+      window.setTimeout(() => setInviteCopied(false), 2000);
+    } catch {
+      setError("Couldn't copy invite link. You can copy the URL from the address bar.");
+    }
   };
 
   return (
@@ -124,8 +146,16 @@ export default function SideQuestsPage() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <button className="btn-primary text-xs" onClick={handleConnect}>
-                {status === "connected" ? "Room Live" : "Start Room"}
+              <button
+                className="btn-primary text-xs disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={handleConnect}
+                disabled={status !== "idle"}
+              >
+                {status === "connected"
+                  ? "Room Live"
+                  : status === "connecting"
+                    ? "Connecting..."
+                    : "Start Room"}
               </button>
               <button className="btn-ghost text-xs" onClick={handleCopyInvite}>
                 {inviteCopied ? "Invite Copied" : "Invite Collaborators"}
@@ -173,6 +203,12 @@ export default function SideQuestsPage() {
               </label>
             </div>
 
+            {!livekitUrl && (
+              <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-100">
+                LiveKit is not configured. Add <code className="font-mono">NEXT_PUBLIC_LIVEKIT_URL</code>, <code className="font-mono">LIVEKIT_API_KEY</code>, and <code className="font-mono">LIVEKIT_API_SECRET</code> to <code className="font-mono">.env.local</code>, then restart the dev server.
+              </div>
+            )}
+
             {error && (
               <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-3 text-xs text-rose-100">
                 {error}
@@ -185,8 +221,19 @@ export default function SideQuestsPage() {
                   token={token}
                   serverUrl={livekitUrl}
                   connect
+                  video
+                  audio
                   data-lk-theme="default"
                   className="flex flex-col gap-4"
+                  onError={(err) => {
+                    setError(`LiveKit error: ${err.message}`);
+                    setStatus("idle");
+                    setToken(null);
+                  }}
+                  onDisconnected={() => {
+                    setStatus("idle");
+                    setToken(null);
+                  }}
                 >
                   <RoomAudioRenderer />
                   <CallGrid />
@@ -194,7 +241,9 @@ export default function SideQuestsPage() {
                 </LiveKitRoom>
               ) : (
                 <div className="flex h-[420px] flex-col items-center justify-center gap-3 text-center text-sm text-[var(--text-secondary)]">
-                  <p className="text-base font-semibold text-[var(--text-primary)]">Ready to connect</p>
+                  <p className="text-base font-semibold text-[var(--text-primary)]">
+                    {status === "connecting" ? "Connecting..." : "Ready to connect"}
+                  </p>
                   <p>Start a room to unlock live video, audio, and screen sharing.</p>
                 </div>
               )}

@@ -22,17 +22,21 @@ export async function POST(request: Request) {
       );
     }
 
-    const token = new AccessToken(env.livekitApiKey, env.livekitApiSecret, {
+    const at = new AccessToken(env.livekitApiKey, env.livekitApiSecret, {
       identity,
     });
-    token.addGrant({
+    at.addGrant({
       room,
       roomJoin: true,
       canPublish: true,
       canSubscribe: true,
+      canPublishData: true,
     });
 
-    return Response.json({ token: token.toJwt() });
+    // livekit-server-sdk v2: toJwt() is async
+    const token = await at.toJwt();
+
+    return Response.json({ token });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to issue token";
     return Response.json({ error: message }, { status: 500 });

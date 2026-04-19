@@ -39,11 +39,7 @@ type CompletedScenario = {
 };
 
 /* ─── Constants ─── */
-const ETHICS_IMAGES = [
-  "/assests/background/ethics/img-1.png",
-  "/assests/background/ethics/img-2.png",
-  "/assests/background/ethics/img-3.png",
-];
+const ETHICS_IMAGE = "/assests/background/ethics/img-1.png";
 
 const DIFFICULTY_COLORS: Record<string, string> = {
   beginner: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
@@ -239,6 +235,21 @@ export default function EthicsPage() {
               <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                 Real-world scenarios across bias, privacy, transparency, and accountability. Choose wisely -- your decisions shape your understanding of responsible AI.
               </p>
+              <div className="flex items-center gap-4">
+                <div className="relative h-20 w-28 overflow-hidden rounded-2xl border border-[var(--border-default)]">
+                  <Image
+                    src={ETHICS_IMAGE}
+                    alt="Ethics scenario preview"
+                    fill
+                    className="object-cover"
+                    sizes="112px"
+                    priority
+                  />
+                </div>
+                <div className="text-xs text-[var(--text-muted)]">
+                  Preview your first ethics scenario before you dive in.
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={() => document.getElementById("modules")?.scrollIntoView({ behavior: "smooth" })}
@@ -283,7 +294,9 @@ export default function EthicsPage() {
             {/* Right: Alisa */}
             <div className="relative flex items-end justify-center overflow-hidden md:min-h-[420px]">
               <div className="pointer-events-none absolute bottom-0 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-[var(--sagex-accent)] opacity-[0.06] blur-[80px]" />
-              <Image src="/assests/npc/alisa.png" alt="Alisa — Ethics Guide NPC" width={380} height={480} className="relative z-10 h-auto w-64 object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)] md:w-80" priority />
+              <div className="relative z-10 mb-8 flex h-56 w-56 items-center justify-center rounded-3xl border border-[var(--border-default)] bg-[var(--surface-1)]/70 text-center text-xs uppercase tracking-[0.35em] text-[var(--text-muted)]">
+                Ethics Lab
+              </div>
             </div>
           </div>
         </div>
@@ -350,7 +363,7 @@ export default function EthicsPage() {
                       <div className="flex flex-col gap-2.5 border-t border-[var(--border-subtle)] px-5 pb-5 pt-4">
                         {/* Banner image */}
                         <div className="relative mb-2 h-36 w-full overflow-hidden rounded-xl sm:h-44">
-                          <Image src={ETHICS_IMAGES[catIdx % ETHICS_IMAGES.length]} alt={category.label} fill sizes="(min-width: 768px) 60vw, 90vw" className="object-cover" />
+                          <Image src={ETHICS_IMAGE} alt={category.label} fill sizes="(min-width: 768px) 60vw, 90vw" className="object-cover" />
                           <div className="absolute bottom-3 left-4">
                             <p className="font-display text-xs font-semibold text-[var(--text-primary)] drop-shadow-lg">{category.label}</p>
                             <p className="text-[0.6rem] text-[var(--text-secondary)] drop-shadow-lg">{category.scenarios.length} scenarios &middot; {catCompleted} completed</p>

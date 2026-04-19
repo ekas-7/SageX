@@ -21,9 +21,9 @@ const buildingZones = [
     rect: { x: 30, y: 36, width: 14, height: 18 },
   },
   {
-    id: "stats",
-    label: "Your Stats",
-    href: "/stats",
+    id: "field",
+    label: "Your Field",
+    href: "/field",
     rect: { x: 4, y: 4, width: 24, height: 34 }, 
   },
   {
