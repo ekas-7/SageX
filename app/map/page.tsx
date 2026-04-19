@@ -419,10 +419,10 @@ export default function MapPage() {
             );
           })}
           <div
-            className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-sagex-teal/80 shadow-lg shadow-sagex-teal/40"
+            className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center  bg-sagex-teal/80"
             style={{
               width: playerMarkerSize,
-              height: playerMarkerSize,
+              height: Math.round(playerMarkerSize * 1.2),
               zIndex: 4,
               left: playerX + offsetX,
               top: playerY + offsetY,
@@ -430,7 +430,7 @@ export default function MapPage() {
           >
             {usesSpriteSheet ? (
               <div
-                className="rounded-full border border-white/20"
+                className="rounded-full"
                 aria-label="Player avatar"
                 style={{
                   width: spriteSize,
@@ -455,9 +455,9 @@ export default function MapPage() {
                       : "Player avatar"
                     : "Player avatar"
                 }
-                width={Math.round(playerMarkerSize * 0.6)}
-                height={Math.round(playerMarkerSize * 0.6)}
-                className="rounded-full border border-white/20 object-cover"
+                width={Math.round(playerMarkerSize * 0.55)}
+                height={Math.round(playerMarkerSize * 0.9)}
+                className="rounded-2xl object-contain"
               />
             )}
           </div>
