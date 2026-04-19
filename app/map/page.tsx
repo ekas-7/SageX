@@ -2,40 +2,47 @@
 
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-const mapNodes = [
+const mapZones = [
   {
     id: "hub",
-    title: "AI City Hub",
-    description: "Meet your NPC guide and pick your next building.",
+    label: "AI City Hub",
+    x: 22,
+    y: 26,
+    radius: 6,
     href: "/hub",
-    status: "active",
   },
   {
     id: "lab",
-    title: "AI Learning Lab",
-    description: "Begin the forced quest: Input → Output.",
+    label: "AI Learning Lab",
+    x: 66,
+    y: 52,
+    radius: 6,
     href: "/lab?seed=42",
-    status: "quest",
   },
   {
     id: "data-center",
-    title: "Neural Data Center",
-    description: "Data cleaning missions unlock soon.",
-    status: "locked",
+    label: "Neural Data Center",
+    x: 78,
+    y: 24,
+    radius: 6,
   },
   {
     id: "ethics",
-    title: "AI Ethics Dock",
-    description: "Scenario-based decision quests.",
-    status: "locked",
+    label: "AI Ethics Dock",
+    x: 44,
+    y: 70,
+    radius: 6,
   },
   {
     id: "arena",
-    title: "Coding Arena",
-    description: "Advanced AI coding challenges.",
-    status: "locked",
+    label: "Coding Arena",
+    x: 16,
+    y: 68,
+    radius: 6,
   },
 ];
 
@@ -46,19 +53,135 @@ type PlayerProfile = {
 };
 
 export default function MapPage() {
+  const router = useRouter();
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const chunkRows = 3;
+  const chunkCols = 6;
+  const viewTilesWide = 3.2;
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
-  const [questCompleted, setQuestCompleted] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [position, setPosition] = useState({ x: 50, y: 60 });
+  const [activeZone, setActiveZone] = useState<string | null>(null);
+  const [viewport, setViewport] = useState({ width: 0, height: 0 });
+  const [chunkRatio, setChunkRatio] = useState(1);
 
   useEffect(() => {
     const stored = localStorage.getItem("sagex.player");
-    const completed = localStorage.getItem("sagex.firstQuestCompleted");
     if (stored) {
       setProfile(JSON.parse(stored) as PlayerProfile);
+    } else {
+      router.replace("/onboarding");
+      return;
     }
-    setQuestCompleted(completed === "true");
     setHydrated(true);
+  }, [router]);
+
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = "/assests/background/main_map_chunks/map_r1_c1.png";
+    img.onload = () => {
+      if (img.width > 0) {
+        setChunkRatio(img.height / img.width);
+      }
+    };
   }, []);
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (!mapRef.current) return;
+      const rect = mapRef.current.getBoundingClientRect();
+      setViewport({ width: rect.width, height: rect.height });
+    };
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const current = mapZones.find((zone) => {
+      const dx = position.x - zone.x;
+      const dy = position.y - zone.y;
+      return Math.hypot(dx, dy) <= zone.radius;
+    });
+
+    if (current && current.id !== activeZone) {
+      setActiveZone(current.id);
+      if (current.href) {
+        router.push(current.href);
+      }
+      return;
+    }
+
+    if (!current) {
+      setActiveZone(null);
+    }
+  }, [activeZone, hydrated, position.x, position.y, router]);
+
+  useEffect(() => {
+    const handleKey = (event: KeyboardEvent) => {
+      const step = event.shiftKey ? 4 : 2;
+      setPosition((current) => {
+        let nextX = current.x;
+        let nextY = current.y;
+        if (event.key === "ArrowUp" || event.key === "w") nextY -= step;
+        if (event.key === "ArrowDown" || event.key === "s") nextY += step;
+        if (event.key === "ArrowLeft" || event.key === "a") nextX -= step;
+        if (event.key === "ArrowRight" || event.key === "d") nextX += step;
+        return {
+          x: Math.min(92, Math.max(8, nextX)),
+          y: Math.min(86, Math.max(12, nextY)),
+        };
+      });
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
+  const handleMapClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!mapRef.current) return;
+    const rect = mapRef.current.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+    const worldX = clickX - offsetX;
+    const worldY = clickY - offsetY;
+    const x = (worldX / mapWidth) * 100;
+    const y = (worldY / mapHeight) * 100;
+    setPosition({
+      x: Math.min(92, Math.max(8, x)),
+      y: Math.min(86, Math.max(12, y)),
+    });
+  };
+
+  const tileWidth = viewport.width > 0 ? viewport.width / viewTilesWide : 0;
+  const tileHeight = tileWidth * chunkRatio;
+  const mapWidth = tileWidth * chunkCols;
+  const mapHeight = tileHeight * chunkRows;
+  const playerX = (position.x / 100) * mapWidth;
+  const playerY = (position.y / 100) * mapHeight;
+  const offsetX = viewport.width / 2 - playerX;
+  const offsetY = viewport.height / 2 - playerY;
+
+  const visibleCols = useMemo(() => {
+    if (!tileWidth) return [] as number[];
+    const start = Math.max(0, Math.floor(-offsetX / tileWidth) - 1);
+    const end = Math.min(
+      chunkCols - 1,
+      Math.ceil((-offsetX + viewport.width) / tileWidth) + 1
+    );
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }, [chunkCols, offsetX, tileWidth, viewport.width]);
+
+  const visibleRows = useMemo(() => {
+    if (!tileHeight) return [] as number[];
+    const start = Math.max(0, Math.floor(-offsetY / tileHeight) - 1);
+    const end = Math.min(
+      chunkRows - 1,
+      Math.ceil((-offsetY + viewport.height) / tileHeight) + 1
+    );
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }, [chunkRows, offsetY, tileHeight, viewport.height]);
 
   const subtitle = useMemo(() => {
     if (!profile) return "Global Metaverse Map";
@@ -66,69 +189,79 @@ export default function MapPage() {
   }, [profile]);
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-10 px-6 pb-16 pt-12">
-      <header className="flex flex-col gap-4">
-        <p className="text-xs uppercase tracking-[0.35em] text-sagex-teal/70">
-          Metaverse Map
-        </p>
-        <h1 className="text-3xl font-semibold text-white md:text-5xl">
-          {hydrated ? subtitle : "Global Metaverse Map"}
-        </h1>
-        <p className="max-w-2xl text-base text-slate-300">
-          Chart your route through the AI city. The Learning Lab quest is your
-          mandatory first jump before deeper exploration.
-        </p>
-      </header>
-
-      <section className="flex flex-wrap items-center gap-4 rounded-3xl border border-white/10 bg-white/5 p-6">
-        <div className="flex items-center gap-3 text-2xl">
-          <span>{hydrated ? profile?.avatar ?? "🧑‍🚀" : "🧑‍🚀"}</span>
-          <div>
-            <p className="text-base font-semibold text-white">
-              {hydrated ? profile?.name ?? "Unnamed Pilot" : "Loading..."}
-            </p>
-            <p className="text-xs text-slate-400">
-              Skill: {hydrated ? profile?.skill ?? "--" : "--"}
-            </p>
-          </div>
-        </div>
-        <div className="ml-auto flex flex-col gap-1 text-right">
-          <span className="text-sm text-slate-300">Space Core Status</span>
-          <span className="text-base font-semibold text-white">
-            {hydrated
-              ? questCompleted
-                ? "Core Ignited"
-                : "Core Dormant"
-              : "Syncing"}
-          </span>
-        </div>
-      </section>
-
-      <section className="grid gap-6 md:grid-cols-2">
-        {mapNodes.map((node) => (
+    <div className="flex min-h-screen w-full flex-col">
+      <div className="relative h-screen w-full overflow-hidden bg-slate-950">
+        <div
+          ref={mapRef}
+          onClick={handleMapClick}
+          className="relative h-full w-full cursor-crosshair"
+        >
           <div
-            key={node.id}
-            className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-slate-950/70 p-6"
+            className="absolute inset-0"
+            style={{
+              width: mapWidth,
+              height: mapHeight,
+              transform: `translate(${offsetX}px, ${offsetY}px)`,
+            }}
           >
-            <div>
-              <h2 className="text-xl font-semibold text-white">{node.title}</h2>
-              <p className="mt-2 text-sm text-slate-400">{node.description}</p>
-            </div>
-            {node.href ? (
-              <a
-                href={node.href}
-                className="mt-auto inline-flex h-11 items-center justify-center rounded-full bg-sagex-teal text-sm font-semibold text-slate-900"
-              >
-                Warp
-              </a>
-            ) : (
-              <div className="mt-auto inline-flex h-11 items-center justify-center rounded-full border border-white/10 text-sm text-slate-500">
-                Locked — Coming soon
-              </div>
+            {visibleRows.flatMap((rowIndex) =>
+              visibleCols.map((colIndex) => {
+                const row = rowIndex + 1;
+                const col = colIndex + 1;
+                const width = Math.max(1, Math.round(tileWidth));
+                const height = Math.max(1, Math.round(tileHeight));
+                return (
+                  <Image
+                    key={`chunk-${row}-${col}`}
+                    src={`/assests/background/main_map_chunks/map_r${row}_c${col}.png`}
+                    alt={`Map chunk ${row}-${col}`}
+                    width={width}
+                    height={height}
+                    sizes="20vw"
+                    className="absolute object-cover"
+                    style={{
+                      left: colIndex * tileWidth,
+                      top: rowIndex * tileHeight,
+                    }}
+                    draggable={false}
+                  />
+                );
+              })
             )}
           </div>
-        ))}
-      </section>
+          {mapZones.map((zone) => {
+            const zoneX = (zone.x / 100) * mapWidth + offsetX;
+            const zoneY = (zone.y / 100) * mapHeight + offsetY;
+            return (
+              <button
+                key={zone.id}
+                type="button"
+                onClick={() => zone.href && router.push(zone.href)}
+                className="group absolute -translate-x-1/2 -translate-y-1/2"
+                style={{ left: zoneX, top: zoneY }}
+                aria-label={zone.label}
+              >
+                <span
+                  className={`block h-16 w-16 rounded-full border border-white/30 bg-white/0 transition group-hover:bg-white/10 ${
+                    zone.href ? "cursor-pointer" : "cursor-not-allowed"
+                  }`}
+                />
+                <span className="pointer-events-none absolute left-1/2 top-full mt-2 -translate-x-1/2 rounded-full bg-black/70 px-3 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+                  {zone.label}
+                </span>
+              </button>
+            );
+          })}
+          <div
+            className="absolute left-1/2 top-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-sagex-teal/80 text-xl shadow-lg shadow-sagex-teal/40"
+          >
+            {hydrated ? profile?.avatar ?? "🧑‍🚀" : "🧑‍🚀"}
+          </div>
+          <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3 py-1 text-xs text-slate-200">
+            {hydrated ? subtitle : "Global Metaverse Map"} · Click to move · Arrow keys / WASD
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
