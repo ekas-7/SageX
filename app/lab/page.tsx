@@ -12,6 +12,19 @@ export default function LabPage() {
     correct: boolean;
     durationMs: number;
   } | null>(null);
+  const [xpAward, setXpAward] = useState<{
+    awarded: number;
+    leveledUp: boolean;
+    levelsGained: number;
+    levelAfter: number;
+    rank: string;
+    progressPct: number;
+    xpToNext: number;
+    multiplier: number;
+    softCapped: boolean;
+    duplicate: boolean;
+  } | null>(null);
+  const [xpError, setXpError] = useState<string | null>(null);
   const [startedAt] = useState(() => Date.now());
 
   useEffect(() => {
@@ -28,7 +41,7 @@ export default function LabPage() {
       .catch(() => setError("Unable to load quest."));
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!quest || selected === null) return;
     const durationMs = Date.now() - startedAt;
     const correct = selected === quest.answerIndex;
@@ -40,6 +53,61 @@ export default function LabPage() {
 
     setResult({ score, correct, durationMs });
     localStorage.setItem("sagex.firstQuestCompleted", "true");
+
+    if (!correct) return;
+
+    try {
+      const stored = localStorage.getItem("sagex.player");
+      if (!stored) return;
+      const profile = JSON.parse(stored) as { name?: string };
+      if (!profile.name) return;
+
+      const source =
+        score >= 300 ? "quest.perfect" : "quest.complete";
+
+      const response = await fetch("/api/xp/award", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: profile.name,
+          source,
+          sourceRef: `quest:${quest.questId ?? quest.seed}`,
+          difficulty: quest.difficulty,
+          metadata: { score, durationMs },
+        }),
+      });
+      const payload = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        awarded?: number;
+        leveledUp?: boolean;
+        levelsGained?: number;
+        levelAfter?: number;
+        rank?: string;
+        progressPct?: number;
+        xpToNext?: number;
+        multiplier?: number;
+        softCapped?: boolean;
+        duplicate?: boolean;
+      };
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error ?? "Failed to award XP");
+      }
+      setXpAward({
+        awarded: payload.awarded ?? 0,
+        leveledUp: payload.leveledUp ?? false,
+        levelsGained: payload.levelsGained ?? 0,
+        levelAfter: payload.levelAfter ?? 1,
+        rank: payload.rank ?? "Cadet",
+        progressPct: payload.progressPct ?? 0,
+        xpToNext: payload.xpToNext ?? 0,
+        multiplier: payload.multiplier ?? 1,
+        softCapped: payload.softCapped ?? false,
+        duplicate: payload.duplicate ?? false,
+      });
+    } catch (err) {
+      setXpError(err instanceof Error ? err.message : "Could not award XP");
+    }
   };
 
   const feedback = useMemo(() => {

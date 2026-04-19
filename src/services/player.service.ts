@@ -1,4 +1,5 @@
 import { PlayerRepository } from "../repositories/player.repo";
+import { XpService } from "./xp.service";
 import type { LeaderboardEntry, PlayerProfile } from "../types/player";
 
 const startOfDay = (date: Date) => {
@@ -13,6 +14,11 @@ const diffInDays = (from: Date, to: Date) => {
   return Math.round((toDay - fromDay) / (1000 * 60 * 60 * 24));
 };
 
+/**
+ * PlayerService — thin profile/stat operations.
+ * XP awards go through XpOrchestrator, not here. This service still
+ * owns profile upserts, streak rollover, and leaderboard shaping.
+ */
 export const PlayerService = {
   async getOrCreatePlayer(payload: {
     name: string;
@@ -62,6 +68,12 @@ export const PlayerService = {
     return (updatedPlayer ?? player) as PlayerProfile;
   },
 
+  /**
+   * Update challenge counters. XP is no longer awarded here — callers
+   * should invoke XpOrchestrator.award directly for typed XP flows.
+   * `deltaXp` is kept for legacy compatibility and routed through a
+   * manual-grant style patch that also updates level.
+   */
   async updateStats(payload: {
     name: string;
     deltaChallenges?: number;
@@ -74,22 +86,27 @@ export const PlayerService = {
 
     const challengesCompleted =
       (player.stats?.challengesCompleted ?? 0) + (payload.deltaChallenges ?? 0);
-    const totalXp = (player.stats?.totalXp ?? 0) + (payload.deltaXp ?? 0);
     const totalChallenges = Math.max(
       player.stats?.totalChallenges ?? 0,
       challengesCompleted
     );
 
-    const updated = await PlayerRepository.updateByName(payload.name, {
-      stats: {
-        ...player.stats,
-        challengesCompleted,
-        totalChallenges,
-        totalXp,
-        lastActiveAt: new Date(),
-      },
-    });
+    const statPatch: Record<string, unknown> = {
+      challengesCompleted,
+      totalChallenges,
+      lastActiveAt: new Date(),
+    };
 
+    if (payload.deltaXp && payload.deltaXp > 0) {
+      const totalXp = (player.stats?.totalXp ?? 0) + payload.deltaXp;
+      const snap = XpService.levelSnapshot(totalXp);
+      statPatch.totalXp = totalXp;
+      statPatch.level = snap.level;
+      statPatch.currentLevelXp = snap.currentLevelXp;
+      statPatch.xpToNext = snap.xpToNext;
+    }
+
+    const updated = await PlayerRepository.patchStats(payload.name, statPatch);
     return (updated ?? player) as PlayerProfile;
   },
 
@@ -99,15 +116,21 @@ export const PlayerService = {
       PlayerRepository.countHigherXp(player.stats?.totalXp ?? 0),
     ]);
 
-    const leaderboard = (leaderboardRaw ?? []).map((entry, index) => ({
-      name: entry.name,
-      avatar: entry.avatar,
-      skill: entry.skill,
-      rank: index + 1,
-      totalXp: entry.stats?.totalXp ?? 0,
-      dailyStreak: entry.stats?.dailyStreak ?? 0,
-      challengesCompleted: entry.stats?.challengesCompleted ?? 0,
-    })) as LeaderboardEntry[];
+    const leaderboard = (leaderboardRaw ?? []).map((entry, index) => {
+      const totalXp = entry.stats?.totalXp ?? 0;
+      const snap = XpService.levelSnapshot(totalXp);
+      return {
+        name: entry.name,
+        avatar: entry.avatar,
+        skill: entry.skill,
+        rank: index + 1,
+        totalXp,
+        level: snap.level,
+        rankTier: snap.rank,
+        dailyStreak: entry.stats?.dailyStreak ?? 0,
+        challengesCompleted: entry.stats?.challengesCompleted ?? 0,
+      };
+    }) as LeaderboardEntry[];
 
     const rank = higherCount + 1;
 
