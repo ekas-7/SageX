@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+
+import { useEffect, useMemo, useState } from "react";
 
 const buildings = [
   {
@@ -38,15 +40,19 @@ type PlayerProfile = {
 };
 
 export default function HubPage() {
-  const [profile] = useState<PlayerProfile | null>(() => {
-    if (typeof window === "undefined") return null;
+  const [profile, setProfile] = useState<PlayerProfile | null>(null);
+  const [questCompleted, setQuestCompleted] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
     const stored = localStorage.getItem("sagex.player");
-    return stored ? (JSON.parse(stored) as PlayerProfile) : null;
-  });
-  const [questCompleted] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return localStorage.getItem("sagex.firstQuestCompleted") === "true";
-  });
+    const completed = localStorage.getItem("sagex.firstQuestCompleted");
+    if (stored) {
+      setProfile(JSON.parse(stored) as PlayerProfile);
+    }
+    setQuestCompleted(completed === "true");
+    setHydrated(true);
+  }, []);
 
   const greeting = useMemo(() => {
     if (!profile) return "Welcome, Explorer";
@@ -60,7 +66,7 @@ export default function HubPage() {
           AI City Hub
         </p>
         <h1 className="text-3xl font-semibold text-white md:text-5xl">
-          {greeting}
+          {hydrated ? greeting : "Welcome, Explorer"}
         </h1>
         <p className="max-w-2xl text-base text-slate-300">
           Your NPC guide highlights key buildings. Choose where to explore next
@@ -70,18 +76,24 @@ export default function HubPage() {
 
       <section className="flex flex-wrap items-center gap-4 rounded-3xl border border-white/10 bg-white/5 p-6">
         <div className="flex items-center gap-3 text-2xl">
-          <span>{profile?.avatar ?? "🧑‍🚀"}</span>
+          <span>{hydrated ? profile?.avatar ?? "🧑‍🚀" : "🧑‍🚀"}</span>
           <div>
             <p className="text-base font-semibold text-white">
-              {profile?.name ?? "Unnamed Pilot"}
+              {hydrated ? profile?.name ?? "Unnamed Pilot" : "Loading..."}
             </p>
-            <p className="text-xs text-slate-400">Skill: {profile?.skill}</p>
+            <p className="text-xs text-slate-400">
+              Skill: {hydrated ? profile?.skill ?? "--" : "--"}
+            </p>
           </div>
         </div>
         <div className="ml-auto flex flex-col gap-1 text-right">
           <span className="text-sm text-slate-300">Space Core Status</span>
           <span className="text-base font-semibold text-white">
-            {questCompleted ? "Core Ignited" : "Core Dormant"}
+            {hydrated
+              ? questCompleted
+                ? "Core Ignited"
+                : "Core Dormant"
+              : "Syncing"}
           </span>
         </div>
       </section>
