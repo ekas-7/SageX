@@ -148,16 +148,46 @@ export default function EthicsPage() {
     setSubmitted(true);
     const choice = activeScenario.choices.find((c) => c.id === selectedChoice);
     if (!choice || completedIds.has(activeScenario.id)) return;
+    const xpEarned = choice.isCorrect
+      ? activeScenario.xp
+      : Math.round(activeScenario.xp * 0.25);
     const entry: CompletedScenario = {
       scenarioId: activeScenario.id,
       correct: choice.isCorrect,
       choiceId: selectedChoice,
-      xpEarned: choice.isCorrect ? activeScenario.xp : Math.round(activeScenario.xp * 0.25),
+      xpEarned,
       completedAt: new Date().toISOString(),
     };
     const updated = [...completed, entry];
     setCompleted(updated);
     saveCompleted(updated);
+
+    // Fire-and-forget XP award to backend
+    try {
+      const stored =
+        typeof window !== "undefined"
+          ? localStorage.getItem("sagex.player")
+          : null;
+      if (!stored) return;
+      const profile = JSON.parse(stored) as { name?: string };
+      if (!profile.name) return;
+      void fetch("/api/xp/award", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: profile.name,
+          source: choice.isCorrect
+            ? "ethics.scenario"
+            : "ethics.scenario.partial",
+          sourceRef: `ethics:${activeScenario.id}`,
+          difficulty: activeScenario.difficulty,
+          overrideBase: xpEarned,
+          metadata: { choiceId: selectedChoice },
+        }),
+      });
+    } catch {
+      // Non-fatal — local state already updated.
+    }
   };
 
   const selectedChoiceData = activeScenario?.choices.find((c) => c.id === selectedChoice);

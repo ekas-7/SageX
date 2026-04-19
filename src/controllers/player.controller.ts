@@ -1,6 +1,20 @@
 import { PlayerService } from "../services/player.service";
+import { playerProfileSchema } from "../vali/player.vali";
 
 export const PlayerController = {
+  async upsertProfile(request: Request) {
+    const body = (await request.json().catch(() => ({}))) as unknown;
+    const parsed = playerProfileSchema.safeParse(body);
+    if (!parsed.success) {
+      throw new Error(
+        parsed.error.issues.map((i) => i.message).join("; ") ||
+          "Invalid player profile"
+      );
+    }
+    const player = await PlayerService.getOrCreatePlayer(parsed.data);
+    return { ok: true, player };
+  },
+
   async getStats(request: Request) {
     const { searchParams } = new URL(request.url);
   const name = searchParams.get("name");

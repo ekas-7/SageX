@@ -192,6 +192,44 @@ export default function LabPage() {
                   </p>
                   <p>Score: <span className="font-display font-semibold text-[var(--text-primary)]">{result.score}</span></p>
                   <p>Time: <span className="font-mono text-[var(--text-primary)]">{(result.durationMs / 1000).toFixed(1)}s</span></p>
+
+                  {xpAward && !xpAward.duplicate && xpAward.awarded > 0 && (
+                    <div className="rounded-xl border border-[var(--border-accent)] bg-[var(--sagex-accent-muted)] p-3">
+                      <p className="font-display text-sm font-semibold text-[var(--sagex-accent)]">
+                        +{xpAward.awarded} XP
+                        {xpAward.multiplier > 1 && (
+                          <span className="ml-2 text-xs text-[var(--text-secondary)]">
+                            x{xpAward.multiplier.toFixed(2)} multiplier
+                          </span>
+                        )}
+                      </p>
+                      {xpAward.leveledUp && (
+                        <p className="mt-1 text-xs text-[var(--text-primary)]">
+                          Level up! Now Lv {xpAward.levelAfter} &middot; {xpAward.rank}
+                          {xpAward.levelsGained > 1 && ` (+${xpAward.levelsGained} levels)`}
+                        </p>
+                      )}
+                      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-3)]">
+                        <div
+                          className="h-full bg-[var(--sagex-accent)] transition-all duration-700"
+                          style={{ width: `${xpAward.progressPct}%` }}
+                        />
+                      </div>
+                      <p className="mt-1 text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+                        {xpAward.xpToNext} XP to next level
+                        {xpAward.softCapped && " \u00B7 daily cap active (halved)"}
+                      </p>
+                    </div>
+                  )}
+                  {xpAward?.duplicate && (
+                    <p className="text-xs text-[var(--text-muted)]">
+                      Already rewarded for this quest today.
+                    </p>
+                  )}
+                  {xpError && (
+                    <p className="text-xs text-rose-400">{xpError}</p>
+                  )}
+
                   <a href="/hub" className="btn-ghost mt-2 inline-flex text-sm">
                     Return to Hub
                   </a>

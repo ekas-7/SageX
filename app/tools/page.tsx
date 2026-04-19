@@ -1,7 +1,20 @@
 export default function ToolsPage() {
   return (
-    <div className="min-h-screen px-6 py-12">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
+    <div className="relative min-h-screen overflow-hidden px-6 py-12">
+      <div className="absolute inset-0 pointer-events-none">
+        <video
+          className="h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+        >
+          <source src="/assests/background/tools/background.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div className="absolute inset-0 bg-black/50 pointer-events-none" />
+      <div className="absolute inset-0 backdrop-blur-xs pointer-events-none" />
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-10">
         <header className="space-y-3">
           <p className="page-label">Learn Tools</p>
           <h1 className="page-title text-3xl">AI Tools Workshop</h1>

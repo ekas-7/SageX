@@ -198,13 +198,16 @@ export const XpOrchestrator = {
       streakMultiplier: XpService.streakMultiplier(stats.dailyStreak ?? 1),
       dailyXpEarned,
       dailyCapHit: dailyXpEarned >= (stats.dailyXpEarned ?? 0) && dailyXpEarned > 0,
-      recentEvents: recentEvents.map((event) => ({
-        ...event,
-        createdAt:
-          (event as { createdAt?: Date | string }).createdAt instanceof Date
-            ? ((event as { createdAt: Date }).createdAt as Date).toISOString()
-            : (event as { createdAt?: string }).createdAt,
-      })) as XpEventRecord[],
+      recentEvents: recentEvents.map((event) => {
+        const raw = (event as { createdAt?: unknown }).createdAt;
+        const createdAt =
+          raw instanceof Date
+            ? raw.toISOString()
+            : typeof raw === "string"
+              ? raw
+              : undefined;
+        return { ...event, createdAt };
+      }) as XpEventRecord[],
     };
   },
 

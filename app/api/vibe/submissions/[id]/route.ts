@@ -1,10 +1,11 @@
 import { VibeController } from "@/src/controllers/vibe.controller";
 
-type Params = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(request: Request, { params }: Params) {
+export async function GET(request: Request, { params }: RouteContext) {
   try {
-    const payload = await VibeController.getSubmission(request, params.id);
+    const { id } = await params;
+    const payload = await VibeController.getSubmission(request, id);
     return Response.json(payload);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to load submission";
