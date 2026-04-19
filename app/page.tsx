@@ -102,8 +102,25 @@ export default function Home() {
       ref={containerRef}
       className="home-scene flex min-h-screen flex-col bg-sagex-gradient"
     >
-  <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col gap-12 px-6 pb-20 pt-16">
-  <section className="flex flex-col items-center gap-10 md:flex-row md:items-center">
+      <div className="absolute inset-0 pointer-events-none">
+        <video
+          className="h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+        >
+          <source
+            src="/assests/background/onboarding/hero.mp4"
+            type="video/mp4"
+          />
+        </video>
+      </div>
+      <div className="home-video-overlay" aria-hidden="true" />
+  <main className="home-content relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col gap-12 px-6 pb-20 pt-16">
+        <section className="flex flex-col items-center gap-10 md:flex-row md:items-center">
           <div className="flex w-full justify-center md:w-1/2 md:justify-start">
             <div ref={parallaxRef} className="home-parallax relative">
               <div className="home-glow" aria-hidden="true" />
