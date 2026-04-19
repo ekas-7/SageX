@@ -169,8 +169,11 @@ function SideQuestsRoom() {
   };
 
   return (
-    <div className="min-h-screen px-6 py-10">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
+    <div className="relative min-h-screen overflow-hidden px-6 py-10">
+      <div className="absolute inset-0 bg-[url('/assests/background/side-quests/background.png')] bg-cover bg-center" />
+      <div className="absolute inset-0 bg-black/55" />
+      <div className="absolute inset-0 backdrop-blur-[1px]" />
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-8">
         <header className="flex flex-col gap-3">
           <p className="page-label">Side Quest: LiveKit Lab</p>
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -313,8 +316,11 @@ function SideQuestsRoom() {
 
 function SideQuestsFallback() {
   return (
-    <div className="min-h-screen px-6 py-10">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
+    <div className="relative min-h-screen overflow-hidden px-6 py-10">
+      <div className="absolute inset-0 bg-[url('/assests/background/side-quests/background.png')] bg-cover bg-center" />
+      <div className="absolute inset-0 bg-black/55" />
+      <div className="absolute inset-0 backdrop-blur-[1px]" />
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-8">
         <header className="flex flex-col gap-3">
           <p className="page-label">Side Quest: LiveKit Lab</p>
           <h1 className="page-title text-3xl">Collaborative Agent Builder</h1>
