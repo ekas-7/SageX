@@ -56,28 +56,42 @@ export const PlayerRepository = {
   /**
    * Atomic upsert keyed by playerId. Creates if missing, otherwise only
    * updates the provided profile fields. Stats are never overwritten here.
+   *
+   * IMPORTANT: MongoDB forbids setting a nested path (`stats.lastActiveAt`)
+   * and its parent (`stats`) in the same update. We therefore split the
+   * operation in two: one upsert for profile fields, one patch for stats.
    */
   async upsertById(data: CreateData) {
     await connectToDatabase();
     const now = new Date();
+    const profileSet: Record<string, unknown> = {
+      playerId: data.playerId,
+      name: data.name,
+    };
+    if (data.avatar !== undefined) profileSet.avatar = data.avatar;
+    if (data.skill !== undefined) profileSet.skill = data.skill;
+    if (data.interests !== undefined) profileSet.interests = data.interests;
+
+    // First op: ensure the doc exists with the right profile fields.
+    // On insert, $setOnInsert provides the default stats block.
+    await PlayerModel.updateOne(
+      { playerId: data.playerId },
+      {
+        $set: profileSet,
+        $setOnInsert: {
+          stats: defaultStats(),
+        },
+      },
+      { upsert: true, setDefaultsOnInsert: true }
+    );
+
+    // Second op: patch only the fields that could conflict with $setOnInsert.
+    // Safe now because the doc is guaranteed to exist.
     return (
       PlayerModel.findOneAndUpdate(
         { playerId: data.playerId },
-        {
-          $set: {
-            playerId: data.playerId,
-            name: data.name,
-            ...(data.avatar !== undefined ? { avatar: data.avatar } : {}),
-            ...(data.skill !== undefined ? { skill: data.skill } : {}),
-            ...(data.interests !== undefined ? { interests: data.interests } : {}),
-            "stats.lastActiveAt": now,
-          },
-          $setOnInsert: {
-            stats: defaultStats(),
-            createdAt: now,
-          },
-        },
-        { new: true, upsert: true, setDefaultsOnInsert: true }
+        { $set: { "stats.lastActiveAt": now } },
+        { new: true }
       ).lean() as unknown
     ) as PlayerProfile;
   },
