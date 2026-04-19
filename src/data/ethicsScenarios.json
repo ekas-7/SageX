@@ -1,0 +1,520 @@
+{
+  "categories": [
+    {
+      "id": "bias-fairness",
+      "label": "Bias & Fairness",
+      "icon": "scale",
+      "description": "Explore how AI systems can perpetuate or reduce societal biases.",
+      "scenarios": [
+        {
+          "id": "bf-01",
+          "title": "The Hiring Algorithm",
+          "difficulty": "beginner",
+          "xp": 50,
+          "context": "Your company built an AI resume screener trained on 10 years of hiring data. The data shows the company historically hired 80% male engineers. The AI now ranks male candidates higher by default.",
+          "question": "What is the most responsible course of action?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "Deploy the model as-is since it reflects real company preferences.",
+              "feedback": "This perpetuates historical bias. Past hiring patterns don't reflect fair evaluation -- they reflect systemic discrimination. Deploying this would amplify inequality.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "Retrain the model with bias-corrected data and add fairness constraints.",
+              "feedback": "Correct. Debiasing training data and applying fairness metrics (like demographic parity or equalized odds) helps the model evaluate candidates on merit rather than historical patterns.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "Remove gender data from the dataset and retrain.",
+              "feedback": "Removing gender alone isn't sufficient -- proxy features like name, university, and hobbies can still encode gender. You need comprehensive bias auditing alongside data cleaning.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "Scrap the AI and go back to fully manual screening.",
+              "feedback": "Manual screening has its own biases. A well-audited AI can actually be more consistent and fair than human reviewers. The goal is to fix the model, not abandon the approach.",
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": "bf-02",
+          "title": "Medical Diagnosis Disparity",
+          "difficulty": "builder",
+          "xp": 75,
+          "context": "A hospital deploys an AI diagnostic tool for skin conditions. Post-deployment analysis reveals the model is 92% accurate on lighter skin tones but only 64% accurate on darker skin tones, because training data was 85% from light-skinned patients.",
+          "question": "How should the hospital respond?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "Continue using the tool but add a disclaimer about accuracy limitations.",
+              "feedback": "Disclaimers don't prevent misdiagnosis. Patients with darker skin would receive systematically worse care, which violates principles of medical equity.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "Immediately pull the tool from production until accuracy parity is achieved.",
+              "feedback": "Correct. When an AI tool has a known, significant accuracy gap across demographic groups in a high-stakes medical context, it should be paused, augmented with diverse training data, and re-validated before redeployment.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "Only use the tool for lighter-skinned patients.",
+              "feedback": "This creates a two-tier healthcare system where darker-skinned patients are explicitly excluded from AI-assisted diagnosis. It's discriminatory even if technically more accurate.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "Collect more diverse data over the next year while keeping the tool live.",
+              "feedback": "A year of known inequitable care is unacceptable. The tool needs to be paused immediately -- you can collect better data without risking patient harm.",
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": "bf-03",
+          "title": "Loan Approval Engine",
+          "difficulty": "competitive",
+          "xp": 100,
+          "context": "A fintech startup's AI loan approval model uses zip code as a feature. Neighborhoods with historically redlined demographics receive systematically lower approval rates. The model is technically optimizing for repayment probability.",
+          "question": "What's the best approach to address this?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "Keep zip code since it improves predictive accuracy.",
+              "feedback": "Zip code acts as a proxy for race due to residential segregation. Even if it improves raw accuracy, using it perpetuates the effects of historical redlining. This could also violate fair lending laws.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "Remove zip code and audit the model for disparate impact using protected-class proxies.",
+              "feedback": "Correct. Remove the proxy variable and conduct a thorough disparate impact analysis. Replace it with individual financial behavior features that don't encode systemic inequality.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "Add zip code diversity as a bonus factor to counterbalance.",
+              "feedback": "Ad-hoc corrections can introduce unpredictable side effects. A principled approach is to remove the biased feature and redesign the feature set around individual merit.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "The model is just reflecting reality -- no changes needed.",
+              "feedback": "Reflecting historical inequality is not neutral. AI systems in lending have legal obligations under fair lending laws. 'Reflecting reality' can mean encoding discrimination.",
+              "isCorrect": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "privacy-surveillance",
+      "label": "Privacy & Surveillance",
+      "icon": "eye",
+      "description": "Navigate the tension between AI capability and individual privacy rights.",
+      "scenarios": [
+        {
+          "id": "ps-01",
+          "title": "The Smart Campus",
+          "difficulty": "beginner",
+          "xp": 50,
+          "context": "A university wants to install facial recognition cameras across campus to track attendance automatically. Students wouldn't need to sign in -- the AI would mark them present by recognizing their faces. The university says it saves time and reduces fraud.",
+          "question": "What is the key ethical concern here?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "The technology might not work accurately enough.",
+              "feedback": "Accuracy is a concern, but the deeper issue is consent and surveillance. Even a perfect system creates a constant surveillance environment that chills free expression and movement.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "Students haven't consented to continuous biometric surveillance in an educational setting.",
+              "feedback": "Correct. Biometric data is uniquely sensitive -- you can't change your face like a password. Deploying facial recognition without explicit opt-in consent in a learning environment creates a surveillance culture that conflicts with academic freedom.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "It's fine as long as the data is stored securely.",
+              "feedback": "Secure storage doesn't address the fundamental issue of consent and proportionality. Constant biometric tracking is a disproportionate response to attendance management.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "It's a net positive since it prevents cheating.",
+              "feedback": "The marginal benefit of preventing attendance fraud doesn't justify mass biometric surveillance. The principle of proportionality requires the least invasive approach to achieve the goal.",
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": "ps-02",
+          "title": "Emotion Detection in Interviews",
+          "difficulty": "builder",
+          "xp": 75,
+          "context": "A job platform wants to use AI emotion detection during video interviews to score candidates on 'confidence', 'enthusiasm', and 'trustworthiness' based on facial microexpressions and voice tone analysis.",
+          "question": "Should the platform deploy this feature?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "Yes -- it adds an objective layer to subjective interview evaluations.",
+              "feedback": "Emotion detection AI is not objective. Research shows these systems have significant accuracy problems, cultural biases, and fundamentally flawed assumptions about the link between facial expressions and internal states.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "No -- emotion detection science is unreliable and the system would discriminate against neurodivergent candidates.",
+              "feedback": "Correct. Leading psychologists dispute that facial expressions reliably indicate emotions. The system would systematically disadvantage people with different cultural expression norms, neurodivergent individuals, and anyone whose expressions don't match Western training data.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "Only if candidates opt in and see their scores.",
+              "feedback": "Transparency doesn't fix the fundamental problem: the underlying science is unreliable. Showing candidates flawed scores could cause them to artificially modify their behavior, adding stress without improving hiring quality.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "Yes, but only as one factor among many in the evaluation.",
+              "feedback": "Even as one factor, injecting unreliable pseudoscience into hiring decisions causes real harm. A small weight on a biased signal still produces biased outcomes at scale.",
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": "ps-03",
+          "title": "Predictive Policing",
+          "difficulty": "competitive",
+          "xp": 100,
+          "context": "A city police department wants to deploy an AI system that predicts crime hotspots based on historical arrest data. Officers would be dispatched more frequently to predicted high-crime areas. Historical data shows disproportionate arrests in minority neighborhoods due to over-policing.",
+          "question": "What is the most responsible recommendation?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "Deploy with safeguards -- cap the maximum patrol increase in any neighborhood.",
+              "feedback": "Caps reduce the magnitude but don't address the root problem: the model learns from biased arrest data, not actual crime rates. It will still direct resources disproportionately.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "Reject the system -- historical arrest data encodes policing bias, creating a feedback loop that intensifies discrimination.",
+              "feedback": "Correct. Predictive policing based on arrest data creates a self-reinforcing cycle: more policing leads to more arrests, which feeds back into the model. This amplifies racial disparities rather than reducing crime equitably.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "Use the system but train on 911 call data instead of arrest data.",
+              "feedback": "911 call data also has biases -- studies show reporting rates vary by neighborhood demographics. While better than arrest data, it still doesn't provide a neutral ground truth for crime occurrence.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "Deploy it as a pilot in one neighborhood and measure outcomes.",
+              "feedback": "A pilot still subjects real people to a system built on biased data. The fundamental data problem needs to be solved before any deployment, not validated through experimentation on communities.",
+              "isCorrect": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transparency-explainability",
+      "label": "Transparency & Explainability",
+      "icon": "lightbulb",
+      "description": "Understand when and why AI systems need to explain their decisions.",
+      "scenarios": [
+        {
+          "id": "te-01",
+          "title": "The Black-Box Diagnosis",
+          "difficulty": "beginner",
+          "xp": 50,
+          "context": "A deep learning model achieves 97% accuracy diagnosing a rare disease from medical scans -- better than most human radiologists. However, the model cannot explain which features in the scan led to its diagnosis. A doctor must decide whether to tell a patient they likely have the disease based solely on the AI's output.",
+          "question": "What should the doctor do?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "Trust the AI's 97% accuracy and inform the patient of the diagnosis.",
+              "feedback": "97% accuracy sounds high, but for a rare disease that means potentially thousands of false positives. Without understanding the model's reasoning, the doctor can't catch systematic errors or explain the diagnosis to the patient.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "Use the AI as a screening flag, then verify with explainable methods and human expertise before communicating to the patient.",
+              "feedback": "Correct. The AI is a powerful triage tool, but high-stakes medical decisions require human verification and the ability to explain reasoning to patients. This approach uses AI capability while maintaining medical accountability.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "Ignore the AI completely since it can't explain itself.",
+              "feedback": "Dismissing a 97% accurate tool wastes a valuable resource. The issue isn't the AI's accuracy -- it's how the output is used in the clinical workflow. Black-box models can still add value as assistive tools.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "Tell the patient the AI flagged something but don't share specifics until further tests confirm.",
+              "feedback": "This causes unnecessary anxiety without actionable information. The better approach is to run confirmatory analysis first, then communicate clear findings -- not vague AI flags.",
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": "te-02",
+          "title": "Content Moderation at Scale",
+          "difficulty": "builder",
+          "xp": 75,
+          "context": "A social media platform uses AI to automatically remove posts flagged as 'hate speech'. The model removes 50,000 posts per day. Users whose posts are removed receive a generic notice: 'Your post violated community guidelines.' No further explanation is given. Appeal reviews take 3-4 weeks.",
+          "question": "What's the biggest problem with this system?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "The model probably has false positives removing legitimate speech.",
+              "feedback": "False positives are a real concern, but the bigger systemic issue is the lack of transparency and meaningful recourse. Users can't improve behavior or challenge errors without understanding why posts were removed.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "Users deserve specific explanations for removal and fast, accessible appeals -- automated enforcement without transparency undermines trust and free expression.",
+              "feedback": "Correct. At minimum, users need to know which specific rule was violated and which part of their content triggered removal. Combined with a realistic appeals timeline, this creates accountability for the AI system's decisions.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "50,000 removals per day means the threshold is probably too aggressive.",
+              "feedback": "Without knowing the total post volume, 50k removals could be too many or too few. The volume isn't the core issue -- the lack of explainability and due process is.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "Humans should review every removal before it happens.",
+              "feedback": "At 50k posts/day this isn't feasible. The solution is better transparency and faster appeals, not eliminating automation. Human review should focus on appeals and edge cases.",
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": "te-03",
+          "title": "Autonomous Vehicle Decision Logging",
+          "difficulty": "competitive",
+          "xp": 100,
+          "context": "An autonomous vehicle company's AI makes thousands of micro-decisions per second while driving. After a minor collision, investigators want to understand why the car chose to brake late. The company says the neural network's decision process is too complex to reconstruct into human-understandable reasoning.",
+          "question": "What should regulators require?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "Accept that some AI decisions are inherently unexplainable and focus on statistical safety records instead.",
+              "feedback": "Statistical safety is important but insufficient. Without the ability to audit specific failures, you can't identify systematic problems, assign liability, or improve the system. Accountability requires some level of explainability.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "Require comprehensive decision logging, interpretable fallback models for critical maneuvers, and post-incident reconstruction capabilities.",
+              "feedback": "Correct. Safety-critical AI systems need audit trails. Even if the full neural network is opaque, companies should maintain sensor logs, decision-point records, and interpretable models that can approximate the system's reasoning in critical moments.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "Ban autonomous vehicles until they can fully explain every decision.",
+              "feedback": "Full explainability for every microsecond decision isn't realistic or necessary. What's needed is explainability at critical decision points -- when the system decides to brake, swerve, or take unusual action.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "Let the company self-certify that the system meets internal safety standards.",
+              "feedback": "Self-certification without external audit capability creates conflicts of interest. Independent regulators need the ability to verify safety claims, which requires some form of decision transparency.",
+              "isCorrect": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "autonomy-accountability",
+      "label": "Autonomy & Accountability",
+      "icon": "shield",
+      "description": "Determine who is responsible when AI systems make impactful decisions.",
+      "scenarios": [
+        {
+          "id": "aa-01",
+          "title": "The AI Tutor's Advice",
+          "difficulty": "beginner",
+          "xp": 50,
+          "context": "An AI tutoring platform gives a student advice to drop out of a challenging math course, saying 'Based on your performance patterns, you have a 23% chance of passing.' The student follows this advice and drops the course. Later, a teacher says the student was about to have a breakthrough and the AI misjudged their trajectory.",
+          "question": "Who bears responsibility?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "The student -- they made the final decision to drop the course.",
+              "feedback": "While the student made the choice, the AI presented a specific probability that implied authority and certainty. Most students would reasonably trust a quantified prediction from their learning platform.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "The platform -- AI should never make definitive recommendations about life-altering academic decisions without human educator involvement.",
+              "feedback": "Correct. The platform is accountable for allowing an AI to make a dropout recommendation without guardrails. High-stakes academic advice should always route through a human educator who can assess context the AI can't capture.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "The teacher -- they should have been monitoring the student more closely.",
+              "feedback": "Teachers can't monitor every student's interaction with AI tools. The systemic issue is the platform's design choice to allow unsupervised high-stakes recommendations.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "Nobody -- predictions are inherently uncertain and the student should know that.",
+              "feedback": "The platform presented a specific probability with implied authority. Expecting users to critically evaluate AI confidence levels is unrealistic, especially for students. The system design should prevent this scenario.",
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": "aa-02",
+          "title": "Autonomous Drone Delivery Incident",
+          "difficulty": "builder",
+          "xp": 75,
+          "context": "A delivery drone's AI navigates a new route and drops a package on a car windshield, causing damage. The AI's path planning chose the fastest route over a parking lot. The drone manufacturer says the AI made an 'edge case' decision they didn't anticipate. The delivery company says they just use the manufacturer's software.",
+          "question": "How should accountability be assigned?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "The manufacturer is solely responsible since they built the AI.",
+              "feedback": "Manufacturers bear significant responsibility, but the delivery company chose to deploy the system in a real environment. Both parties share accountability -- the manufacturer for the software, the operator for the deployment context.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "Shared liability: the manufacturer for the AI's path planning failures, and the delivery company for deploying it without adequate safety testing in their operational environment.",
+              "feedback": "Correct. AI accountability often involves multiple parties. The manufacturer should have better edge-case handling, and the operator should have validated the system in their specific deployment conditions. Both failed their duty of care.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "The AI itself -- it made the decision autonomously.",
+              "feedback": "AI systems are not legal persons and cannot bear responsibility. Accountability must flow to the humans and organizations that built, deployed, and profited from the system.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "Nobody -- it's an unpredictable edge case and accidents happen.",
+              "feedback": "Edge cases in autonomous systems are foreseeable risks. Companies deploying AI in physical environments have a duty to anticipate and test for unusual scenarios. 'We didn't expect that' is not a valid defense.",
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": "aa-03",
+          "title": "AI-Generated Legal Brief",
+          "difficulty": "competitive",
+          "xp": 100,
+          "context": "A lawyer uses an AI tool to draft a legal brief. The AI fabricates three case citations that don't exist (hallucination). The lawyer submits the brief without verifying the citations. The judge discovers the fake cases and sanctions the lawyer. The lawyer argues the AI tool's marketing promised 'reliable legal research.'",
+          "question": "How should responsibility be distributed?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "The lawyer is fully responsible -- verifying citations is basic professional duty.",
+              "feedback": "The lawyer bears primary responsibility for submitting unverified work, but the AI company also contributed by marketing the tool as 'reliable' without adequate disclaimers about hallucination risks.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "The AI company is fully responsible for the hallucination.",
+              "feedback": "AI companies should be transparent about limitations, but professionals using AI tools maintain their duty of care. A lawyer can't delegate their professional obligations to software.",
+              "isCorrect": false
+            },
+            {
+              "id": "c",
+              "text": "Primary responsibility on the lawyer for not verifying, secondary responsibility on the AI company for misleading marketing about reliability.",
+              "feedback": "Correct. The lawyer has a non-delegable professional duty to verify legal citations. However, the AI company's marketing that implied reliability without clear hallucination warnings contributed to misplaced trust. Both parties share blame in different proportions.",
+              "isCorrect": true
+            },
+            {
+              "id": "d",
+              "text": "The legal system needs to adapt -- AI hallucinations are a known issue that the profession should anticipate.",
+              "feedback": "Systemic adaptation is needed, but it doesn't absolve individual responsibility in current cases. Both the lawyer and the AI company had existing obligations they failed to meet.",
+              "isCorrect": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "environmental-impact",
+      "label": "Environmental Impact",
+      "icon": "leaf",
+      "description": "Evaluate the environmental costs of training and deploying large AI systems.",
+      "scenarios": [
+        {
+          "id": "ei-01",
+          "title": "The Carbon Cost of Training",
+          "difficulty": "beginner",
+          "xp": 50,
+          "context": "Your team wants to train a large language model from scratch. Estimates show the training run will consume approximately 1,200 MWh of electricity and emit 500 tons of CO2 -- equivalent to 125 round-trip flights from New York to London. A pre-trained open-source model achieves 90% of your target performance.",
+          "question": "What's the most responsible approach?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "Train from scratch -- 10% performance improvement justifies the cost for our use case.",
+              "feedback": "Unless the 10% gap has critical real-world consequences (like medical safety), the environmental cost of 500 tons of CO2 is very difficult to justify for marginal improvement. Consider the proportionality of impact vs. cost.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "Fine-tune the open-source model, which uses a fraction of the compute, and evaluate if the remaining performance gap actually matters for your use case.",
+              "feedback": "Correct. Fine-tuning is orders of magnitude cheaper environmentally. Often, the last 10% of benchmark performance doesn't translate to meaningful real-world differences. Start with the efficient approach and only escalate if genuinely necessary.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "Buy carbon offsets to make the training carbon-neutral.",
+              "feedback": "Carbon offsets are controversial and often don't deliver real environmental benefit. They also don't address the broader issue of compute resource allocation. Reducing emissions is always better than offsetting them.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "Wait for more efficient hardware before training.",
+              "feedback": "Hardware efficiency improvements are real but incremental. If you need the model now, fine-tuning an existing model is the practical answer. Waiting indefinitely for better hardware isn't a strategy.",
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": "ei-02",
+          "title": "Data Center Water Usage",
+          "difficulty": "builder",
+          "xp": 75,
+          "context": "Your company plans to build a new AI data center in a region experiencing water scarcity. The cooling systems for GPU clusters require approximately 5 million gallons of water per day. Local residents and farmers are already under water restrictions.",
+          "question": "What should the company prioritize?",
+          "choices": [
+            {
+              "id": "a",
+              "text": "Proceed -- the economic benefits and jobs outweigh the water concerns.",
+              "feedback": "Economic benefits don't override community access to essential resources. Water scarcity affects health, agriculture, and livelihoods. Corporate interests shouldn't come at the expense of community survival.",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "Relocate to a water-abundant region or invest in closed-loop cooling systems that dramatically reduce water consumption.",
+              "feedback": "Correct. Companies have both the resources and the responsibility to choose locations and technologies that don't strain local resources. Closed-loop and air-cooled systems exist specifically for water-scarce regions.",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "Build but cap water usage to 50% of the original estimate.",
+              "feedback": "Even at 50%, 2.5 million gallons per day is enormous in a water-scarce region. The fundamental problem of competing with essential community needs remains.",
+              "isCorrect": false
+            },
+            {
+              "id": "d",
+              "text": "Negotiate a water-sharing agreement with the local government.",
+              "feedback": "When a community is already under water restrictions, a sharing agreement means the company takes water from people who already don't have enough. The power imbalance makes such agreements inherently unfair.",
+              "isCorrect": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
