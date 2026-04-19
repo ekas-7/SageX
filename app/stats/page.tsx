@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
+import {
+  readStoredPlayer,
+  signInPlayer,
+  signInPlayerStrict,
+} from "@/src/lib/playerClient";
 
 type StatsResponse = {
   player: {
@@ -122,22 +126,52 @@ export default function StatsPage() {
     if (!profile?.playerId) return;
     const controller = new AbortController();
 
+    const fetchStats = async (playerId: string) => {
+      const params = new URLSearchParams({ playerId });
+      return Promise.all([
+        fetch(`/api/stats?${params.toString()}`, {
+          signal: controller.signal,
+        }),
+        fetch(`/api/xp/summary?playerId=${encodeURIComponent(playerId)}`, {
+          signal: controller.signal,
+        }),
+      ]);
+    };
+
     const load = async () => {
       try {
         setLoading(true);
         setError(null);
-        const params = new URLSearchParams({
-          playerId: profile.playerId,
-        });
-        const [statsRes, xpRes] = await Promise.all([
-          fetch(`/api/stats?${params.toString()}`, {
-            signal: controller.signal,
-          }),
-          fetch(
-            `/api/xp/summary?playerId=${encodeURIComponent(profile.playerId)}`,
-            { signal: controller.signal }
-          ),
-        ]);
+
+        let [statsRes, xpRes] = await fetchStats(profile.playerId);
+
+        // If the backend doesn't know this playerId yet (legacy record
+        // or previous sign-in silently failed), force a strict sign-in
+        // that persists the record, then retry once.
+        if (statsRes.status === 500 || statsRes.status === 404) {
+          const body = (await statsRes
+            .clone()
+            .json()
+            .catch(() => ({}))) as { error?: string };
+          if ((body.error ?? "").toLowerCase().includes("not found")) {
+            const stored = readStoredPlayer();
+            if (stored) {
+              const healed = await signInPlayerStrict(stored);
+              if (healed.playerId !== profile.playerId) {
+                setProfile({
+                  playerId: healed.playerId,
+                  name: healed.name,
+                  avatar: healed.avatar,
+                  skill: healed.skill,
+                  interests: healed.interests,
+                });
+                return; // effect will re-run with the new id
+              }
+              [statsRes, xpRes] = await fetchStats(healed.playerId);
+            }
+          }
+        }
+
         if (!statsRes.ok) {
           const payload = (await statsRes.json()) as { error?: string };
           throw new Error(payload.error ?? "Unable to load stats");

@@ -100,14 +100,17 @@ export async function ensurePlayerId(
   return fresh;
 }
 
+type SignInOutcome = {
+  player: StoredPlayer;
+  serverPersisted: boolean;
+  error?: Error;
+};
+
 /**
- * Idempotent sign-in: ensures the player exists in the DB, advances
- * their daily streak, and returns the canonical server profile.
- * Safe to call on every page load.
+ * Internal: does the actual sign-in fetch and returns both the resolved
+ * player *and* whether the server actually persisted the record.
  */
-export async function signInPlayer(
-  stored: StoredPlayer
-): Promise<StoredPlayer> {
+async function performSignIn(stored: StoredPlayer): Promise<SignInOutcome> {
   const withId = await ensurePlayerId(stored);
   try {
     const res = await fetch("/api/player", {
@@ -121,27 +124,75 @@ export async function signInPlayer(
         interests: withId.interests,
       }),
     });
-    if (res.ok) {
-      const payload = (await res.json()) as {
-        ok: boolean;
-        player: { playerId: string; name: string; avatar?: string; skill?: string };
+    const payload = (await res.json().catch(() => ({}))) as {
+      ok?: boolean;
+      error?: string;
+      player?: {
+        playerId: string;
+        name: string;
+        avatar?: string;
+        skill?: string;
       };
-      if (payload.ok && payload.player?.playerId) {
-        const next: StoredPlayer = {
-          ...withId,
-          playerId: payload.player.playerId,
-          name: payload.player.name,
-          avatar: payload.player.avatar ?? withId.avatar,
-          skill: payload.player.skill ?? withId.skill,
-        };
-        writeStoredPlayer(next);
-        return next;
-      }
+    };
+    if (res.ok && payload.ok && payload.player?.playerId) {
+      const next: StoredPlayer = {
+        ...withId,
+        playerId: payload.player.playerId,
+        name: payload.player.name,
+        avatar: payload.player.avatar ?? withId.avatar,
+        skill: payload.player.skill ?? withId.skill,
+      };
+      writeStoredPlayer(next);
+      return { player: next, serverPersisted: true };
     }
-  } catch {
-    // Network issue — still return local copy; next page load will retry.
+    return {
+      player: withId,
+      serverPersisted: false,
+      error: new Error(
+        payload.error ?? `Sign-in failed with status ${res.status}`
+      ),
+    };
+  } catch (err) {
+    return {
+      player: withId,
+      serverPersisted: false,
+      error: err instanceof Error ? err : new Error("Network error"),
+    };
   }
-  return withId;
+}
+
+/**
+ * Idempotent sign-in: ensures the player exists in the DB, advances
+ * their daily streak, and returns the canonical server profile.
+ *
+ * Safe for fire-and-forget use — never throws. If the server call fails,
+ * the returned profile contains the locally-known data and `lastSignInError`
+ * on window captures the error for diagnostics.
+ */
+export async function signInPlayer(
+  stored: StoredPlayer
+): Promise<StoredPlayer> {
+  const outcome = await performSignIn(stored);
+  if (outcome.error && typeof window !== "undefined") {
+    (window as unknown as { __sagexLastSignInError?: Error }).__sagexLastSignInError =
+      outcome.error;
+  }
+  return outcome.player;
+}
+
+/**
+ * Strict variant of signInPlayer. Throws if the server didn't confirm
+ * persistence. Use for flows that MUST have the player in the DB (stats,
+ * XP awards) so callers can retry or show an error.
+ */
+export async function signInPlayerStrict(
+  stored: StoredPlayer
+): Promise<StoredPlayer> {
+  const outcome = await performSignIn(stored);
+  if (!outcome.serverPersisted) {
+    throw outcome.error ?? new Error("Sign-in did not persist to server");
+  }
+  return outcome.player;
 }
 
 /** Create a brand-new player record at onboarding. */

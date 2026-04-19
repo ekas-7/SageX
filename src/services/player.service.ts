@@ -75,10 +75,22 @@ export const PlayerService = {
    * Legacy helper: rehydrate by name only (used once when a legacy client
    * has `sagex.player` but not `sagex.playerId`). Returns the first match
    * or null. Callers must persist the returned playerId back to localStorage.
+   *
+   * Auto-backfills `playerId` on legacy documents that don't have one
+   * (using the Mongo _id as the stable identifier) so future lookups work.
    */
   async rehydrateByName(name: string) {
     const player = await PlayerRepository.findByName(name);
-    return player ?? null;
+    if (!player) return null;
+
+    if (!player.playerId) {
+      const legacyId = (player as { _id?: { toString(): string } })._id?.toString();
+      if (legacyId) {
+        await PlayerRepository.assignPlayerIdByMongoId(legacyId, legacyId);
+        return { ...player, playerId: legacyId };
+      }
+    }
+    return player;
   },
 
   /**

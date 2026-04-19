@@ -132,4 +132,16 @@ export const PlayerRepository = {
       .limit(limit)
       .lean();
   },
+
+  /**
+   * Legacy backfill: set playerId on a document that was created before
+   * playerId existed. Uses the Mongo _id as the stable identifier.
+   */
+  async assignPlayerIdByMongoId(mongoId: string, playerId: string) {
+    await connectToDatabase();
+    return PlayerModel.updateOne(
+      { _id: mongoId },
+      { $set: { playerId } }
+    );
+  },
 };

@@ -28,17 +28,37 @@ export const connectToDatabase = async () => {
       maxPoolSize: 10,
     });
     cached.promise = cached.promise.then(async (conn) => {
-      // One-time migration: drop the legacy `name_1` unique index so two
-      // players can share a display name. `playerId` is the new unique key.
       try {
         const coll = conn.connection.db?.collection("players");
         if (coll) {
+          // 1. Drop legacy `name_1` unique index — display names can repeat now.
           const indexes = await coll.indexes();
           const legacy = indexes.find(
             (idx) => idx.name === "name_1" && idx.unique === true
           );
           if (legacy) {
             await coll.dropIndex("name_1");
+          }
+
+          // 2. Backfill missing `playerId` on legacy documents. We use
+          //    the Mongo _id (as a string) as the stable identifier so
+          //    existing progress is preserved.
+          const missing = await coll
+            .find({ playerId: { $exists: false } })
+            .project({ _id: 1 })
+            .toArray();
+          if (missing.length > 0) {
+            const ops = missing.map((doc) => ({
+              updateOne: {
+                filter: { _id: doc._id },
+                update: {
+                  $set: {
+                    playerId: (doc._id as { toString(): string }).toString(),
+                  },
+                },
+              },
+            }));
+            await coll.bulkWrite(ops, { ordered: false });
           }
         }
       } catch {
