@@ -62,9 +62,9 @@ type PlayerProfile = {
 export default function MapPage() {
   const router = useRouter();
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const chunkRows = 3;
+  const chunkRows = 4;
   const chunkCols = 6;
-  const viewTilesWide = 2;
+  const viewTilesWide = 3;
   const playerMarkerSize = 100;
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -370,8 +370,14 @@ export default function MapPage() {
             );
           })}
           <div
-            className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-sagex-teal/80 shadow-lg shadow-sagex-teal/40"
-            style={{ width: playerMarkerSize, height: playerMarkerSize, zIndex: 4 }}
+            className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-sagex-teal/80 shadow-lg shadow-sagex-teal/40"
+            style={{
+              width: playerMarkerSize,
+              height: playerMarkerSize,
+              zIndex: 4,
+              left: playerX + offsetX,
+              top: playerY + offsetY,
+            }}
           >
             <span style={{ fontSize: playerMarkerSize * 0.45 }}>
               {hydrated ? profile?.avatar ?? "🧑‍🚀" : "🧑‍🚀"}
