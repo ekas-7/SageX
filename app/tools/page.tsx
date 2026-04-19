@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useSyncExternalStore } from "react";
 import { TOOL_MODULES } from "@/src/data/toolsModules";
 import {
+  getServerSnapshot,
   readAllProgress,
   subscribeToProgress,
   type ToolsProgress,
@@ -13,8 +14,9 @@ export default function ToolsPage() {
   const progress = useSyncExternalStore<ToolsProgress>(
     subscribeToProgress,
     readAllProgress,
-    () => ({})
+    getServerSnapshot
   );
+
   const hydrated = typeof window !== "undefined";
 
   const totals = useMemo(() => {

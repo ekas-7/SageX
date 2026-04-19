@@ -213,8 +213,21 @@ export default function ArenaPage() {
   }
 
   return (
-    <div className="min-h-screen px-6 py-10">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
+    <div className="relative min-h-screen overflow-hidden px-6 py-10">
+      <div className="absolute inset-0 pointer-events-none">
+        <video
+          className="h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+        >
+          <source src="/assests/background/codearea/background.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div className="absolute inset-0 bg-black/55 pointer-events-none" />
+      <div className="absolute inset-0 backdrop-blur-[1px] pointer-events-none" />
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-8">
         {/* ─── Header ──────────────────────────────────────── */}
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>

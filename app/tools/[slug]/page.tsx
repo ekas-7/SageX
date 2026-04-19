@@ -1,10 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getModuleBySlug, type ToolModule } from "@/src/data/toolsModules";
 import {
+  getServerModuleSnapshot,
   readModuleProgress,
   resetModuleProgress,
   subscribeToProgress,
@@ -21,12 +27,22 @@ export default function ToolsModulePage() {
     [slug]
   );
 
+  // Snapshot getter is memoized per slug so useSyncExternalStore always
+  // gets the SAME function reference across renders — critical to avoid
+  // the infinite-loop "getSnapshot should be cached" warning.
+  const getClientSnapshot = useCallback(
+    () => (slug ? readModuleProgress(slug) : getServerModuleSnapshot()),
+    [slug]
+  );
+
   const progress = useSyncExternalStore<ModuleProgress>(
     subscribeToProgress,
-    () => (slug ? readModuleProgress(slug) : { completedSteps: [] }),
-    () => ({ completedSteps: [] })
+    getClientSnapshot,
+    getServerModuleSnapshot
   );
+
   const hydrated = typeof window !== "undefined" && !!slug;
+
   const [justCompleted, setJustCompleted] = useState(false);
 
   const totalSteps = moduleData?.steps.length ?? 0;
