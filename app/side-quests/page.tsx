@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   ControlBar,
@@ -29,7 +29,7 @@ function CallGrid() {
   );
 }
 
-export default function SideQuestsPage() {
+function SideQuestsRoom() {
   const searchParams = useSearchParams();
   const [roomName, setRoomName] = useState(DEFAULT_ROOM);
   const [identity, setIdentity] = useState("Pilot");
@@ -327,5 +327,27 @@ export default function SideQuestsPage() {
         <a href="/map" className="back-link">Back to map</a>
       </div>
     </div>
+  );
+}
+
+function SideQuestsFallback() {
+  return (
+    <div className="min-h-screen px-6 py-10">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
+        <header className="flex flex-col gap-3">
+          <p className="page-label">Side Quest: LiveKit Lab</p>
+          <h1 className="page-title text-3xl">Collaborative Agent Builder</h1>
+          <p className="page-description text-sm">Loading session...</p>
+        </header>
+      </div>
+    </div>
+  );
+}
+
+export default function SideQuestsPage() {
+  return (
+    <Suspense fallback={<SideQuestsFallback />}>
+      <SideQuestsRoom />
+    </Suspense>
   );
 }
