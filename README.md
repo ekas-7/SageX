@@ -16,6 +16,10 @@ Create a `.env.local` file (see `.env.local.example`) with:
 - `MONGODB_URI`
 - `GROQ_API_KEY`
 - `GROQ_MODEL` (optional)
+- `NEXT_PUBLIC_APP_URL` (used for invite links)
+- `NEXT_PUBLIC_LIVEKIT_URL`
+- `LIVEKIT_API_KEY`
+- `LIVEKIT_API_SECRET`
 
 ## Run Locally
 

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@livekit/components-styles";
 
 /* ───────────────────────────────────────────────
    Design Tokens

@@ -7,6 +7,12 @@ const PlayerStatsSchema = new Schema(
     challengesCompleted: { type: Number, default: 0 },
     totalChallenges: { type: Number, default: 0 },
     totalXp: { type: Number, default: 0 },
+    level: { type: Number, default: 1 },
+    currentLevelXp: { type: Number, default: 0 },
+    xpToNext: { type: Number, default: 100 },
+    dailyXpEarned: { type: Number, default: 0 },
+    dailyXpResetAt: { type: Date },
+    milestonesClaimed: { type: [Number], default: [] },
     lastActiveAt: { type: Date },
   },
   { _id: false }

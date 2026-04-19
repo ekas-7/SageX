@@ -4,6 +4,12 @@ export type PlayerStats = {
   challengesCompleted: number;
   totalChallenges: number;
   totalXp: number;
+  level: number;
+  currentLevelXp: number;
+  xpToNext: number;
+  dailyXpEarned: number;
+  dailyXpResetAt?: string;
+  milestonesClaimed: number[];
   lastActiveAt?: string;
 };
 
@@ -23,6 +29,8 @@ export type LeaderboardEntry = {
   skill?: string;
   rank: number;
   totalXp: number;
+  level: number;
+  rankTier: string;
   dailyStreak: number;
   challengesCompleted: number;
 };

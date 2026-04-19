@@ -10,8 +10,12 @@
     "spritesheet:skin1": "node scripts/generate-skin1-spritesheet.mjs"
   },
   "dependencies": {
+    "@livekit/components-react": "^2.9.20",
+    "@livekit/components-styles": "^1.2.0",
     "groq-sdk": "^0.15.0",
     "gsap": "^3.15.0",
+    "livekit-client": "^2.18.3",
+    "livekit-server-sdk": "^2.15.1",
     "mongoose": "^8.12.1",
     "next": "16.2.4",
     "react": "19.2.4",
