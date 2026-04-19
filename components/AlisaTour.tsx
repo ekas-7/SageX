@@ -20,11 +20,13 @@ import {
  * player to click Next / Visit / Skip.
  */
 
-// Sprite sheet: skin-1, 4 cols × 4 rows, frames 0..3 per direction.
-const SPRITE_SHEET = "/assests/skins/skin-1-spritesheet.png";
+// Alisa sprite sheet — /assests/npc/alsiaspritesheet.png
+// 1536×2762 arranged as 4 cols × 4 rows of ~384×690 frames.
+// If any direction looks wrong, swap rows in DIRECTION_ROW below.
+const SPRITE_SHEET = "/assests/npc/alsiaspritesheet.png";
 const SPRITE_FRAMES = 4;
 const SPRITE_ROWS = 4;
-const SPRITE_ASPECT = 1382 / 768;
+const SPRITE_ASPECT = 690 / 384; // ≈ 1.796
 const SPRITE_WIDTH = 60;
 const SPRITE_HEIGHT = Math.round(SPRITE_WIDTH * SPRITE_ASPECT);
 
