@@ -90,10 +90,21 @@ export default function HubPage() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-10 px-6 pb-16 pt-12">
       <header className="flex flex-col gap-4">
-        <p className="page-label">AI City Hub</p>
-        <h1 className="page-title text-3xl md:text-5xl">
-          {hydrated ? greeting : "Welcome, Explorer"}
-        </h1>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="page-label">AI City Hub</p>
+            <h1 className="page-title text-3xl md:text-5xl">
+              {hydrated ? greeting : "Welcome, Explorer"}
+            </h1>
+          </div>
+          <a
+            href="/map?tour=1"
+            className="btn-ghost text-xs"
+            title="Walk through the academy with Alisa again"
+          >
+            Replay Tour
+          </a>
+        </div>
         <p className="page-description max-w-2xl text-base">
           Your NPC guide highlights key buildings. Choose where to explore next
           and keep upgrading your Space Core.

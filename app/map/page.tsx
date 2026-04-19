@@ -7,6 +7,9 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import collisions from "../../src/data/mapCollisions.json";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
+import AlisaTour from "../../components/AlisaTour";
+
+const TOUR_STORAGE_KEY = "sagex.tourCompleted";
 
 const buildingZones = [
   {
@@ -87,6 +90,7 @@ export default function MapPage() {
   const [interactionZone, setInteractionZone] = useState<string | null>(null);
   const [direction, setDirection] = useState<MovementDirection>("S");
   const [frameIndex, setFrameIndex] = useState(0);
+  const [tourActive, setTourActive] = useState(false);
   const lastFrameRef = useRef<number | null>(null);
   const frameTimerRef = useRef(0);
   const directionRef = useRef<MovementDirection>("S");
@@ -113,6 +117,22 @@ export default function MapPage() {
       skill: stored.skill ?? "",
     });
     setHydrated(true);
+
+    // Auto-start Alisa's tour the first time a player reaches /map,
+    // or whenever the URL carries ?tour=1 (used by the "Replay tour"
+    // button in the hub).
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const forced = params.get("tour") === "1";
+      const alreadyCompleted =
+        window.localStorage.getItem(TOUR_STORAGE_KEY) === "true";
+      if (forced || !alreadyCompleted) {
+        setTourActive(true);
+      }
+    } catch {
+      // localStorage disabled: don't run the tour.
+    }
+
     // Fire-and-forget sign-in so the backend has the player and any
     // missing playerId is minted. Updates localStorage for future pages.
     void signInPlayer(stored).then((next) => {
@@ -491,6 +511,39 @@ export default function MapPage() {
               />
             )}
           </div>
+          {tourActive && hydrated && mapWidth > 0 && mapHeight > 0 && (
+            <AlisaTour
+              mapWidth={mapWidth}
+              mapHeight={mapHeight}
+              offsetX={offsetX}
+              offsetY={offsetY}
+              onVisit={(href) => {
+                try {
+                  window.localStorage.setItem(TOUR_STORAGE_KEY, "true");
+                } catch {
+                  // ignore
+                }
+                setTourActive(false);
+                router.push(href);
+              }}
+              onFinish={() => {
+                try {
+                  window.localStorage.setItem(TOUR_STORAGE_KEY, "true");
+                } catch {
+                  // ignore
+                }
+                setTourActive(false);
+              }}
+              onSkip={() => {
+                try {
+                  window.localStorage.setItem(TOUR_STORAGE_KEY, "true");
+                } catch {
+                  // ignore
+                }
+                setTourActive(false);
+              }}
+            />
+          )}
           <div className="glass-card absolute bottom-3 left-4 rounded-full px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)]">
             {hydrated ? subtitle : "Global Metaverse Map"} &middot; Arrow keys / WASD &middot; Shift to run
           </div>
