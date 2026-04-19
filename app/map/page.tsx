@@ -7,43 +7,48 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import collisions from "../../src/data/mapCollisions.json";
 
-const mapZones = [
+const buildingZones = [
   {
-    id: "hub",
-    label: "AI City Hub",
-    x: 22,
-    y: 26,
-    radius: 6,
-    href: "/hub",
+    id: "ethics-center",
+    label: "AI Ethics Center",
+    href: "/ethics",
+    rect: { x: 4, y: 4, width: 24, height: 34 },
   },
   {
-    id: "lab",
-    label: "AI Learning Lab",
-    x: 66,
-    y: 52,
-    radius: 6,
+    id: "learning-lab",
+    label: "Learning Lab",
     href: "/lab?seed=42",
+    rect: { x: 30, y: 36, width: 14, height: 18 },
   },
   {
-    id: "data-center",
-    label: "Neural Data Center",
-    x: 78,
-    y: 24,
-    radius: 6,
+    id: "stats",
+    label: "Your Stats",
+    href: "/stats",
+    rect: { x: 45, y: 4, width: 16, height: 20 },
   },
   {
-    id: "ethics",
-    label: "AI Ethics Dock",
-    x: 44,
-    y: 70,
-    radius: 6,
+    id: "investment",
+    label: "AI Investment",
+    href: "/investment",
+    rect: { x: 50, y: 40, width: 14, height: 18 },
   },
   {
-    id: "arena",
-    label: "Coding Arena",
-    x: 16,
-    y: 68,
-    radius: 6,
+    id: "learn-code",
+    label: "Learn to Code",
+    href: "/arena",
+    rect: { x: 70, y: 35, width: 10, height: 10 },
+  },
+  {
+    id: "side-quests",
+    label: "Side Quests",
+    href: "/side-quests",
+    rect: { x: 71, y: 63, width: 13, height: 24 },
+  },
+  {
+    id: "ai-tools",
+    label: "AI Tools",
+    href: "/tools",
+    rect: { x: 12, y: 66, width: 18, height: 20 },
   },
 ];
 
@@ -85,6 +90,7 @@ export default function MapPage() {
   const directionRef = useRef<MovementDirection>("S");
   const frameRef = useRef(0);
   const collisionRects = collisions as CollisionRect[];
+  const interactionPadding = 2;
   const minMapX = 0;
   const maxMapX = 100;
   const minMapY = 0;
@@ -124,10 +130,15 @@ export default function MapPage() {
 
   useEffect(() => {
     if (!hydrated) return;
-    const current = mapZones.find((zone) => {
-      const dx = position.x - zone.x;
-      const dy = position.y - zone.y;
-      return Math.hypot(dx, dy) <= zone.radius;
+    const current = buildingZones.find((zone) => {
+      const rect = zone.rect;
+      const withinX =
+        position.x >= rect.x - interactionPadding &&
+        position.x <= rect.x + rect.width + interactionPadding;
+      const withinY =
+        position.y >= rect.y - interactionPadding &&
+        position.y <= rect.y + rect.height + interactionPadding;
+      return withinX && withinY;
     });
 
     if (current && current.id !== activeZone) {
@@ -305,17 +316,22 @@ export default function MapPage() {
 
   useEffect(() => {
     if (!hydrated) return;
-    const nearby = mapZones.find((zone) => {
-      const dx = position.x - zone.x;
-      const dy = position.y - zone.y;
-      return Math.hypot(dx, dy) <= zone.radius;
+    const nearby = buildingZones.find((zone) => {
+      const rect = zone.rect;
+      const withinX =
+        position.x >= rect.x - interactionPadding &&
+        position.x <= rect.x + rect.width + interactionPadding;
+      const withinY =
+        position.y >= rect.y - interactionPadding &&
+        position.y <= rect.y + rect.height + interactionPadding;
+      return withinX && withinY;
     });
     setInteractionZone(nearby?.id ?? null);
   }, [hydrated, position.x, position.y]);
 
   useEffect(() => {
     if (!interactionZone) return;
-    const zone = mapZones.find((item) => item.id === interactionZone);
+    const zone = buildingZones.find((item) => item.id === interactionZone);
     if (!zone || !zone.href) return;
     if (pressedKeys["e"] || pressedKeys["E"] || pressedKeys["Enter"] || pressedKeys[" "]) {
       router.push(zone.href);
@@ -377,9 +393,11 @@ export default function MapPage() {
               })
             )}
           </div>
-          {mapZones.map((zone) => {
-            const zoneX = (zone.x / 100) * mapWidth + offsetX;
-            const zoneY = (zone.y / 100) * mapHeight + offsetY;
+          {buildingZones.map((zone) => {
+            const centerX = zone.rect.x + zone.rect.width / 2;
+            const centerY = zone.rect.y + zone.rect.height / 2;
+            const zoneX = (centerX / 100) * mapWidth + offsetX;
+            const zoneY = (centerY / 100) * mapHeight + offsetY;
             return (
               <button
                 key={zone.id}
@@ -443,12 +461,12 @@ export default function MapPage() {
               />
             )}
           </div>
-          <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3 py-1 text-xs text-slate-200">
-            {hydrated ? subtitle : "Global Metaverse Map"} · Click to move · Arrow keys / WASD · Shift to run
+          <div className="absolute bottom-3 left-4 rounded-full bg-black/60 px-3 py-1 text-xs text-slate-200">
+            {hydrated ? subtitle : "Global Metaverse Map"} · Arrow keys / WASD · Shift to run
           </div>
           {interactionZone && (
-            <div className="absolute bottom-4 right-4 rounded-full bg-black/70 px-3 py-1 text-xs text-white">
-              Press E to enter
+            <div className="absolute bottom-12 left-4 z-50 rounded-full bg-black/80 px-5 py-2 text-md font-semibold text-white shadow-lg shadow-black/40">
+              Press E to enter {buildingZones.find((zone) => zone.id === interactionZone)?.label}
             </div>
           )}
         </div>
