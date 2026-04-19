@@ -15,8 +15,8 @@ const buildingZones = [
     rect: { x: 45, y: 4, width: 16, height: 20 },
   },
   {
-    id: "learning-lab",
-    label: "Learning Lab ",
+    id: "investment-news",
+    label: "Investements and AI News",
     href: "/investment",
     rect: { x: 30, y: 36, width: 14, height: 18 },
   },
@@ -27,9 +27,9 @@ const buildingZones = [
     rect: { x: 4, y: 4, width: 24, height: 34 }, 
   },
   {
-    id: "investment",
-    label: "AI Investment and News",
-    href: "/investment",
+    id: "stats-2",
+    label: "Your Stats",
+    href: "/stats",
     rect: { x: 50, y: 40, width: 14, height: 18 },
   },
   {
@@ -430,7 +430,7 @@ export default function MapPage() {
             );
           })}
           <div
-            className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center  bg-sagex-teal/80"
+            className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
             style={{
               width: playerMarkerSize,
               height: usesSpriteSheet ? spriteHeight : playerMarkerSize,
@@ -472,11 +472,11 @@ export default function MapPage() {
               />
             )}
           </div>
-          <div className="absolute bottom-3 left-4 rounded-full bg-black/60 px-3 py-1 text-xs text-slate-200">
-            {hydrated ? subtitle : "Global Metaverse Map"} · Arrow keys / WASD · Shift to run
+          <div className="glass-card absolute bottom-3 left-4 rounded-full px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)]">
+            {hydrated ? subtitle : "Global Metaverse Map"} &middot; Arrow keys / WASD &middot; Shift to run
           </div>
           {interactionZone && (
-            <div className="absolute bottom-12 left-4 z-50 rounded-full bg-black/80 px-5 py-2 text-md font-semibold text-white shadow-lg shadow-black/40">
+            <div className="absolute bottom-12 left-4 z-50 rounded-full border border-[var(--border-accent)] bg-[var(--surface-1)]/95 px-5 py-2.5 text-sm font-semibold text-[var(--text-primary)] shadow-[0_0_24px_var(--sagex-accent-glow)] backdrop-blur-sm">
               Press E to enter {buildingZones.find((zone) => zone.id === interactionZone)?.label}
             </div>
           )}

@@ -120,7 +120,7 @@ export default function OnboardingGuidePage() {
                 className={`h-1.5 w-10 rounded-full transition-all duration-500 ${
                   index === stepIndex
                     ? "bg-[var(--sagex-accent)] shadow-[0_0_8px_var(--sagex-accent-glow)]"
-                    : "bg-white/8"
+                    : "bg-[var(--border-default)]"
                 }`}
               />
             ))}
