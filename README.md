@@ -43,3 +43,14 @@ This outputs:
 
 - Backend follows the layered architecture in `BACKEND_RULES.md`.
 - Quest generation uses deterministic seeds for fairness.
+
+## Daily Vibe Routes
+
+- `GET /api/vibe/prompt` → fetch or create today’s prompt
+- `POST /api/vibe/prompt` → create a scheduled prompt
+- `POST /api/vibe/submissions` → submit a build
+- `GET /api/vibe/submissions?promptId=...` → list submissions
+- `GET /api/vibe/submissions/:id` → fetch a submission
+- `POST /api/vibe/vote` → vote on a submission
+- `GET /api/vibe/leaderboard?promptId=...` → leaderboard
+- `GET /api/vibe/embed/:id` → embed metadata + iframe snippet
