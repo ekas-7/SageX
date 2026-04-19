@@ -390,7 +390,7 @@ export default function MapPage() {
                   height: (rect.height / 100) * mapHeight,
                   left: (rect.x / 100) * mapWidth,
                   top: (rect.y / 100) * mapHeight,
-                  zIndex: 3,
+                  zIndex: -1,
                 }}
               />
             ))}
