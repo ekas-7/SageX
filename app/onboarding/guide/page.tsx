@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Inter } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -12,6 +13,7 @@ type GuideStep = {
   subtitle: string;
   bullets: string[];
   helper: string;
+  imageSrc: string;
 };
 
 const guideSteps: GuideStep[] = [
@@ -25,6 +27,7 @@ const guideSteps: GuideStep[] = [
       "Completing tasks upgrades your pilot profile and unlocks new hubs.",
     ],
     helper: "You can replay any quest for practice and better rewards.",
+    imageSrc: "/assests/background/onboarding-guide/img-1.png",
   },
   {
     id: "controls",
@@ -37,6 +40,7 @@ const guideSteps: GuideStep[] = [
       "Pause: Esc",
     ],
     helper: "Touch devices show on-screen controls automatically.",
+    imageSrc: "/assests/background/onboarding-guide/img-2.png",
   },
   {
     id: "support",
@@ -48,6 +52,7 @@ const guideSteps: GuideStep[] = [
       "Your hub recommends next quests based on your goals.",
     ],
     helper: "You can change your interests and difficulty at any time in the hub.",
+    imageSrc: "/assests/background/onboarding-guide/img-3.png",
   },
 ];
 
@@ -88,16 +93,28 @@ export default function OnboardingGuidePage() {
           </p>
         </header>
 
-        <section className="rounded-3xl border border-white/10 bg-black/45 p-6 md:p-10">
-          <ul className="grid gap-4 md:grid-cols-2">
-            {currentStep.bullets.map((item) => (
-              <li key={item} className="flex items-start gap-3 text-sm text-slate-200">
-                <span className="mt-1 h-2 w-2 rounded-full bg-[#00E5A0]" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-6 text-sm text-slate-400">{currentStep.helper}</p>
+        <section className="grid gap-8 rounded-3xl border border-white/10 bg-black/45 p-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)] md:p-10">
+          <div className="relative aspect-[4/3] w-full max-w-md overflow-hidden rounded-3xl md:mx-auto">
+            <Image
+              src={currentStep.imageSrc}
+              alt={currentStep.title}
+              fill
+              sizes="(min-width: 768px) 45vw, 100vw"
+              className="object-cover animate-flot"
+              priority
+            />
+          </div>
+          <div className="flex flex-col justify-center">
+            <ul className="grid gap-4">
+              {currentStep.bullets.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm text-slate-200">
+                  <span className="mt-1 h-2 w-2 rounded-full bg-[#00E5A0]" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 text-sm text-slate-400">{currentStep.helper}</p>
+          </div>
         </section>
 
         <footer className="flex flex-col gap-6">
@@ -157,6 +174,21 @@ export default function OnboardingGuidePage() {
           </div>
         </footer>
       </div>
+      <style jsx>{`
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+
+        :global(.animate-float) {
+          animation: float 6s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }
