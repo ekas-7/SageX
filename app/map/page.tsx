@@ -351,7 +351,7 @@ export default function MapPage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <div className="relative h-screen w-full overflow-hidden bg-slate-950">
+      <div className="relative h-screen w-full overflow-hidden bg-[var(--background)]">
         <div ref={mapRef} className="relative h-full w-full cursor-default">
           <div
             className="absolute inset-0"
@@ -419,11 +419,11 @@ export default function MapPage() {
                 aria-label={zone.label}
               >
                 <span
-                  className={`block h-16 w-16 rounded-full border border-white/30 bg-white/0 transition group-hover:bg-white/10 ${
+                  className={`block h-16 w-16 rounded-full border border-[var(--border-default)] transition group-hover:border-[var(--border-accent)] group-hover:bg-[var(--sagex-accent-muted)] group-hover:shadow-[0_0_20px_var(--sagex-accent-glow)] ${
                     zone.href ? "cursor-pointer" : "cursor-not-allowed"
                   }`}
                 />
-                <span className="pointer-events-none absolute left-1/2 top-full mt-2 -translate-x-1/2 rounded-full bg-black/70 px-3 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+                <span className="pointer-events-none absolute left-1/2 top-full mt-2 -translate-x-1/2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-1)]/90 px-3 py-1.5 text-[10px] font-medium text-[var(--text-primary)] opacity-0 backdrop-blur-sm transition group-hover:opacity-100">
                   {zone.label}
                 </span>
               </button>

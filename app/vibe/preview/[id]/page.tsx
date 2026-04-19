@@ -31,26 +31,24 @@ export default function VibePreviewPage({ params }: { params: { id: string } }) 
   }, [submission]);
 
   return (
-    <div className="min-h-screen bg-slate-950 p-6 text-slate-100">
+    <div className="min-h-screen px-6 py-12">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
         <header>
-          <p className="text-xs uppercase tracking-[0.35em] text-sagex-teal/70">
-            Vibe Preview
-          </p>
-          <h1 className="text-2xl font-semibold text-white">
+          <p className="page-label">Vibe Preview</p>
+          <h1 className="mt-2 page-title text-2xl">
             {submission?.title ?? "Loading"}
           </h1>
-          <p className="text-sm text-slate-400">By {submission?.authorName ?? "..."}</p>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">By {submission?.authorName ?? "..."}</p>
         </header>
         {error ? (
-          <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-200">
+          <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-300">
             {error}
           </div>
         ) : (
           <iframe
             title="Vibe sandbox preview"
             sandbox="allow-scripts"
-            className="h-[70vh] w-full rounded-2xl border border-white/10 bg-white"
+            className="h-[70vh] w-full rounded-2xl border border-[var(--border-default)] bg-white"
             srcDoc={srcDoc}
           />
         )}
