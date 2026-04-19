@@ -59,6 +59,8 @@ export default function OnboardingPage() {
   const [selectedAvatar, setSelectedAvatar] = useState<AvatarId>("orion");
   const [skillLevel, setSkillLevel] = useState<SkillLevel>("Beginner");
   const [interests, setInterests] = useState<InterestId[]>(["product"]);
+  const trimmedName = pilotName.trim();
+  const isNameValid = trimmedName.length > 0;
   const activeAvatar = avatars.find((avatar) => avatar.id === selectedAvatar) ??
     avatars[0];
   const selectedInterestLabels = interestOptions
@@ -67,11 +69,15 @@ export default function OnboardingPage() {
 
   const handleEnter = async () => {
     if (submitting) return;
+    if (!isNameValid) {
+      setSubmitError("Please enter a pilot name to continue.");
+      return;
+    }
     setSubmitError(null);
     setSubmitting(true);
 
     const draft = buildOnboardingPayload({
-      name: pilotName,
+      name: trimmedName,
       avatar: activeAvatar.src,
       avatarName: activeAvatar.name,
       skill: skillLevel,
@@ -201,13 +207,14 @@ export default function OnboardingPage() {
 
           <div className="flex flex-col gap-3">
             <PreviewCard
-              pilotName={pilotName.trim()}
+              pilotName={trimmedName}
               avatarName={activeAvatar.name}
               avatarSrc={activeAvatar.src}
               avatarDescription={activeAvatar.desc}
               skillLevel={skillLevel}
               interests={selectedInterestLabels}
               onEnter={handleEnter}
+              disabled={!isNameValid || submitting}
             />
             {submitting && (
               <p className="text-xs text-[var(--text-muted)]">

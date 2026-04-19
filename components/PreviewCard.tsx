@@ -6,6 +6,7 @@ type PreviewCardProps = {
   skillLevel: string;
   interests?: string[];
   onEnter: () => void;
+  disabled?: boolean;
 };
 
 export default function PreviewCard({
@@ -16,6 +17,7 @@ export default function PreviewCard({
   skillLevel,
   interests,
   onEnter,
+  disabled = false,
 }: PreviewCardProps) {
   return (
     <aside className="glass-card flex h-full flex-col gap-6 rounded-2xl p-6">
@@ -32,7 +34,7 @@ export default function PreviewCard({
             {avatarName}
           </p>
           <p className="text-base font-semibold text-[var(--text-primary)]">
-            {pilotName || "Unnamed Pilot"}
+            {pilotName || "Pilot name required"}
           </p>
           <p className="text-xs text-[var(--text-muted)]">{avatarDescription}</p>
         </div>
@@ -53,7 +55,11 @@ export default function PreviewCard({
         </div>
       )}
 
-      <button onClick={onEnter} className="btn-primary mt-auto">
+      <button
+        onClick={onEnter}
+        className="btn-primary mt-auto disabled:cursor-not-allowed disabled:opacity-60"
+        disabled={disabled}
+      >
         Enter AI City
       </button>
     </aside>

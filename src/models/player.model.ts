@@ -13,6 +13,8 @@ const PlayerStatsSchema = new Schema(
     dailyXpEarned: { type: Number, default: 0 },
     dailyXpResetAt: { type: Date },
     milestonesClaimed: { type: [Number], default: [] },
+    arenaSolved: { type: [String], default: [] },
+    arenaAttempts: { type: Number, default: 0 },
     lastActiveAt: { type: Date },
   },
   { _id: false }

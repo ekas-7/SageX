@@ -134,6 +134,17 @@ export const PlayerRepository = {
     ) as PlayerProfile | null;
   },
 
+  async pushArenaSolved(playerId: string, problemId: string) {
+    await connectToDatabase();
+    return (
+      PlayerModel.findOneAndUpdate(
+        { playerId },
+        { $addToSet: { "stats.arenaSolved": problemId } },
+        { new: true }
+      ).lean() as unknown
+    ) as PlayerProfile | null;
+  },
+
   async countHigherXp(totalXp: number) {
     await connectToDatabase();
     return PlayerModel.countDocuments({ "stats.totalXp": { $gt: totalXp } });

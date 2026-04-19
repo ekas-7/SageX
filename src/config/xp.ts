@@ -40,6 +40,8 @@ export const XP_SOURCES = {
   ONBOARDING_COMPLETE: "onboarding.complete",
   FIELD_TRACK_STEP: "field.track.step",
   SIDE_QUEST: "sidequest.complete",
+  ARENA_SOLVED: "arena.solved",
+  ARENA_PARTIAL: "arena.partial",
   MANUAL_GRANT: "manual.grant",
 } as const;
 
@@ -59,6 +61,8 @@ export const XP_BASE_REWARDS: Record<XpSource, number> = {
   [XP_SOURCES.ONBOARDING_COMPLETE]: 75,
   [XP_SOURCES.FIELD_TRACK_STEP]: 35,
   [XP_SOURCES.SIDE_QUEST]: 60,
+  [XP_SOURCES.ARENA_SOLVED]: 90,
+  [XP_SOURCES.ARENA_PARTIAL]: 20,
   [XP_SOURCES.MANUAL_GRANT]: 0,
 };
 

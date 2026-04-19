@@ -20,6 +20,8 @@ const SOURCE_LABELS: Record<XpSource, string> = {
   [XP_SOURCES.ONBOARDING_COMPLETE]: "Onboarding",
   [XP_SOURCES.FIELD_TRACK_STEP]: "Field track",
   [XP_SOURCES.SIDE_QUEST]: "Side quest",
+  [XP_SOURCES.ARENA_SOLVED]: "Arena solved",
+  [XP_SOURCES.ARENA_PARTIAL]: "Arena (partial)",
   [XP_SOURCES.MANUAL_GRANT]: "Manual grant",
 };
 

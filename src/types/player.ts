@@ -10,6 +10,8 @@ export type PlayerStats = {
   dailyXpEarned: number;
   dailyXpResetAt?: string;
   milestonesClaimed: number[];
+  arenaSolved?: string[];
+  arenaAttempts?: number;
   lastActiveAt?: string;
 };
 
