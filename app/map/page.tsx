@@ -203,7 +203,9 @@ export default function MapPage() {
   const spriteFrameCount = 4;
   const spriteDirectionCount = 4;
   const spriteSheetSrc = "/assests/skins/skin-1-spritesheet.png";
-  const spriteSize = Math.round(playerMarkerSize );
+  const spriteAspect = 1382 / 768;
+  const spriteWidth = Math.round(playerMarkerSize * 0.75);
+  const spriteHeight = Math.round(spriteWidth * spriteAspect);
   const usesSpriteSheet = avatarSrc.includes("skin-1");
   const directionRowMap: Record<MovementDirection, number> = {
     S: 0,
@@ -244,38 +246,47 @@ export default function MapPage() {
       lastFrameRef.current = timestamp;
 
       const dx =
-        (pressedKeys["ArrowRight"] || pressedKeys["d"] ? 1 : 0) -
-        (pressedKeys["ArrowLeft"] || pressedKeys["a"] ? 1 : 0);
+        (pressedKeys["ArrowRight"] || pressedKeys["d"] || pressedKeys["D"]
+          ? 1
+          : 0) -
+        (pressedKeys["ArrowLeft"] || pressedKeys["a"] || pressedKeys["A"]
+          ? 1
+          : 0);
       const dy =
-        (pressedKeys["ArrowDown"] || pressedKeys["s"] ? 1 : 0) -
-        (pressedKeys["ArrowUp"] || pressedKeys["w"] ? 1 : 0);
+        (pressedKeys["ArrowDown"] || pressedKeys["s"] || pressedKeys["S"]
+          ? 1
+          : 0) -
+        (pressedKeys["ArrowUp"] || pressedKeys["w"] || pressedKeys["W"]
+          ? 1
+          : 0);
 
       if (dx !== 0 || dy !== 0) {
-        const nextDirection: MovementDirection =
-          Math.abs(dx) > Math.abs(dy)
-            ? dx > 0
-              ? "D"
-              : "A"
-            : dy > 0
-              ? "S"
-              : "W";
+        const nextDirection =
+          Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "D" : "A") : dy > 0 ? "S" : "W";
         if (directionRef.current !== nextDirection) {
           directionRef.current = nextDirection;
           setDirection(nextDirection);
         }
+
         const magnitude = Math.hypot(dx, dy) || 1;
         const normalizedX = dx / magnitude;
         const normalizedY = dy / magnitude;
-        const baseSpeed = 260;
-        const runMultiplier = pressedKeys["Shift"] ? 1.6 : 1;
+        const baseSpeed = 12;
+        const runMultiplier = pressedKeys["Shift"] ? 1.75 : 1;
         const speed = baseSpeed * runMultiplier;
         const deltaFactor = deltaMs / 1000;
         const moveX = (normalizedX * speed * deltaFactor) / mapWidth;
         const moveY = (normalizedY * speed * deltaFactor) / mapHeight;
 
         setPosition((current) => {
-          let nextX = Math.min(maxMapX, Math.max(minMapX, current.x + moveX * 100));
-          let nextY = Math.min(maxMapY, Math.max(minMapY, current.y + moveY * 100));
+          let nextX = Math.min(
+            maxMapX,
+            Math.max(minMapX, current.x + moveX * 100)
+          );
+          let nextY = Math.min(
+            maxMapY,
+            Math.max(minMapY, current.y + moveY * 100)
+          );
 
           if (isColliding(nextX, current.y)) {
             nextX = current.x;
@@ -422,7 +433,7 @@ export default function MapPage() {
             className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center  bg-sagex-teal/80"
             style={{
               width: playerMarkerSize,
-              height: Math.round(playerMarkerSize * 1.2),
+              height: usesSpriteSheet ? spriteHeight : playerMarkerSize,
               zIndex: 4,
               left: playerX + offsetX,
               top: playerY + offsetY,
@@ -433,16 +444,16 @@ export default function MapPage() {
                 className="rounded-full"
                 aria-label="Player avatar"
                 style={{
-                  width: spriteSize,
-                  height: spriteSize,
+                  width: spriteWidth,
+                  height: spriteHeight,
                   backgroundImage: `url(${spriteSheetSrc})`,
                   backgroundRepeat: "no-repeat",
-                  backgroundSize: `${spriteFrameCount * spriteSize}px ${
-                    spriteDirectionCount * spriteSize
+                  backgroundSize: `${spriteFrameCount * spriteWidth}px ${
+                    spriteDirectionCount * spriteHeight
                   }px`,
                   backgroundPosition: `-${
-                    frameIndex * spriteSize
-                  }px -${directionRowMap[direction] * spriteSize}px`,
+                    frameIndex * spriteWidth
+                  }px -${directionRowMap[direction] * spriteHeight}px`,
                 }}
               />
             ) : (
@@ -455,8 +466,8 @@ export default function MapPage() {
                       : "Player avatar"
                     : "Player avatar"
                 }
-                width={Math.round(playerMarkerSize * 0.55)}
-                height={Math.round(playerMarkerSize * 0.9)}
+                width={Math.round(playerMarkerSize * 0.75)}
+                height={Math.round(playerMarkerSize * 0.75)}
                 className="rounded-2xl object-contain"
               />
             )}
