@@ -13,6 +13,12 @@ const buildings = [
     active: true,
   },
   {
+    title: "Analytics Tower",
+    description: "Live universe stats, XP flow, and leaderboards.",
+    href: "/analytics",
+    active: true,
+  },
+  {
     title: "Neural Data Center",
     description: "Practice data cleaning missions.",
     active: false,
