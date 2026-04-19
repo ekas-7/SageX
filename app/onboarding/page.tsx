@@ -74,7 +74,7 @@ export default function OnboardingPage() {
       localStorage.setItem("sagex.player", JSON.stringify(payload));
       localStorage.setItem("sagex.firstQuestCompleted", "false");
     }
-    router.push("/map");
+    router.push("/onboarding/guide");
   };
 
   return (
