@@ -1,10 +1,10 @@
 "use client";
 
 /* eslint-disable react-hooks/set-state-in-effect */
-
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import collisions from "../../src/data/mapCollisions.json";
 
 const mapZones = [
   {
@@ -46,6 +46,13 @@ const mapZones = [
   },
 ];
 
+type CollisionRect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 type PlayerProfile = {
   name: string;
   avatar: string;
@@ -64,6 +71,14 @@ export default function MapPage() {
   const [activeZone, setActiveZone] = useState<string | null>(null);
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
   const [chunkRatio, setChunkRatio] = useState(1);
+  const [pressedKeys, setPressedKeys] = useState<Record<string, boolean>>({});
+  const [interactionZone, setInteractionZone] = useState<string | null>(null);
+  const lastFrameRef = useRef<number | null>(null);
+  const collisionRects = collisions as CollisionRect[];
+  const minMapX = 0;
+  const maxMapX = 100;
+  const minMapY = 0;
+  const maxMapY = 100;
 
   useEffect(() => {
     const stored = localStorage.getItem("sagex.player");
@@ -107,9 +122,6 @@ export default function MapPage() {
 
     if (current && current.id !== activeZone) {
       setActiveZone(current.id);
-      if (current.href) {
-        router.push(current.href);
-      }
       return;
     }
 
@@ -119,24 +131,19 @@ export default function MapPage() {
   }, [activeZone, hydrated, position.x, position.y, router]);
 
   useEffect(() => {
-    const handleKey = (event: KeyboardEvent) => {
-      const step = event.shiftKey ? 4 : 2;
-      setPosition((current) => {
-        let nextX = current.x;
-        let nextY = current.y;
-        if (event.key === "ArrowUp" || event.key === "w") nextY -= step;
-        if (event.key === "ArrowDown" || event.key === "s") nextY += step;
-        if (event.key === "ArrowLeft" || event.key === "a") nextX -= step;
-        if (event.key === "ArrowRight" || event.key === "d") nextX += step;
-        return {
-          x: Math.min(92, Math.max(8, nextX)),
-          y: Math.min(86, Math.max(12, nextY)),
-        };
-      });
+    const handleKeyDown = (event: KeyboardEvent) => {
+      setPressedKeys((current) => ({ ...current, [event.key]: true }));
+    };
+    const handleKeyUp = (event: KeyboardEvent) => {
+      setPressedKeys((current) => ({ ...current, [event.key]: false }));
     };
 
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
   }, []);
 
   const handleMapClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -149,10 +156,21 @@ export default function MapPage() {
     const x = (worldX / mapWidth) * 100;
     const y = (worldY / mapHeight) * 100;
     setPosition({
-      x: Math.min(92, Math.max(8, x)),
-      y: Math.min(86, Math.max(12, y)),
+      x: Math.min(maxMapX, Math.max(minMapX, x)),
+      y: Math.min(maxMapY, Math.max(minMapY, y)),
     });
   };
+
+  const isColliding = useCallback(
+    (nextX: number, nextY: number) => {
+      return collisionRects.some((rect) => {
+        const withinX = nextX >= rect.x && nextX <= rect.x + rect.width;
+        const withinY = nextY >= rect.y && nextY <= rect.y + rect.height;
+        return withinX && withinY;
+      });
+    },
+    [collisionRects]
+  );
 
   const tileWidth = viewport.width > 0 ? viewport.width / viewTilesWide : 0;
   const tileHeight = tileWidth * chunkRatio;
@@ -160,8 +178,18 @@ export default function MapPage() {
   const mapHeight = tileHeight * chunkRows;
   const playerX = (position.x / 100) * mapWidth;
   const playerY = (position.y / 100) * mapHeight;
-  const offsetX = viewport.width / 2 - playerX;
-  const offsetY = viewport.height / 2 - playerY;
+  const unclampedOffsetX = viewport.width / 2 - playerX;
+  const unclampedOffsetY = viewport.height / 2 - playerY;
+  const minOffsetX = viewport.width - mapWidth;
+  const minOffsetY = viewport.height - mapHeight;
+  const offsetX = Math.min(0, Math.max(minOffsetX, unclampedOffsetX));
+  const offsetY = Math.min(0, Math.max(minOffsetY, unclampedOffsetY));
+  const centerCol = tileWidth
+    ? Math.min(chunkCols - 1, Math.max(0, Math.round(playerX / tileWidth)))
+    : 0;
+  const centerRow = tileHeight
+    ? Math.min(chunkRows - 1, Math.max(0, Math.round(playerY / tileHeight)))
+    : 0;
 
   const visibleCols = useMemo(() => {
     if (!tileWidth) return [] as number[];
@@ -183,10 +211,80 @@ export default function MapPage() {
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }, [chunkRows, offsetY, tileHeight, viewport.height]);
 
+  useEffect(() => {
+    if (!hydrated || !mapWidth || !mapHeight) return;
+    let animationFrame: number;
+
+    const update = (timestamp: number) => {
+      if (lastFrameRef.current === null) {
+        lastFrameRef.current = timestamp;
+      }
+      const deltaMs = timestamp - lastFrameRef.current;
+      lastFrameRef.current = timestamp;
+
+      const dx =
+        (pressedKeys["ArrowRight"] || pressedKeys["d"] ? 1 : 0) -
+        (pressedKeys["ArrowLeft"] || pressedKeys["a"] ? 1 : 0);
+      const dy =
+        (pressedKeys["ArrowDown"] || pressedKeys["s"] ? 1 : 0) -
+        (pressedKeys["ArrowUp"] || pressedKeys["w"] ? 1 : 0);
+
+      if (dx !== 0 || dy !== 0) {
+        const magnitude = Math.hypot(dx, dy) || 1;
+        const normalizedX = dx / magnitude;
+        const normalizedY = dy / magnitude;
+        const baseSpeed = 260;
+        const runMultiplier = pressedKeys["Shift"] ? 1.6 : 1;
+        const speed = baseSpeed * runMultiplier;
+        const deltaFactor = deltaMs / 1000;
+        const moveX = (normalizedX * speed * deltaFactor) / mapWidth;
+        const moveY = (normalizedY * speed * deltaFactor) / mapHeight;
+
+        setPosition((current) => {
+          let nextX = Math.min(maxMapX, Math.max(minMapX, current.x + moveX * 100));
+          let nextY = Math.min(maxMapY, Math.max(minMapY, current.y + moveY * 100));
+
+          if (isColliding(nextX, current.y)) {
+            nextX = current.x;
+          }
+          if (isColliding(nextX, nextY)) {
+            nextY = current.y;
+          }
+
+          return { x: nextX, y: nextY };
+        });
+      }
+
+      animationFrame = window.requestAnimationFrame(update);
+    };
+
+    animationFrame = window.requestAnimationFrame(update);
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [hydrated, isColliding, mapHeight, mapWidth, pressedKeys]);
+
   const subtitle = useMemo(() => {
     if (!profile) return "Global Metaverse Map";
     return `${profile.name}'s navigation feed`;
   }, [profile]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const nearby = mapZones.find((zone) => {
+      const dx = position.x - zone.x;
+      const dy = position.y - zone.y;
+      return Math.hypot(dx, dy) <= zone.radius;
+    });
+    setInteractionZone(nearby?.id ?? null);
+  }, [hydrated, position.x, position.y]);
+
+  useEffect(() => {
+    if (!interactionZone) return;
+    const zone = mapZones.find((item) => item.id === interactionZone);
+    if (!zone || !zone.href) return;
+    if (pressedKeys["e"] || pressedKeys["E"] || pressedKeys["Enter"] || pressedKeys[" "]) {
+      router.push(zone.href);
+    }
+  }, [interactionZone, pressedKeys, router]);
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -210,20 +308,24 @@ export default function MapPage() {
                 const col = colIndex + 1;
                 const width = Math.max(1, Math.round(tileWidth));
                 const height = Math.max(1, Math.round(tileHeight));
+                const isPriority =
+                  rowIndex === centerRow && colIndex === centerCol;
                 return (
-                  <Image
+                  <img
                     key={`chunk-${row}-${col}`}
                     src={`/assests/background/main_map_chunks/map_r${row}_c${col}.png`}
                     alt={`Map chunk ${row}-${col}`}
                     width={width}
                     height={height}
-                    sizes="20vw"
                     className="absolute object-cover"
                     style={{
+                      width: tileWidth,
+                      height: tileHeight,
                       left: colIndex * tileWidth,
                       top: rowIndex * tileHeight,
                     }}
                     draggable={false}
+                    loading={isPriority ? "eager" : "lazy"}
                   />
                 );
               })
@@ -258,8 +360,13 @@ export default function MapPage() {
             {hydrated ? profile?.avatar ?? "🧑‍🚀" : "🧑‍🚀"}
           </div>
           <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3 py-1 text-xs text-slate-200">
-            {hydrated ? subtitle : "Global Metaverse Map"} · Click to move · Arrow keys / WASD
+            {hydrated ? subtitle : "Global Metaverse Map"} · Click to move · Arrow keys / WASD · Shift to run
           </div>
+          {interactionZone && (
+            <div className="absolute bottom-4 right-4 rounded-full bg-black/70 px-3 py-1 text-xs text-white">
+              Press E to enter
+            </div>
+          )}
         </div>
       </div>
     </div>
