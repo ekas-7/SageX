@@ -304,7 +304,7 @@ export default function AlisaTour({
           }}
         >
           <div
-            className="relative w-[min(22rem,80vw)] rounded-2xl border border-[var(--border-accent)] p-4 shadow-[0_0_24px_var(--sagex-accent-glow)]"
+            className="relative w-[min(22rem,80vw)] rounded-2xl border border-[var(--border-accent)] bg-black/40 p-4 shadow-[0_0_24px_var(--sagex-accent-glow)] backdrop-blur-sm"
             style={{
               textShadow: "0 2px 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.9)",
             }}
