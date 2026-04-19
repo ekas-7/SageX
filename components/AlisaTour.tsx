@@ -39,8 +39,12 @@ const DIRECTION_ROW: Record<AlisaDirection, number> = {
 
 // Walking animation tuning. Lower PCT_PER_SEC = slower movement across the map.
 // Higher FRAME_MS = slower leg-swap animation on the sprite.
-const WALK_FRAME_MS = 220;
-const WALK_SPEED_PCT_PER_SEC = 9;
+// At 4%/s, the longest diagonal (~60 map units) takes about 15 seconds,
+// which feels like a leisurely walk rather than a teleport.
+const WALK_FRAME_MS = 260;
+const WALK_SPEED_PCT_PER_SEC = 4;
+const WALK_MIN_DURATION_SEC = 2;
+const WALK_MAX_DURATION_SEC = 18;
 
 type Position = { x: number; y: number }; // % of map
 
@@ -163,7 +167,10 @@ export default function AlisaTour({
         return;
       }
 
-      const duration = Math.max(0.4, dist / WALK_SPEED_PCT_PER_SEC);
+      const duration = Math.max(
+        WALK_MIN_DURATION_SEC,
+        Math.min(WALK_MAX_DURATION_SEC, dist / WALK_SPEED_PCT_PER_SEC)
+      );
       const moveDir = directionForMove(start, target);
       setDirection(moveDir);
       setWalking(true);
@@ -297,7 +304,7 @@ export default function AlisaTour({
           }}
         >
           <div
-            className="relative w-[min(22rem,80vw)] p-4"
+            className="relative w-[min(22rem,80vw)] rounded-2xl border border-[var(--border-accent)] p-4 shadow-[0_0_24px_var(--sagex-accent-glow)]"
             style={{
               textShadow: "0 2px 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.9)",
             }}

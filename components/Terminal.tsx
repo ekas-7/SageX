@@ -761,11 +761,14 @@ function TerminalWithDataChannel(
     }
   });
   const local = useLocalParticipant();
+  const announcedIdentityRef = useRef<string | null>(null);
 
   // Announce arrival.
   useEffect(() => {
     const identity = local.localParticipant?.identity;
     if (!identity) return;
+    if (announcedIdentityRef.current === identity) return;
+    announcedIdentityRef.current = identity;
     void send(
       encodePayload({ t: "hello", author: identity, at: Date.now() }),
       { reliable: true }
