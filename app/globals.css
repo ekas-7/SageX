@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #07090f;
+  --foreground: #f8fafc;
+  --sagex-teal: #37f6c2;
+  --sagex-blue: #121826;
 }
 
 @theme inline {
@@ -23,4 +25,16 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.bg-sagex-gradient {
+  background: radial-gradient(circle at top, #1e2a40, #07090f 70%);
+}
+
+.text-sagex-teal {
+  color: var(--sagex-teal);
+}
+
+.bg-sagex-teal {
+  background-color: var(--sagex-teal);
 }
