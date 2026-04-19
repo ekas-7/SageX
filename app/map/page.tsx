@@ -16,8 +16,8 @@ const buildingZones = [
   },
   {
     id: "learning-lab",
-    label: "Learning Lab",
-    href: "/lab?seed=42",
+    label: "AI Investment and News",
+    href: "/investment",
     rect: { x: 30, y: 36, width: 14, height: 18 },
   },
   {
@@ -28,7 +28,7 @@ const buildingZones = [
   },
   {
     id: "investment",
-    label: "AI Investment",
+    label: "Learning Lab",
     href: "/investment",
     rect: { x: 50, y: 40, width: 14, height: 18 },
   },
