@@ -156,21 +156,6 @@ export default function MapPage() {
     };
   }, []);
 
-  const handleMapClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!mapRef.current) return;
-    const rect = mapRef.current.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const clickY = event.clientY - rect.top;
-    const worldX = clickX - offsetX;
-    const worldY = clickY - offsetY;
-    const x = (worldX / mapWidth) * 100;
-    const y = (worldY / mapHeight) * 100;
-    setPosition({
-      x: Math.min(maxMapX, Math.max(minMapX, x)),
-      y: Math.min(maxMapY, Math.max(minMapY, y)),
-    });
-  };
-
   const isColliding = useCallback(
     (nextX: number, nextY: number) => {
       return collisionRects.some((rect) => {
@@ -340,11 +325,7 @@ export default function MapPage() {
   return (
     <div className="flex min-h-screen w-full flex-col">
       <div className="relative h-screen w-full overflow-hidden bg-slate-950">
-        <div
-          ref={mapRef}
-          onClick={handleMapClick}
-          className="relative h-full w-full cursor-crosshair"
-        >
+        <div ref={mapRef} className="relative h-full w-full cursor-default">
           <div
             className="absolute inset-0"
             style={{

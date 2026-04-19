@@ -1,6 +1,7 @@
 "use client";
 
 import { Inter } from "next/font/google";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AvatarCard from "../../components/AvatarCard";
 import PreviewCard from "../../components/PreviewCard";
@@ -40,17 +41,22 @@ type SkillLevel = (typeof skillLevels)[number];
 type AvatarId = (typeof avatars)[number]["id"];
 
 export default function OnboardingPage() {
+  const router = useRouter();
   const [pilotName, setPilotName] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState<AvatarId>("orion");
   const [skillLevel, setSkillLevel] = useState<SkillLevel>("Beginner");
   const activeAvatar = avatars.find((avatar) => avatar.id === selectedAvatar) ??
     avatars[0];
 
+  const handleEnter = () => {
+    router.push("/map");
+  };
+
   return (
     <div
       className={`${inter.className} relative min-h-screen overflow-hidden bg-[#0e0e0e] text-slate-100`}
     >
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 pointer-events-none">
         <video
           className="h-full w-full object-cover"
           autoPlay
@@ -61,8 +67,8 @@ export default function OnboardingPage() {
           <source src="/assests/background/onboarding/hero.mp4" type="video/mp4" />
         </video>
       </div>
-      <div className="absolute inset-0 bg-black/40" />
-      <div className="absolute inset-0 backdrop-blur-xs" />
+      <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+      <div className="absolute inset-0 backdrop-blur-xs pointer-events-none" />
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-16 pt-14">
         <header className="flex flex-col gap-4">
           <p className="text-xs uppercase tracking-[0.45em] text-slate-400">
@@ -85,7 +91,7 @@ export default function OnboardingPage() {
                 value={pilotName}
                 onChange={(event) => setPilotName(event.target.value)}
                 placeholder="Enter your callsign"
-                className="h-12 rounded-2xl border border-white/10 bg-black/60 px-4 text-white placeholder:text-slate-500"
+                className="h-12 rounded-2xl border border-white/10  px-4 text-white placeholder:text-slate-500"
               />
             </label>
 
@@ -120,6 +126,7 @@ export default function OnboardingPage() {
             avatarSrc={activeAvatar.src}
             avatarDescription={activeAvatar.desc}
             skillLevel={skillLevel}
+            onEnter={handleEnter}
           />
         </section>
       </div>

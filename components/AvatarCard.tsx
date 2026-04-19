@@ -13,7 +13,16 @@ export default function AvatarCard({
 }: AvatarCardProps) {
   return (
     <div
-      className={`flex flex-col items-center gap-5 rounded-[32px] border px-6 py-8 text-center transition ${
+      onClick={onSelect}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
+      className={`flex cursor-pointer flex-col items-center gap-5 rounded-[32px] border px-6 py-8 text-center transition ${
         selected
           ? "border-white bg-white/5"
           : "border-white/10 bg-black/40"

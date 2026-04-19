@@ -4,6 +4,7 @@ type PreviewCardProps = {
   avatarSrc: string;
   avatarDescription: string;
   skillLevel: string;
+  onEnter: () => void;
 };
 
 export default function PreviewCard({
@@ -12,9 +13,10 @@ export default function PreviewCard({
   avatarSrc,
   avatarDescription,
   skillLevel,
+  onEnter,
 }: PreviewCardProps) {
   return (
-    <aside className="flex h-full flex-col gap-6 rounded-3xl border border-white/10 bg-[#111827] p-6">
+    <aside className="flex h-full flex-col gap-6 rounded-3xl border border-white/10 bg-black/40 p-6">
       <h2 className="text-lg font-semibold text-white">Preview</h2>
       <div className="flex flex-col items-start gap-4">
         <span className="flex h-60 w-40 items-center justify-center rounded-3xl border border-white/10 bg-black/30">
@@ -29,7 +31,10 @@ export default function PreviewCard({
         </div>
       </div>
       <p className="text-sm text-slate-400">Skill: {skillLevel}</p>
-      <button className="mt-auto h-12 rounded-full bg-[#00E5A0] text-base font-semibold text-slate-900 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#00E5A0]/40">
+      <button
+        onClick={onEnter}
+        className="mt-auto h-12 rounded-full bg-[#00E5A0] text-base font-semibold text-slate-900 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#00E5A0]/40"
+      >
         Enter AI City
       </button>
     </aside>
