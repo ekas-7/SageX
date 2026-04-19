@@ -64,7 +64,8 @@ export default function MapPage() {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const chunkRows = 3;
   const chunkCols = 6;
-  const viewTilesWide = 3.2;
+  const viewTilesWide = 2;
+  const playerMarkerSize = 100;
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [position, setPosition] = useState({ x: 50, y: 60 });
@@ -300,8 +301,22 @@ export default function MapPage() {
               width: mapWidth,
               height: mapHeight,
               transform: `translate(${offsetX}px, ${offsetY}px)`,
+              zIndex: 1,
             }}
           >
+            {collisionRects.map((rect, index) => (
+              <div
+                key={`collision-${index}`}
+                className="absolute border-2 border-lime-300 bg-lime-300/20 shadow-[0_0_12px_rgba(52,255,161,0.9)]"
+                style={{
+                  width: (rect.width / 100) * mapWidth,
+                  height: (rect.height / 100) * mapHeight,
+                  left: (rect.x / 100) * mapWidth,
+                  top: (rect.y / 100) * mapHeight,
+                  zIndex: 3,
+                }}
+              />
+            ))}
             {visibleRows.flatMap((rowIndex) =>
               visibleCols.map((colIndex) => {
                 const row = rowIndex + 1;
@@ -340,7 +355,7 @@ export default function MapPage() {
                 type="button"
                 onClick={() => zone.href && router.push(zone.href)}
                 className="group absolute -translate-x-1/2 -translate-y-1/2"
-                style={{ left: zoneX, top: zoneY }}
+                style={{ left: zoneX, top: zoneY, zIndex: 2 }}
                 aria-label={zone.label}
               >
                 <span
@@ -355,9 +370,12 @@ export default function MapPage() {
             );
           })}
           <div
-            className="absolute left-1/2 top-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-sagex-teal/80 text-xl shadow-lg shadow-sagex-teal/40"
+            className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-sagex-teal/80 shadow-lg shadow-sagex-teal/40"
+            style={{ width: playerMarkerSize, height: playerMarkerSize, zIndex: 4 }}
           >
-            {hydrated ? profile?.avatar ?? "🧑‍🚀" : "🧑‍🚀"}
+            <span style={{ fontSize: playerMarkerSize * 0.45 }}>
+              {hydrated ? profile?.avatar ?? "🧑‍🚀" : "🧑‍🚀"}
+            </span>
           </div>
           <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3 py-1 text-xs text-slate-200">
             {hydrated ? subtitle : "Global Metaverse Map"} · Click to move · Arrow keys / WASD · Shift to run
