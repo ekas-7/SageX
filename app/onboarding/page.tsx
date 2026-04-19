@@ -48,9 +48,22 @@ export default function OnboardingPage() {
 
   return (
     <div
-      className={`${inter.className} min-h-screen bg-[#0e0e0e] text-slate-100`}
+      className={`${inter.className} relative min-h-screen overflow-hidden bg-[#0e0e0e] text-slate-100`}
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-16 pt-14">
+      <div className="absolute inset-0">
+        <video
+          className="h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+        >
+          <source src="/assests/background/onboarding/hero.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div className="absolute inset-0 bg-black/40" />
+      <div className="absolute inset-0 backdrop-blur-xs" />
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-16 pt-14">
         <header className="flex flex-col gap-4">
           <p className="text-xs uppercase tracking-[0.45em] text-slate-400">
             Onboarding
