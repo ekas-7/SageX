@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AvatarCard from "../../components/AvatarCard";
+import OnboardingSubmitSkeleton from "../../components/OnboardingSubmitSkeleton";
 import PreviewCard from "../../components/PreviewCard";
 import SkillToggle from "../../components/SkillToggle";
 import {
@@ -109,8 +110,10 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
-      <div className="absolute inset-0 pointer-events-none">
+    <div className="relative flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
+      {submitting && <OnboardingSubmitSkeleton />}
+
+      <div className="pointer-events-none absolute inset-0">
         <video
           className="h-full w-full object-cover"
           autoPlay
@@ -121,11 +124,11 @@ export default function OnboardingPage() {
           <source src="/assests/background/onboarding/hero.mp4" type="video/mp4" />
         </video>
       </div>
-      <div className="absolute inset-0 bg-black/45 pointer-events-none" />
-      <div className="absolute inset-0 backdrop-blur-xs pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 bg-black/45" />
+      <div className="pointer-events-none absolute inset-0 backdrop-blur-xs" />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-16 pt-14">
-        <header className="flex flex-col gap-4">
+      <div className="relative z-10 mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-6 px-6 pb-6 pt-10 sm:gap-8 sm:pt-14">
+        <header className="shrink-0 flex flex-col gap-3 sm:gap-4">
           <p className="page-label">Onboarding</p>
           <h1 className="page-title text-3xl md:text-5xl">
             Choose your space identity.
@@ -136,14 +139,28 @@ export default function OnboardingPage() {
           </p>
         </header>
 
-        <section className="grid gap-8 md:grid-cols-[3fr_2fr]">
-          <div className="glass-card flex flex-col gap-8 rounded-2xl p-6">
-            <label className="flex flex-col gap-2 text-sm text-[var(--text-secondary)]">
-              <span className="font-display text-xs font-medium uppercase tracking-widest">Pilot Name</span>
+        <section className="grid min-h-0 flex-1 grid-cols-1 items-start gap-8 overflow-y-auto overscroll-contain pb-2 md:grid-cols-[3fr_2fr] md:overflow-y-auto">
+          <div className="glass-card flex w-full min-h-0 flex-col gap-6 rounded-2xl p-5 sm:gap-8 sm:p-6 md:max-h-[calc(100dvh-11rem)] md:overflow-y-auto">
+            <label
+              className="flex flex-col gap-2 text-sm text-[var(--text-secondary)]"
+              htmlFor="pilot-name"
+            >
+              <span className="font-display text-xs font-medium uppercase tracking-widest">
+                Pilot Name{" "}
+                <span className="text-rose-400" aria-hidden="true">
+                  *
+                </span>
+                <span className="sr-only">(required)</span>
+              </span>
               <input
+                id="pilot-name"
+                name="pilotName"
                 value={pilotName}
                 onChange={(event) => setPilotName(event.target.value)}
                 placeholder="Enter your callsign"
+                required
+                aria-required="true"
+                autoComplete="nickname"
                 className="h-12 rounded-xl border border-[var(--border-default)] bg-[var(--surface-1)] px-4 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition focus:border-[var(--border-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--sagex-accent)]/30"
               />
             </label>
@@ -205,7 +222,7 @@ export default function OnboardingPage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex min-h-0 flex-col gap-3 md:sticky md:top-0 md:self-start">
             <PreviewCard
               pilotName={trimmedName}
               avatarName={activeAvatar.name}
@@ -216,11 +233,6 @@ export default function OnboardingPage() {
               onEnter={handleEnter}
               disabled={!isNameValid || submitting}
             />
-            {submitting && (
-              <p className="text-xs text-[var(--text-muted)]">
-                Saving your pilot...
-              </p>
-            )}
             {submitError && (
               <p className="text-xs text-rose-300">{submitError}</p>
             )}

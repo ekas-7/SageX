@@ -135,7 +135,7 @@ export default function Home() {
               SageX Space Academy
             </p>
 
-            <h1 className="home-reveal font-display text-4xl font-semibold leading-tight text-white md:text-5xl lg:text-6xl">
+            <h1 className="home-reveal hero-display-h1 text-white">
               {headlineWords.map((word, index) => (
                 <span key={`${word}-${index}`} className="headline-word">
                   {word}
@@ -144,7 +144,7 @@ export default function Home() {
               ))}
             </h1>
 
-            <p className="home-reveal page-description max-w-2xl text-lg">
+            <p className="home-reveal text-subtext-cinematic max-w-2xl">
               Step into the AI City, complete quests generated from real AI
               concepts, and unlock abilities as your space core evolves.
             </p>

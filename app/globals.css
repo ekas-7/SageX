@@ -1,9 +1,13 @@
+/* Instrument Serif (display) — Inter is loaded via next/font in layout.tsx */
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap");
+
 @import "tailwindcss";
 
 /* ───────────────────────────────────────────────
    Design Tokens
    ─────────────────────────────────────────────── */
 :root {
+  --font-instrument-serif: "Instrument Serif", ui-serif, Georgia, serif;
   /* Core palette */
   --background: #07090f;
   --foreground: #eef1f6;
@@ -38,9 +42,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
+  --color-muted-foreground: var(--text-muted);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono);
-  --font-display: var(--font-orbitron);
+  --font-display: var(--font-instrument-serif);
 }
 
 /* ───────────────────────────────────────────────
@@ -58,7 +63,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -72,7 +77,37 @@ body {
    Typography Utilities
    ─────────────────────────────────────────────── */
 .font-display {
-  font-family: var(--font-orbitron), system-ui, sans-serif;
+  font-family: var(--font-instrument-serif);
+}
+
+/* Cinematic / marketing typography */
+.hero-display-h1 {
+  font-family: var(--font-instrument-serif);
+  font-size: clamp(2.25rem, 1.2rem + 4vw, 6rem);
+  line-height: 0.95;
+  letter-spacing: -2.46px;
+  font-weight: 400;
+}
+
+.text-subtext-cinematic {
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  line-height: 1.625;
+  color: var(--text-muted);
+}
+
+.logo-wordmark {
+  font-family: var(--font-instrument-serif);
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  letter-spacing: -0.025em;
+}
+
+.nav-link-cinematic {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
 }
 
 .text-sagex-accent {
@@ -176,7 +211,7 @@ body {
    Page Header Utility
    ─────────────────────────────────────────────── */
 .page-label {
-  font-family: var(--font-orbitron), system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.6875rem;
   font-weight: 500;
   text-transform: uppercase;
@@ -186,7 +221,7 @@ body {
 }
 
 .page-title {
-  font-family: var(--font-orbitron), system-ui, sans-serif;
+  font-family: var(--font-instrument-serif);
   font-weight: 600;
   color: var(--text-primary);
   line-height: 1.15;
@@ -202,7 +237,7 @@ body {
    Section Label (small uppercase tags)
    ─────────────────────────────────────────────── */
 .section-label {
-  font-family: var(--font-orbitron), system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.625rem;
   font-weight: 500;
   text-transform: uppercase;
