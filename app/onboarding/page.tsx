@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AvatarCard from "../../components/AvatarCard";
 import OnboardingSubmitSkeleton from "../../components/OnboardingSubmitSkeleton";
+import { OAuthSignIn } from "../../components/OAuthSignIn";
 import PreviewCard from "../../components/PreviewCard";
 import SkillToggle from "../../components/SkillToggle";
 import {
@@ -135,6 +136,9 @@ export default function OnboardingPage() {
             Your avatar and skill level shape the pace of missions. You can
             update this later inside the hub.
           </p>
+          <div className="max-w-md">
+            <OAuthSignIn callbackUrl="/onboarding/guide" />
+          </div>
         </header>
 
         <section

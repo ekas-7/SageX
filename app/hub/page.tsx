@@ -4,6 +4,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { SignOutButton } from "../../components/SignOutButton";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
 const buildings = [
@@ -97,13 +98,16 @@ export default function HubPage() {
               {hydrated ? greeting : "Welcome, Explorer"}
             </h1>
           </div>
-          <a
-            href="/map?tour=1"
-            className="btn-ghost text-xs"
-            title="Walk through the academy with Alisa again"
-          >
-            Replay Tour
-          </a>
+          <div className="flex flex-wrap items-center gap-2">
+            <SignOutButton />
+            <a
+              href="/map?tour=1"
+              className="btn-ghost text-xs"
+              title="Walk through the academy with Alisa again"
+            >
+              Replay Tour
+            </a>
+          </div>
         </div>
         <p className="page-description max-w-2xl text-base">
           Your NPC guide highlights key buildings. Choose where to explore next

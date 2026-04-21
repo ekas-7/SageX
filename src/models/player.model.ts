@@ -28,12 +28,21 @@ const PlayerSchema = new Schema(
     // Display name. No longer globally unique — two "Orion"s are allowed
     // as long as they have different playerIds.
     name: { type: String, required: true, index: true },
+    // OAuth / account linking (sparse — anonymous players have none)
+    email: { type: String, sparse: true, unique: true, index: true },
+    accountProvider: { type: String, sparse: true, index: true },
+    accountId: { type: String, sparse: true, index: true },
     avatar: { type: String },
     skill: { type: String },
     interests: { type: [String], default: [] },
     stats: { type: PlayerStatsSchema, default: () => ({}) },
   },
   { timestamps: true }
+);
+
+PlayerSchema.index(
+  { accountProvider: 1, accountId: 1 },
+  { unique: true, sparse: true }
 );
 
 export const PlayerModel = models.Player || model("Player", PlayerSchema);

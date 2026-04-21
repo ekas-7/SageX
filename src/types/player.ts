@@ -18,6 +18,9 @@ export type PlayerStats = {
 export type PlayerProfile = {
   playerId: string;
   name: string;
+  email?: string;
+  accountProvider?: string;
+  accountId?: string;
   avatar?: string;
   skill?: string;
   interests?: string[];

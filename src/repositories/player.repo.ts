@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { PlayerModel } from "../models/player.model";
 import { connectToDatabase } from "../lib/db";
 import type { PlayerProfile } from "../types/player";
@@ -39,6 +40,53 @@ export const PlayerRepository = {
   async findByName(name: string) {
     await connectToDatabase();
     return PlayerModel.findOne({ name }).lean() as unknown as PlayerProfile | null;
+  },
+
+  async findByEmail(email: string) {
+    await connectToDatabase();
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) return null;
+    return PlayerModel.findOne({ email: normalized }).lean() as unknown as PlayerProfile | null;
+  },
+
+  async findByAuthAccount(provider: string, accountId: string) {
+    await connectToDatabase();
+    return PlayerModel.findOne({ accountProvider: provider, accountId }).lean() as unknown as PlayerProfile | null;
+  },
+
+  async linkAuthAccount(
+    playerId: string,
+    fields: { email?: string; accountProvider: string; accountId: string }
+  ) {
+    await connectToDatabase();
+    const set: Record<string, string> = {
+      accountProvider: fields.accountProvider,
+      accountId: fields.accountId,
+    };
+    if (fields.email) set.email = fields.email.trim().toLowerCase();
+    return PlayerModel.findOneAndUpdate({ playerId }, { $set: set }, { new: true }).lean() as unknown as PlayerProfile | null;
+  },
+
+  async createWithOAuth(data: {
+    provider: string;
+    providerAccountId: string;
+    email: string | null;
+    name: string;
+    image?: string;
+  }) {
+    await connectToDatabase();
+    const playerId = randomUUID();
+    const doc = await PlayerModel.create({
+      playerId,
+      name: data.name.slice(0, 80),
+      email: data.email ? data.email.trim().toLowerCase() : undefined,
+      accountProvider: data.provider,
+      accountId: data.providerAccountId,
+      avatar: data.image,
+      interests: [],
+      stats: defaultStats(),
+    });
+    return doc.toObject() as unknown as PlayerProfile;
   },
 
   async create(data: CreateData) {

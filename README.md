@@ -41,18 +41,12 @@ Because if learning isn’t as engaging as a game, it won’t win the future.
 - **Models:** [`src/models`](src/models).
 - **Interactive ER diagram (local dev only):** with `npm run dev`, open [http://localhost:3000/dev/schema](http://localhost:3000/dev/schema). Not served in production.
 
-## Authentication (today & directions)
+## Authentication
 
-**Today:** identity is a **client-minted `playerId`** (UUID) plus profile JSON in **`localStorage`**, synced via [`src/lib/playerClient.ts`](src/lib/playerClient.ts) and **`POST /api/player`**. There are no passwords; progress is **device/browser-bound** and APIs trust the `playerId` the client sends.
-
-**Reasonable next steps (pick one path):**
-
-1. **Stay anonymous for MVP** — keep current model; document that clearing storage = new pilot. Add optional “export / import” code later.
-2. **Add Auth.js (NextAuth)** with **OAuth** (Google, GitHub, etc.) — on first sign-in, create or bind a `playerId` to the provider account in MongoDB; use **session cookies / JWT** on API routes instead of trusting raw `playerId` from the body alone.
-3. **Use a hosted provider** (Clerk, Supabase Auth, Firebase Auth) — faster UI and sessions; map `user.id` → your `Player` document.
-4. **Hardening without full login** — sign payloads or issue short-lived **server-signed tokens** after `/api/player` so writes aren’t trivially forged (still not full account security).
-
-For a learning game, **OAuth + session-backed APIs** is the usual sweet spot between friction and real accounts.
+- **Auth.js (NextAuth v5)** — [`auth.ts`](auth.ts), route **`/api/auth/[...nextauth]`**. Providers: **Google** and **GitHub** (env: `AUTH_GOOGLE_*`, `AUTH_GITHUB_*`, plus **`AUTH_SECRET`**, **`AUTH_URL`** in production).
+- **Player mapping** — on OAuth sign-in, [`src/services/oauthPlayer.service.ts`](src/services/oauthPlayer.service.ts) finds or creates a [`Player`](src/models/player.model.ts) with `playerId`, optional `email`, and `accountProvider` + `accountId`. JWT/session expose **`session.user.playerId`**.
+- **`POST /api/player`** — if the user has a session, **`playerId` is forced from the session** (see [`src/controllers/player.controller.ts`](src/controllers/player.controller.ts)); anonymous users still send a client-minted id.
+- **Client** — [`SessionSync`](components/SessionSync.tsx) mirrors the signed-in user into **`localStorage`** so existing flows keep working. [`OAuthSignIn`](components/OAuthSignIn.tsx) on the home and onboarding pages; **Sign out** on the hub.
 
 ## MVP Flow
 
@@ -65,6 +59,10 @@ For a learning game, **OAuth + session-backed APIs** is the usual sweet spot bet
 
 Create a `.env.local` file (see `.env.local.example`) with:
 
+- `AUTH_SECRET` (required for OAuth; generate with `openssl rand -base64 32`)
+- `AUTH_URL` (production: `https://sage-x.vercel.app` or your app URL)
+- `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`
+- `AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET`
 - `MONGODB_URI`
 - `GROQ_API_KEY`
 - `GROQ_MODEL` (optional)

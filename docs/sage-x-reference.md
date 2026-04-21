@@ -22,6 +22,7 @@ Base URL: `https://sage-x.vercel.app`
 | Area | Method & path |
 |------|----------------|
 | Meta | `GET` [`/api/endpoints`](https://sage-x.vercel.app/api/endpoints) |
+| Auth | `GET` / `POST` [`/api/auth/*`](https://sage-x.vercel.app/api/auth/signin) (Auth.js OAuth) |
 | Analytics | `GET` [`/api/analytics`](https://sage-x.vercel.app/api/analytics) |
 | Arena | `GET` [`/api/arena/next`](https://sage-x.vercel.app/api/arena/next) |
 | Arena | `GET` [`/api/arena/problems`](https://sage-x.vercel.app/api/arena/problems) |

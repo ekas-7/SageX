@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef } from "react";
 import { gsap } from "gsap";
+import { OAuthSignIn } from "../components/OAuthSignIn";
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -148,13 +149,16 @@ export default function Home() {
               concepts, and unlock abilities as your space core evolves.
             </p>
 
-            <div className="home-reveal flex flex-col gap-4 sm:flex-row">
-              <a href="/onboarding" className="btn-primary">
-                Start Journey
-              </a>
-              <button className="btn-ghost">
-                View Map Preview
-              </button>
+            <div className="home-reveal flex flex-col gap-6">
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <a href="/onboarding" className="btn-primary">
+                  Start Journey
+                </a>
+                <button type="button" className="btn-ghost">
+                  View Map Preview
+                </button>
+              </div>
+              <OAuthSignIn callbackUrl="/onboarding/guide" />
             </div>
           </header>
         </section>

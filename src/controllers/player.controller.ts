@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { PlayerOrchestrator } from "../orchestrators/player.orchestrator";
 import { PlayerService } from "../services/player.service";
 import { PlayerRepository } from "../repositories/player.repo";
@@ -11,10 +12,21 @@ export const PlayerController = {
    * POST /api/player — idempotent sign-in. Creates the player on first
    * call, updates profile on subsequent calls. Always returns 200 with
    * the canonical profile.
+   *
+   * If the request has a valid OAuth session, `playerId` is taken from the
+   * session (server-side) so clients cannot spoof another account.
    */
   async upsertProfile(request: Request) {
+    const session = await auth();
     const body = (await request.json().catch(() => ({}))) as unknown;
-    const parsed = playerProfileSchema.safeParse(body);
+    const merged =
+      typeof body === "object" && body !== null
+        ? { ...(body as Record<string, unknown>) }
+        : {};
+    if (session?.user?.playerId) {
+      merged.playerId = session.user.playerId;
+    }
+    const parsed = playerProfileSchema.safeParse(merged);
     if (!parsed.success) {
       throw new Error(
         parsed.error.issues.map((i) => i.message).join("; ") ||
