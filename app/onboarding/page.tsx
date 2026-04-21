@@ -111,8 +111,6 @@ export default function OnboardingPage() {
 
   return (
     <div className="relative flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
-      {submitting && <OnboardingSubmitSkeleton />}
-
       <div className="pointer-events-none absolute inset-0">
         <video
           className="h-full w-full object-cover"
@@ -139,8 +137,13 @@ export default function OnboardingPage() {
           </p>
         </header>
 
-        <section className="grid min-h-0 flex-1 grid-cols-1 items-start gap-8 overflow-y-auto overscroll-contain pb-2 md:grid-cols-[3fr_2fr] md:overflow-y-auto">
-          <div className="glass-card flex w-full min-h-0 flex-col gap-6 rounded-2xl p-5 sm:gap-8 sm:p-6 md:max-h-[calc(100dvh-11rem)] md:overflow-y-auto">
+        <section
+          className="grid min-h-0 flex-1 grid-cols-1 items-start gap-8 overflow-y-auto overscroll-contain pb-2 md:grid-cols-[3fr_2fr] md:overflow-y-auto"
+          aria-busy={submitting}
+        >
+          <div
+            className={`glass-card flex w-full min-h-0 flex-col gap-6 rounded-2xl p-5 sm:gap-8 sm:p-6 md:max-h-[calc(100dvh-11rem)] md:overflow-y-auto ${submitting ? "pointer-events-none opacity-60" : ""}`}
+          >
             <label
               className="flex flex-col gap-2 text-sm text-[var(--text-secondary)]"
               htmlFor="pilot-name"
@@ -222,17 +225,21 @@ export default function OnboardingPage() {
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-col gap-3 md:sticky md:top-0 md:self-start">
-            <PreviewCard
-              pilotName={trimmedName}
-              avatarName={activeAvatar.name}
-              avatarSrc={activeAvatar.src}
-              avatarDescription={activeAvatar.desc}
-              skillLevel={skillLevel}
-              interests={selectedInterestLabels}
-              onEnter={handleEnter}
-              disabled={!isNameValid || submitting}
-            />
+          <div className="flex min-h-0 w-full flex-col gap-3 md:sticky md:top-0 md:self-start">
+            {submitting ? (
+              <OnboardingSubmitSkeleton />
+            ) : (
+              <PreviewCard
+                pilotName={trimmedName}
+                avatarName={activeAvatar.name}
+                avatarSrc={activeAvatar.src}
+                avatarDescription={activeAvatar.desc}
+                skillLevel={skillLevel}
+                interests={selectedInterestLabels}
+                onEnter={handleEnter}
+                disabled={!isNameValid}
+              />
+            )}
             {submitError && (
               <p className="text-xs text-rose-300">{submitError}</p>
             )}
