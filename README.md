@@ -2,6 +2,21 @@
 
 SageX is a 2D RPG-style learning experience where players explore an AI city, complete quests, and unlock abilities as they master AI concepts.
 
+## Deployment
+
+- **Production:** [https://sage-x.vercel.app](https://sage-x.vercel.app)
+
+## API & documentation
+
+- **Machine-readable route list:** `GET` [https://sage-x.vercel.app/api/endpoints](https://sage-x.vercel.app/api/endpoints) — JSON with every path, HTTP methods, group, and full URLs (dynamic segments as `:id`).
+- **Human-readable reference** (tables, links, notes): [docs/sage-x-reference.md](docs/sage-x-reference.md).
+- **Source of truth for the catalog:** [`src/lib/apiEndpoints.ts`](src/lib/apiEndpoints.ts) — update this when you add or change routes under `app/api/`.
+
+## Database schema (Mongoose)
+
+- **Models:** [`src/models`](src/models).
+- **Interactive ER diagram (local dev only):** with `npm run dev`, open [http://localhost:3000/dev/schema](http://localhost:3000/dev/schema). Not served in production.
+
 ## MVP Flow
 
 - Landing → Onboarding → AI Learning Lab (forced quest) → Hub
@@ -48,13 +63,16 @@ This outputs:
 - Backend follows the layered architecture in `BACKEND_RULES.md`.
 - Quest generation uses deterministic seeds for fairness.
 
-## Daily Vibe Routes
+## Daily Vibe (API summary)
 
-- `GET /api/vibe/prompt` → fetch or create today’s prompt
-- `POST /api/vibe/prompt` → create a scheduled prompt
-- `POST /api/vibe/submissions` → submit a build
-- `GET /api/vibe/submissions?promptId=...` → list submissions
-- `GET /api/vibe/submissions/:id` → fetch a submission
-- `POST /api/vibe/vote` → vote on a submission
-- `GET /api/vibe/leaderboard?promptId=...` → leaderboard
-- `GET /api/vibe/embed/:id` → embed metadata + iframe snippet
+Vibe routes are included in [`/api/endpoints`](https://sage-x.vercel.app/api/endpoints) and [docs/sage-x-reference.md](docs/sage-x-reference.md). Quick list:
+
+- `GET` / `POST` `/api/vibe/prompt` — today’s prompt (fetch or create)
+- `POST` `/api/vibe/submissions` — submit a build
+- `GET` `/api/vibe/submissions?promptId=...` — list submissions
+- `GET` `/api/vibe/submissions/:id` — fetch a submission
+- `POST` `/api/vibe/vote` — vote
+- `GET` `/api/vibe/leaderboard?promptId=...` — leaderboard
+- `GET` `/api/vibe/embed/:id` — embed metadata + iframe snippet
+
+Use the production base URL above when calling the deployed API.

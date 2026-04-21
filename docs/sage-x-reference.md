@@ -2,18 +2,26 @@
 
 **Deployed app:** [https://sage-x.vercel.app](https://sage-x.vercel.app)
 
+## Machine-readable API catalog
+
+**`GET`** [https://sage-x.vercel.app/api/endpoints](https://sage-x.vercel.app/api/endpoints)
+
+Returns JSON: origin, every route `path`, `methods`, `group`, and a full `url` (dynamic segments shown as `:id`).  
+Source of truth: [`src/lib/apiEndpoints.ts`](../src/lib/apiEndpoints.ts) — update when you add or change handlers under `app/api/`.
+
 ## DB schema (Mongoose)
 
 - Models live in [`src/models`](../src/models).
 - **Interactive ER diagram (local only):** run `npm run dev`, then open [http://localhost:3000/dev/schema](http://localhost:3000/dev/schema).  
   Production builds hide this page (`NODE_ENV === "production"` → 404).
 
-## Backend API (Next.js route handlers)
+## Backend API (human table)
 
 Base URL: `https://sage-x.vercel.app`
 
 | Area | Method & path |
 |------|----------------|
+| Meta | `GET` [`/api/endpoints`](https://sage-x.vercel.app/api/endpoints) |
 | Analytics | `GET` [`/api/analytics`](https://sage-x.vercel.app/api/analytics) |
 | Arena | `GET` [`/api/arena/next`](https://sage-x.vercel.app/api/arena/next) |
 | Arena | `GET` [`/api/arena/problems`](https://sage-x.vercel.app/api/arena/problems) |
@@ -24,8 +32,8 @@ Base URL: `https://sage-x.vercel.app`
 | Player | `POST` [`/api/player`](https://sage-x.vercel.app/api/player) |
 | Player | `POST` [`/api/player/rehydrate`](https://sage-x.vercel.app/api/player/rehydrate) |
 | Quests | `GET` [`/api/quests/first`](https://sage-x.vercel.app/api/quests/first) |
-| Stats | `GET` [`/api/stats`](https://sage-x.vercel.app/api/stats) |
-| Vibe | `GET` [`/api/vibe/prompt`](https://sage-x.vercel.app/api/vibe/prompt) |
+| Stats | `GET` / `POST` [`/api/stats`](https://sage-x.vercel.app/api/stats) |
+| Vibe | `GET` / `POST` [`/api/vibe/prompt`](https://sage-x.vercel.app/api/vibe/prompt) |
 | Vibe | `GET` [`/api/vibe/leaderboard`](https://sage-x.vercel.app/api/vibe/leaderboard) |
 | Vibe | `GET` / `POST` [`/api/vibe/submissions`](https://sage-x.vercel.app/api/vibe/submissions) |
 | Vibe | `GET` [`/api/vibe/submissions/:id`](https://sage-x.vercel.app/api/vibe/submissions/example-id) |
