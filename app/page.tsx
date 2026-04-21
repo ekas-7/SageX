@@ -135,11 +135,10 @@ export default function Home() {
               SageX Space Academy
             </p>
 
-            <h1 className="home-reveal hero-display-h1 text-white">
+            <h1 className="home-reveal hero-display-h1 text-balance text-white">
               {headlineWords.map((word, index) => (
                 <span key={`${word}-${index}`} className="headline-word">
                   {word}
-                  {index < headlineWords.length - 1 ? " " : ""}
                 </span>
               ))}
             </h1>

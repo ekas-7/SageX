@@ -41,6 +41,19 @@ Because if learning isn’t as engaging as a game, it won’t win the future.
 - **Models:** [`src/models`](src/models).
 - **Interactive ER diagram (local dev only):** with `npm run dev`, open [http://localhost:3000/dev/schema](http://localhost:3000/dev/schema). Not served in production.
 
+## Authentication (today & directions)
+
+**Today:** identity is a **client-minted `playerId`** (UUID) plus profile JSON in **`localStorage`**, synced via [`src/lib/playerClient.ts`](src/lib/playerClient.ts) and **`POST /api/player`**. There are no passwords; progress is **device/browser-bound** and APIs trust the `playerId` the client sends.
+
+**Reasonable next steps (pick one path):**
+
+1. **Stay anonymous for MVP** — keep current model; document that clearing storage = new pilot. Add optional “export / import” code later.
+2. **Add Auth.js (NextAuth)** with **OAuth** (Google, GitHub, etc.) — on first sign-in, create or bind a `playerId` to the provider account in MongoDB; use **session cookies / JWT** on API routes instead of trusting raw `playerId` from the body alone.
+3. **Use a hosted provider** (Clerk, Supabase Auth, Firebase Auth) — faster UI and sessions; map `user.id` → your `Player` document.
+4. **Hardening without full login** — sign payloads or issue short-lived **server-signed tokens** after `/api/player` so writes aren’t trivially forged (still not full account security).
+
+For a learning game, **OAuth + session-backed APIs** is the usual sweet spot between friction and real accounts.
+
 ## MVP Flow
 
 - Landing → Onboarding → AI Learning Lab (forced quest) → Hub
