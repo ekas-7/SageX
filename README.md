@@ -6,6 +6,30 @@ SageX is a 2D RPG-style learning experience where players explore an AI city, co
 
 - **Production:** [https://sage-x.vercel.app](https://sage-x.vercel.app)
 
+## Vision 
+**Traditional learning is dead.**
+
+Gen Z doesn’t want another **40-minute tutorial** — they want a **high-stakes loop**.
+
+That’s why we built **SageX**: a **2D RPG Space Academy** where users learn AI engineering through gameplay.
+
+- No lectures.  
+- No endless docs.  
+- No passive watching.  
+
+Just one addictive loop:
+
+**Attempt → Real-time LLM Grade → XP**
+
+We’re transforming education into something people *want* to come back to.
+
+And this goes far beyond tech.
+
+From AI engineering to finance, healthcare, design, law, and more  **SageX is built to gamify AI learning across every field.**
+
+Because if learning isn’t as engaging as a game, it won’t win the future.
+
+
 ## API & documentation
 
 - **Machine-readable route list:** `GET` [https://sage-x.vercel.app/api/endpoints](https://sage-x.vercel.app/api/endpoints) — JSON with every path, HTTP methods, group, and full URLs (dynamic segments as `:id`).
