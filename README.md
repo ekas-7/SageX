@@ -32,7 +32,7 @@ Because if learning isn’t as engaging as a game, it won’t win the future.
 
 ## API & documentation
 
-- **Machine-readable route list:** `GET` [https://sage-x.vercel.app/api/endpoints](https://sage-x.vercel.app/api/endpoints) — JSON with every path, HTTP methods, group, and full URLs (dynamic segments as `:id`).
+- **Machine-readable route list:** `GET` [https://sage-x.vercel.app/api/endpoints](https://sage-x.vercel.app/api/endpoints) — JSON with `endpoints` (path, methods, `group`, `url`), plus `database` (Mongo + Player OAuth fields) and `auth` (Auth.js). Source: [`src/lib/apiEndpoints.ts`](src/lib/apiEndpoints.ts) and [`src/lib/dbSchemaMetadata.ts`](src/lib/dbSchemaMetadata.ts).
 - **Human-readable reference** (tables, links, notes): [docs/sage-x-reference.md](docs/sage-x-reference.md).
 - **Source of truth for the catalog:** [`src/lib/apiEndpoints.ts`](src/lib/apiEndpoints.ts) — update this when you add or change routes under `app/api/`.
 

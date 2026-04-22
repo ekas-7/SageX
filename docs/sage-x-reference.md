@@ -6,12 +6,12 @@
 
 **`GET`** [https://sage-x.vercel.app/api/endpoints](https://sage-x.vercel.app/api/endpoints)
 
-Returns JSON: origin, every route `path`, `methods`, `group`, and a full `url` (dynamic segments shown as `:id`).  
-Source of truth: [`src/lib/apiEndpoints.ts`](../src/lib/apiEndpoints.ts) — update when you add or change handlers under `app/api/`.
+Returns JSON: `origin`, `endpoints` (path, methods, group, `url`), plus `database` (Mongo `Player` + OAuth fields) and `auth` (Auth.js base path, providers).  
+Source of truth: [`src/lib/apiEndpoints.ts`](../src/lib/apiEndpoints.ts) and [`src/lib/dbSchemaMetadata.ts`](../src/lib/dbSchemaMetadata.ts).
 
 ## DB schema (Mongoose)
 
-- Models live in [`src/models`](../src/models).
+- Models live in [`src/models`](../src/models). **Player** includes optional **OAuth** fields: `email` (unique sparse), `accountProvider`, `accountId` (compound unique with provider when set).
 - **Interactive ER diagram (local only):** run `npm run dev`, then open [http://localhost:3000/dev/schema](http://localhost:3000/dev/schema).  
   Production builds hide this page (`NODE_ENV === "production"` → 404).
 
@@ -22,7 +22,7 @@ Base URL: `https://sage-x.vercel.app`
 | Area | Method & path |
 |------|----------------|
 | Meta | `GET` [`/api/endpoints`](https://sage-x.vercel.app/api/endpoints) |
-| Auth | `GET` / `POST` [`/api/auth/*`](https://sage-x.vercel.app/api/auth/signin) (Auth.js OAuth) |
+| Auth | `GET` / `POST` [`/api/auth/[...nextauth]`](https://sage-x.vercel.app/api/auth) (Auth.js v5: Google, GitHub) |
 | Analytics | `GET` [`/api/analytics`](https://sage-x.vercel.app/api/analytics) |
 | Arena | `GET` [`/api/arena/next`](https://sage-x.vercel.app/api/arena/next) |
 | Arena | `GET` [`/api/arena/problems`](https://sage-x.vercel.app/api/arena/problems) |

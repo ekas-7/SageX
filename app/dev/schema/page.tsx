@@ -25,6 +25,15 @@ export default function DevSchemaPage() {
           src/models
         </code>
         . Refs and logical string foreign keys are shown as relationships.
+        <span className="mt-2 block text-zinc-500">
+          <strong className="font-medium text-zinc-400">Player (OAuth):</strong>{" "}
+          <code>email</code>, <code>accountProvider</code>, and{" "}
+          <code>accountId</code> link Google/GitHub sign-ins (sparse; anonymous
+          pilots omit them). Sessions expose <code>playerId</code> via Auth.js
+          — see <code>auth.ts</code> and{" "}
+          <code>GET /api/endpoints</code> (<code>database</code> /{" "}
+          <code>auth</code>).
+        </span>
       </p>
       <SchemaDiagram diagram={diagram} />
       <details className="mt-6">

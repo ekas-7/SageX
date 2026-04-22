@@ -14,7 +14,7 @@ export type ApiEndpoint = {
 
 export const API_ENDPOINTS: ApiEndpoint[] = [
   { path: "/api/endpoints", methods: ["GET"], group: "meta" },
-  { path: "/api/auth/[...nextauth]", methods: ["GET", "POST"], group: "meta" },
+  { path: "/api/auth/[...nextauth]", methods: ["GET", "POST"], group: "auth" },
   { path: "/api/analytics", methods: ["GET"], group: "analytics" },
   { path: "/api/arena/next", methods: ["GET"], group: "arena" },
   { path: "/api/arena/problems", methods: ["GET"], group: "arena" },
