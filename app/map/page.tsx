@@ -7,6 +7,13 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import collisions from "../../src/data/mapCollisions.json";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
+import {
+  MAP_PET_DIRECTION_ROWS,
+  MAP_PET_FRAMES,
+  MAP_PET_SHEET,
+  MAP_PET_BASE_WIDTH,
+  mapPetDisplayHeight,
+} from "@/src/config/mapPet";
 import AlisaTour from "../../components/AlisaTour";
 
 const TOUR_STORAGE_KEY = "sagex.tourCompleted";
@@ -252,6 +259,29 @@ export default function MapPage() {
     D: 2,
     W: 3,
   };
+  const petDisplayW = MAP_PET_BASE_WIDTH;
+  const petDisplayH = mapPetDisplayHeight(petDisplayW);
+  /** Sheet row: walk left (A) uses the right-facing row, mirrored. */
+  const petSpriteRow =
+    direction === "A" ? directionRowMap.D : directionRowMap[direction];
+  const petMirrorX = direction === "A";
+  const petFollowGap = 24;
+  const behindPetOffset = (() => {
+    switch (direction) {
+      case "S":
+        return { x: 0, y: -petFollowGap };
+      case "W":
+        return { x: 0, y: petFollowGap };
+      case "A":
+        return { x: petFollowGap, y: 0 };
+      case "D":
+        return { x: -petFollowGap, y: 0 };
+      default:
+        return { x: 0, y: 0 };
+    }
+  })();
+  const petX = playerX + behindPetOffset.x;
+  const petY = playerY + behindPetOffset.y;
 
   const visibleCols = useMemo(() => {
     if (!tileWidth) return [] as number[];
@@ -468,6 +498,36 @@ export default function MapPage() {
               </button>
             );
           })}
+          <div
+            className="pointer-events-none absolute flex items-center justify-center"
+            style={{
+              width: petDisplayW,
+              height: petDisplayH,
+              zIndex: 3,
+              left: petX + offsetX,
+              top: petY + offsetY,
+              transform: petMirrorX
+                ? "translate(-50%, -50%) scaleX(-1)"
+                : "translate(-50%, -50%)",
+            }}
+            aria-label="Mecha pet companion"
+          >
+            <div
+              className="rounded-sm"
+              style={{
+                width: petDisplayW,
+                height: petDisplayH,
+                backgroundImage: `url(${MAP_PET_SHEET})`,
+                backgroundRepeat: "no-repeat",
+                backgroundSize: `${MAP_PET_FRAMES * petDisplayW}px ${
+                  MAP_PET_DIRECTION_ROWS * petDisplayH
+                }px`,
+                backgroundPosition: `-${
+                  frameIndex * petDisplayW
+                }px -${petSpriteRow * petDisplayH}px`,
+              }}
+            />
+          </div>
           <div
             className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
             style={{
