@@ -5,6 +5,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { SignOutButton } from "../../components/SignOutButton";
+import { SagexTokenStrip } from "../../components/SagexTokenStrip";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
 const buildings = [
@@ -114,6 +115,8 @@ export default function HubPage() {
           and keep upgrading your Space Core.
         </p>
       </header>
+
+      <SagexTokenStrip variant="hub" />
 
       <section className="glass-card flex flex-wrap items-center gap-4 rounded-2xl p-6">
         <div className="flex items-center gap-4">

@@ -26,6 +26,7 @@ export const API_ENDPOINTS: ApiEndpoint[] = [
   { path: "/api/player/rehydrate", methods: ["POST"], group: "player" },
   { path: "/api/quests/first", methods: ["GET"], group: "quests" },
   { path: "/api/stats", methods: ["GET", "POST"], group: "stats" },
+  { path: "/api/token/quote", methods: ["GET"], group: "token" },
   { path: "/api/vibe/prompt", methods: ["GET", "POST"], group: "vibe" },
   { path: "/api/vibe/leaderboard", methods: ["GET"], group: "vibe" },
   { path: "/api/vibe/submissions", methods: ["GET", "POST"], group: "vibe" },

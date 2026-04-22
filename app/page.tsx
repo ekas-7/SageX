@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef } from "react";
 import { gsap } from "gsap";
 import { OAuthSignIn } from "../components/OAuthSignIn";
+import { SagexTokenStrip } from "../components/SagexTokenStrip";
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -162,6 +163,8 @@ export default function Home() {
             </div>
           </header>
         </section>
+
+        <SagexTokenStrip variant="home" className="w-full" />
       </main>
     </div>
   );
