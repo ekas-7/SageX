@@ -46,7 +46,7 @@ Because if learning isn’t as engaging as a game, it won’t win the future.
 - **Auth.js (NextAuth v5)** — [`auth.ts`](auth.ts), route **`/api/auth/[...nextauth]`**. Providers: **Google** and **GitHub** (env: `AUTH_GOOGLE_*`, `AUTH_GITHUB_*`, plus **`AUTH_SECRET`**, **`AUTH_URL`** in production).
 - **Player mapping** — on OAuth sign-in, [`src/services/oauthPlayer.service.ts`](src/services/oauthPlayer.service.ts) finds or creates a [`Player`](src/models/player.model.ts) with `playerId`, optional `email`, and `accountProvider` + `accountId`. JWT/session expose **`session.user.playerId`**.
 - **`POST /api/player`** — if the user has a session, **`playerId` is forced from the session** (see [`src/controllers/player.controller.ts`](src/controllers/player.controller.ts)); anonymous users still send a client-minted id.
-- **Client** — [`SessionSync`](components/SessionSync.tsx) mirrors the signed-in user into **`localStorage`** so existing flows keep working. [`OAuthSignIn`](components/OAuthSignIn.tsx) on the home and onboarding pages; **Sign out** on the hub.
+- **Client** — [`SessionSync`](components/SessionSync.tsx) mirrors the signed-in user into **`localStorage`** when a session exists; **Sign out** on the hub. The home page does not surface OAuth buttons (Auth.js routes remain available for direct use).
 
 ## MVP Flow
 
