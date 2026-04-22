@@ -12,6 +12,10 @@ import {
   MAP_PET_FRAMES,
   MAP_PET_SHEET,
   MAP_PET_BASE_WIDTH,
+  MAP_PET_FOLLOW_GAP_PX,
+  MAP_PET_HORIZ_FLIP,
+  MAP_PET_OFFSET_X,
+  MAP_PET_OFFSET_Y,
   mapPetDisplayHeight,
 } from "@/src/config/mapPet";
 import AlisaTour from "../../components/AlisaTour";
@@ -261,27 +265,37 @@ export default function MapPage() {
   };
   const petDisplayW = MAP_PET_BASE_WIDTH;
   const petDisplayH = mapPetDisplayHeight(petDisplayW);
-  /** Sheet row: walk left (A) uses the right-facing row, mirrored. */
-  const petSpriteRow =
-    direction === "A" ? directionRowMap.D : directionRowMap[direction];
-  const petMirrorX = direction === "A";
-  const petFollowGap = 24;
+  const dr = directionRowMap;
+  const { petSpriteRow, petMirrorX } =
+    MAP_PET_HORIZ_FLIP === "A"
+      ? {
+          petSpriteRow: direction === "A" ? dr.D : dr[direction],
+          petMirrorX: direction === "A",
+        }
+      : {
+          petSpriteRow: direction === "D" ? dr.A : dr[direction],
+          petMirrorX: direction === "D",
+        };
   const behindPetOffset = (() => {
+    const g = MAP_PET_FOLLOW_GAP_PX;
     switch (direction) {
       case "S":
-        return { x: 0, y: -petFollowGap };
+        return { x: 0, y: -g };
       case "W":
-        return { x: 0, y: petFollowGap };
+        return { x: 0, y: g };
       case "A":
-        return { x: petFollowGap, y: 0 };
+        return { x: g, y: 0 };
       case "D":
-        return { x: -petFollowGap, y: 0 };
+        return { x: -g, y: 0 };
       default:
         return { x: 0, y: 0 };
     }
   })();
-  const petX = playerX + behindPetOffset.x;
-  const petY = playerY + behindPetOffset.y;
+  const effectivePetOffsetX = petMirrorX
+    ? -MAP_PET_OFFSET_X
+    : MAP_PET_OFFSET_X;
+  const petX = playerX + behindPetOffset.x + effectivePetOffsetX;
+  const petY = playerY + behindPetOffset.y + MAP_PET_OFFSET_Y;
 
   const visibleCols = useMemo(() => {
     if (!tileWidth) return [] as number[];

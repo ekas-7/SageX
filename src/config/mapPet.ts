@@ -18,3 +18,22 @@ export const MAP_PET_BASE_WIDTH = 48;
 export function mapPetDisplayHeight(displayWidth: number): number {
   return Math.round((displayWidth * MAP_PET_SOURCE_CELL_H) / MAP_PET_SOURCE_CELL_W);
 }
+
+/**
+ * How far behind the player the pet sits per facing (map pixels, before global offset).
+ */
+export const MAP_PET_FOLLOW_GAP_PX = 24;
+
+/**
+ * Extra nudge after the “behind” offset (map pixels). Positive x = right, y = down.
+ * When the pet is horizontally flipped, `MAP_PET_OFFSET_X` is negated so the nudge stays visually consistent.
+ */
+export const MAP_PET_OFFSET_X = 25;
+export const MAP_PET_OFFSET_Y = 10;
+
+/**
+ * Which horizontal walk reuses the opposite row and `scaleX(-1)`.
+ * - `"A"`: the side row faces right (mirror for left / walk A).
+ * - `"D"`: the side row faces left (mirror for right / walk D).
+ */
+export const MAP_PET_HORIZ_FLIP: "A" | "D" = "D";
