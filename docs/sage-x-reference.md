@@ -42,5 +42,19 @@ Base URL: `https://sage-x.vercel.app`
 | Vibe | `POST` [`/api/vibe/vote`](https://sage-x.vercel.app/api/vibe/vote) |
 | XP | `POST` [`/api/xp/award`](https://sage-x.vercel.app/api/xp/award) |
 | XP | `GET` [`/api/xp/summary`](https://sage-x.vercel.app/api/xp/summary) |
+| Token | `GET` [`/api/token/quote`](https://sage-x.vercel.app/api/token/quote) |
 
 Replace `:id` / `example-id` with real IDs where routes are dynamic.
+
+## SAGEX AI (Solana) — optional
+
+- **UI:** `SagexTokenStrip` on the landing and hub pages if [`getSagexTokenPublic()`](../src/config/sagexToken.ts) is configured (mint and/or link overrides). Source: [`src/config/sagexToken.ts`](../src/config/sagexToken.ts), [`components/SagexTokenStrip.tsx`](../components/SagexTokenStrip.tsx).
+- **Env (public, build):** `NEXT_PUBLIC_SAGEX_TOKEN_MINT`, optional `NEXT_PUBLIC_SAGEX_PUMP_URL`, `NEXT_PUBLIC_SAGEX_DEX_SCREENER_URL`, `NEXT_PUBLIC_SAGEX_TOKEN_LABEL` — see [`.env.local.example`](../.env.local.example).
+- **Quote API:** `GET` `/api/token/quote` — optional `?mint=`; default mint from `NEXT_PUBLIC_SAGEX_TOKEN_MINT`. Proxies [DexScreener](https://api.dexscreener.com/) latest price (cached on the server). No wallet or chain signing.
+
+## World map
+
+- **Page:** [`/map`](../app/map/page.tsx) — tiled background, building zones, collisions in [`src/data/mapCollisions.json`](../src/data/mapCollisions.json).
+- **Player:** skin **1** uses [`skin-1-spritesheet.png`](../public/assests/skins/skin-1-spritesheet.png); other skins use static PNGs from onboarding.
+- **Companion pet:** [`petspritesheet.png`](../public/assests/skins/petspritesheet.png) (4×4 sheet), draw order under the player; behavior and layout constants in [`src/config/mapPet.ts`](../src/config/mapPet.ts) (offsets, `MAP_PET_HORIZ_FLIP` for which walk direction is mirrored, follow gap, display width).
+- **Tour:** [`AlisaTour`](../components/AlisaTour.tsx) (optional guided walkthrough).
