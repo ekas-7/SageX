@@ -5,6 +5,8 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MapChunkLoaderOverlay } from "@/components/MapChunkLoaderOverlay";
+import { usePriorityChunkPreload } from "@/src/hooks/usePriorityChunkPreload";
 import collisions from "../../src/data/mapCollisions.json";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 import {
@@ -84,6 +86,10 @@ type PlayerProfile = {
 
 type MovementDirection = "S" | "A" | "D" | "W";
 
+/** Preload + camera math use this — keep aligned with `position` initial state */
+const MAP_PRELOAD_SPAWN = { x: 50, y: 60 } as const;
+const MAIN_MAP_RATIO_SRC = "/assests/background/main_map_chunks/map_r1_c1.png";
+
 export default function MapPage() {
   const router = useRouter();
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -96,7 +102,6 @@ export default function MapPage() {
   const [position, setPosition] = useState({ x: 50, y: 60 });
   const [activeZone, setActiveZone] = useState<string | null>(null);
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
-  const [chunkRatio, setChunkRatio] = useState(1);
   const [pressedKeys, setPressedKeys] = useState<Record<string, boolean>>({});
   const [interactionZone, setInteractionZone] = useState<string | null>(null);
   const [direction, setDirection] = useState<MovementDirection>("S");
@@ -157,15 +162,24 @@ export default function MapPage() {
     });
   }, [router]);
 
-  useEffect(() => {
-    const img = new window.Image();
-    img.src = "/assests/background/main_map_chunks/map_r1_c1.png";
-    img.onload = () => {
-      if (img.width > 0) {
-        setChunkRatio(img.height / img.width);
-      }
-    };
+  const getMainMapChunkUrl = useCallback((row1: number, col1: number) => {
+    return `/assests/background/main_map_chunks/map_r${row1}_c${col1}.png`;
   }, []);
+
+  const {
+    aspectRatio: chunkRatio,
+    ready: chunksReady,
+    error: chunkLoadError,
+    retry: retryChunkLoad,
+  } = usePriorityChunkPreload({
+    viewport,
+    chunkRows,
+    chunkCols,
+    viewTilesWide,
+    positionPercent: MAP_PRELOAD_SPAWN,
+    ratioImageUrl: MAIN_MAP_RATIO_SRC,
+    getChunkUrl: getMainMapChunkUrl,
+  });
 
   useEffect(() => {
     const updateSize = () => {
@@ -318,7 +332,7 @@ export default function MapPage() {
   }, [chunkRows, offsetY, tileHeight, viewport.height]);
 
   useEffect(() => {
-    if (!hydrated || !mapWidth || !mapHeight) return;
+    if (!hydrated || !mapWidth || !mapHeight || !chunksReady) return;
     let animationFrame: number;
 
     const update = (timestamp: number) => {
@@ -401,7 +415,7 @@ export default function MapPage() {
 
     animationFrame = window.requestAnimationFrame(update);
     return () => window.cancelAnimationFrame(animationFrame);
-  }, [hydrated, isColliding, mapHeight, mapWidth, pressedKeys]);
+  }, [hydrated, isColliding, mapHeight, mapWidth, pressedKeys, chunksReady]);
 
   const subtitle = useMemo(() => {
     if (!profile) return "Global Metaverse Map";
@@ -436,6 +450,13 @@ export default function MapPage() {
     <div className="flex min-h-screen w-full flex-col">
       <div className="relative h-screen w-full overflow-hidden bg-[var(--background)]">
         <div ref={mapRef} className="relative h-full w-full cursor-default">
+          {!chunksReady && (
+            <MapChunkLoaderOverlay
+              error={chunkLoadError}
+              onRetry={retryChunkLoad}
+              label="Loading world map"
+            />
+          )}
           <div
             className="absolute inset-0"
             style={{
@@ -585,7 +606,11 @@ export default function MapPage() {
               />
             )}
           </div>
-          {tourActive && hydrated && mapWidth > 0 && mapHeight > 0 && (
+          {tourActive &&
+            hydrated &&
+            chunksReady &&
+            mapWidth > 0 &&
+            mapHeight > 0 && (
             <AlisaTour
               mapWidth={mapWidth}
               mapHeight={mapHeight}

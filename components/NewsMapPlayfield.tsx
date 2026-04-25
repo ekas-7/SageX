@@ -6,6 +6,8 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MapChunkLoaderOverlay } from "@/components/MapChunkLoaderOverlay";
+import { usePriorityChunkPreload } from "@/src/hooks/usePriorityChunkPreload";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 import {
   MAP_PET_BASE_WIDTH,
@@ -23,6 +25,8 @@ const CHUNK_DIR = "/assests/background/investement/news_backgroung_chunks";
 const CHUNK_ROWS = 4;
 const CHUNK_COLS = 6;
 const VIEW_TILES_WIDE = 6;
+const NEWS_PRELOAD_SPAWN = { x: 50, y: 60 } as const;
+const NEWS_RATIO_SRC = `${CHUNK_DIR}/row-1-column-1.png`;
 
 function newsChunkUrl(row: number, col: number) {
   return `${CHUNK_DIR}/row-${row}-column-${col}.png`;
@@ -54,7 +58,6 @@ export function NewsMapPlayfield() {
   const [hydrated, setHydrated] = useState(false);
   const [position, setPosition] = useState({ x: 50, y: 60 });
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
-  const [chunkRatio, setChunkRatio] = useState(1);
   const [pressedKeys, setPressedKeys] = useState<Record<string, boolean>>({});
   const [direction, setDirection] = useState<MovementDirection>("S");
   const [frameIndex, setFrameIndex] = useState(0);
@@ -88,15 +91,24 @@ export function NewsMapPlayfield() {
     });
   }, [router]);
 
-  useEffect(() => {
-    const img = new window.Image();
-    img.src = newsChunkUrl(1, 1);
-    img.onload = () => {
-      if (img.width > 0) {
-        setChunkRatio(img.height / img.width);
-      }
-    };
+  const getNewsChunkUrl = useCallback((row1: number, col1: number) => {
+    return newsChunkUrl(row1, col1);
   }, []);
+
+  const {
+    aspectRatio: chunkRatio,
+    ready: chunksReady,
+    error: chunkLoadError,
+    retry: retryChunkLoad,
+  } = usePriorityChunkPreload({
+    viewport,
+    chunkRows: CHUNK_ROWS,
+    chunkCols: CHUNK_COLS,
+    viewTilesWide: VIEW_TILES_WIDE,
+    positionPercent: NEWS_PRELOAD_SPAWN,
+    ratioImageUrl: NEWS_RATIO_SRC,
+    getChunkUrl: getNewsChunkUrl,
+  });
 
   useEffect(() => {
     const updateSize = () => {
@@ -221,7 +233,7 @@ export function NewsMapPlayfield() {
   }, [offsetY, tileHeight, viewport.height]);
 
   useEffect(() => {
-    if (!hydrated || !mapWidth || !mapHeight) return;
+    if (!hydrated || !mapWidth || !mapHeight || !chunksReady) return;
     let raf = 0;
     const update = (timestamp: number) => {
       if (lastFrameRef.current === null) {
@@ -298,7 +310,7 @@ export function NewsMapPlayfield() {
     };
     raf = window.requestAnimationFrame(update);
     return () => window.cancelAnimationFrame(raf);
-  }, [hydrated, isColliding, mapHeight, mapWidth, pressedKeys]);
+  }, [hydrated, isColliding, mapHeight, mapWidth, pressedKeys, chunksReady]);
 
   const footerLine = useMemo(
     () =>
@@ -311,6 +323,13 @@ export function NewsMapPlayfield() {
   return (
     <div className="relative h-full min-h-screen w-full cursor-default bg-[var(--background)]">
       <div ref={mapRef} className="absolute inset-0 h-full w-full">
+        {!chunksReady && (
+          <MapChunkLoaderOverlay
+            error={chunkLoadError}
+            onRetry={retryChunkLoad}
+            label="Loading news map"
+          />
+        )}
         <div
           className="absolute inset-0"
           style={{
