@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { XP_SOURCES } from "@/src/config/xp";
+import {
+  HN_ARTICLE_READ_EVENT,
+  getReadArticleObjectIds,
+  markArticleObjectIdRead,
+} from "@/src/lib/hnArticleRead";
 import { postXpAward } from "@/src/lib/postXpAward";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
@@ -35,6 +40,20 @@ export function InvestmentNewsPanel({ onClose }: InvestmentNewsPanelProps) {
   const [hits, setHits] = useState<HNHit[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [readIds, setReadIds] = useState<Set<string>>(() =>
+    getReadArticleObjectIds()
+  );
+
+  const syncReadFromStorage = useCallback(() => {
+    setReadIds(getReadArticleObjectIds());
+  }, []);
+
+  useEffect(() => {
+    syncReadFromStorage();
+    window.addEventListener(HN_ARTICLE_READ_EVENT, syncReadFromStorage);
+    return () =>
+      window.removeEventListener(HN_ARTICLE_READ_EVENT, syncReadFromStorage);
+  }, [syncReadFromStorage]);
 
   useEffect(() => {
     let cancel = false;
@@ -107,7 +126,7 @@ export function InvestmentNewsPanel({ onClose }: InvestmentNewsPanelProps) {
           <p className="page-label">Live feed</p>
           <h2 className="page-title mt-1.5 text-2xl sm:text-3xl">Front page</h2>
           <p className="mt-1.5 text-sm text-[var(--text-secondary)]">
-            Hacker News — daily XP when the list loads (once per day).
+            Daily XP once per day. Open a link to mark a story read (✓).
           </p>
         </div>
         <button
@@ -127,28 +146,43 @@ export function InvestmentNewsPanel({ onClose }: InvestmentNewsPanelProps) {
         )}
         {!loading &&
           !loadError &&
-          hits.map((hit, i) => (
-            <a
-              key={hit.objectID}
-              href={hit.url ?? "https://news.ycombinator.com/"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass-card glass-card-hover mb-3 block rounded-xl p-3 text-left last:mb-0"
-            >
-              <span className="text-xs font-medium text-[var(--text-muted)]">
-                {i + 1}.{" "}
-              </span>
-              <span className="text-sm font-medium leading-snug text-[var(--text-primary)]">
-                {hit.title}
-              </span>
-              {hit.points != null && (
-                <span className="mt-1.5 block text-xs text-[var(--text-muted)]">
-                  {hit.points} pts
-                  {hit.author ? ` · ${hit.author}` : ""}
+          hits.map((hit, i) => {
+            const read = readIds.has(hit.objectID);
+            return (
+              <a
+                key={hit.objectID}
+                href={hit.url ?? "https://news.ycombinator.com/"}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  markArticleObjectIdRead(hit.objectID);
+                }}
+                className="glass-card glass-card-hover relative mb-3 block rounded-xl p-3 pr-10 text-left last:mb-0"
+              >
+                {read && (
+                  <span
+                    className="absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--sagex-accent)] bg-[var(--sagex-accent-muted)] text-xs font-bold text-[var(--sagex-accent)]"
+                    title="Opened"
+                    aria-label="You opened this story"
+                  >
+                    ✓
+                  </span>
+                )}
+                <span className="text-xs font-medium text-[var(--text-muted)]">
+                  {i + 1}.{" "}
                 </span>
-              )}
-            </a>
-          ))}
+                <span className="text-sm font-medium leading-snug text-[var(--text-primary)]">
+                  {hit.title}
+                </span>
+                {hit.points != null && (
+                  <span className="mt-1.5 block text-xs text-[var(--text-muted)]">
+                    {hit.points} pts
+                    {hit.author ? ` · ${hit.author}` : ""}
+                  </span>
+                )}
+              </a>
+            );
+          })}
       </div>
     </div>
   );
