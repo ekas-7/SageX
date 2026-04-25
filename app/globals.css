@@ -439,3 +439,29 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.15);
 }
+
+/* ───────────────────────────────────────────────
+   Global XP toast (hud)
+   ─────────────────────────────────────────────── */
+@keyframes xp-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.xp-toast-panel {
+  animation: xp-toast-in 0.38s ease-out;
+}
+@keyframes xp-toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.99);
+  }
+}
+.xp-toast-panel.is-leaving {
+  animation: xp-toast-out 0.3s ease-in forwards;
+}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { XP_SOURCES } from "@/src/config/xp";
+import { postXpAward } from "@/src/lib/postXpAward";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
 const HN_API =
@@ -34,7 +35,6 @@ export function InvestmentNewsPanel({ onClose }: InvestmentNewsPanelProps) {
   const [hits, setHits] = useState<HNHit[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [xpToast, setXpToast] = useState<string | null>(null);
 
   useEffect(() => {
     let cancel = false;
@@ -68,29 +68,15 @@ export function InvestmentNewsPanel({ onClose }: InvestmentNewsPanelProps) {
         const stored = readStoredPlayer();
         if (!stored) return;
         const authed = await signInPlayer(stored);
-        const res = await fetch("/api/xp/award", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            playerId: authed.playerId,
-            name: authed.name,
-            source: XP_SOURCES.DAILY_NEWS_READ,
-            sourceRef: `news-daily-${day}`,
-            metadata: { page: "investment" },
-          }),
+        const { ok, payload } = await postXpAward({
+          playerId: authed.playerId,
+          name: authed.name,
+          source: XP_SOURCES.DAILY_NEWS_READ,
+          sourceRef: `news-daily-${day}`,
+          metadata: { page: "investment" },
         });
-        const payload = (await res.json()) as {
-          ok?: boolean;
-          duplicate?: boolean;
-          awarded?: number;
-        };
-        if (res.ok && payload?.ok) {
+        if (ok && payload?.ok) {
           window.sessionStorage.setItem(DAILY_XP_SESSION, day);
-          if (!payload.duplicate && (payload.awarded ?? 0) > 0) {
-            setXpToast(
-              `+${payload.awarded} XP for checking the front page today.`
-            );
-          }
         }
       } catch {
         // Non-fatal; no session write so a later visit can retry.
@@ -99,12 +85,6 @@ export function InvestmentNewsPanel({ onClose }: InvestmentNewsPanelProps) {
       }
     })();
   }, [loading, hits.length]);
-
-  useEffect(() => {
-    if (!xpToast) return;
-    const t = window.setTimeout(() => setXpToast(null), 4000);
-    return () => window.clearTimeout(t);
-  }, [xpToast]);
 
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => {
@@ -122,11 +102,6 @@ export function InvestmentNewsPanel({ onClose }: InvestmentNewsPanelProps) {
       className="font-sans flex h-full min-h-0 w-full min-w-0 flex-col text-[var(--foreground)]"
       aria-label="Hacker News front page"
     >
-      {xpToast && (
-        <div className="shrink-0 border-b border-[var(--border-subtle)] bg-[var(--sagex-accent-muted)] px-4 py-2.5 text-center text-sm text-[var(--sagex-accent)]">
-          {xpToast}
-        </div>
-      )}
       <div className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--border-subtle)] px-4 py-4">
         <div className="min-w-0">
           <p className="page-label">Live feed</p>

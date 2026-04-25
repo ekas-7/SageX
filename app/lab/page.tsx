@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { QuestDatasetRow, QuestResponse } from "@/src/types/quest";
+import { postXpAward } from "@/src/lib/postXpAward";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
 export default function LabPage() {
@@ -67,19 +68,15 @@ export default function LabPage() {
       const source =
         score >= 300 ? "quest.perfect" : "quest.complete";
 
-      const response = await fetch("/api/xp/award", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          playerId: authed.playerId,
-          name: authed.name,
-          source,
-          sourceRef: `quest:${quest.questId ?? quest.seed}`,
-          difficulty: quest.difficulty,
-          metadata: { score, durationMs },
-        }),
+      const { ok, payload: raw } = await postXpAward({
+        playerId: authed.playerId,
+        name: authed.name,
+        source,
+        sourceRef: `quest:${quest.questId ?? quest.seed}`,
+        difficulty: quest.difficulty,
+        metadata: { score, durationMs },
       });
-      const payload = (await response.json()) as {
+      const payload = raw as {
         ok?: boolean;
         error?: string;
         awarded?: number;
@@ -93,7 +90,7 @@ export default function LabPage() {
         softCapped?: boolean;
         duplicate?: boolean;
       };
-      if (!response.ok || !payload.ok) {
+      if (!ok || !payload.ok) {
         throw new Error(payload.error ?? "Failed to award XP");
       }
       setXpAward({
@@ -198,14 +195,7 @@ export default function LabPage() {
 
                   {xpAward && !xpAward.duplicate && xpAward.awarded > 0 && (
                     <div className="rounded-xl border border-[var(--border-accent)] bg-[var(--sagex-accent-muted)] p-3">
-                      <p className="font-display text-sm font-semibold text-[var(--sagex-accent)]">
-                        +{xpAward.awarded} XP
-                        {xpAward.multiplier > 1 && (
-                          <span className="ml-2 text-xs text-[var(--text-secondary)]">
-                            x{xpAward.multiplier.toFixed(2)} multiplier
-                          </span>
-                        )}
-                      </p>
+                      <p className="section-label">After this run</p>
                       {xpAward.leveledUp && (
                         <p className="mt-1 text-xs text-[var(--text-primary)]">
                           Level up! Now Lv {xpAward.levelAfter} &middot; {xpAward.rank}

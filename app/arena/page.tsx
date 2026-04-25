@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { emitXpToast } from "@/src/lib/xpToastEvents";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 import type {
   ArenaCaseResult,
@@ -175,6 +176,15 @@ export default function ArenaPage() {
         throw new Error(payload.error ?? "Submission failed");
       }
       setResult(payload);
+      if ((payload.xpAwarded ?? 0) > 0) {
+        emitXpToast({
+          awarded: payload.xpAwarded!,
+          leveledUp: payload.leveledUp,
+          levelAfter: payload.levelAfter,
+          rank: payload.rank,
+          sourceLabel: payload.passed ? "Arena clear" : "Arena credit",
+        });
+      }
       if (payload.passed) {
         void reloadList(player.playerId);
       }
@@ -551,17 +561,10 @@ export default function ArenaPage() {
                           </span>
                         </div>
                       </div>
-                      {(result.xpAwarded ?? 0) > 0 && (
-                        <div className="text-right">
-                          <p className="font-display text-lg font-semibold text-[var(--sagex-accent)]">
-                            +{result.xpAwarded} XP
-                          </p>
-                          {result.leveledUp && (
-                            <p className="text-xs text-[var(--text-primary)]">
-                              Level up &middot; Lv {result.levelAfter}{" "}
-                              &middot; {result.rank}
-                            </p>
-                          )}
+                      {(result.xpAwarded ?? 0) > 0 && result.leveledUp && (
+                        <div className="text-right text-xs text-[var(--text-primary)]">
+                          Level up &middot; Lv {result.levelAfter} &middot;{" "}
+                          {result.rank}
                         </div>
                       )}
                     </div>

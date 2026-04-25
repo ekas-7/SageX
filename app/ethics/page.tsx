@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import ethicsData from "../../src/data/ethicsScenarios.json";
+import { postXpAward } from "@/src/lib/postXpAward";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
 /* ─── Types ─── */
@@ -178,20 +179,16 @@ export default function EthicsPage() {
     (async () => {
       try {
         const authed = await signInPlayer(stored);
-        await fetch("/api/xp/award", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            playerId: authed.playerId,
-            name: authed.name,
-            source: choice.isCorrect
-              ? "ethics.scenario"
-              : "ethics.scenario.partial",
-            sourceRef: `ethics:${activeScenario.id}`,
-            difficulty: activeScenario.difficulty,
-            overrideBase: xpEarned,
-            metadata: { choiceId: selectedChoice },
-          }),
+        await postXpAward({
+          playerId: authed.playerId,
+          name: authed.name,
+          source: choice.isCorrect
+            ? "ethics.scenario"
+            : "ethics.scenario.partial",
+          sourceRef: `ethics:${activeScenario.id}`,
+          difficulty: activeScenario.difficulty as "beginner" | "builder" | "competitive",
+          overrideBase: xpEarned,
+          metadata: { choiceId: selectedChoice },
         });
       } catch {
         // Non-fatal — local state already updated.
