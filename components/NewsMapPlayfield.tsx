@@ -347,13 +347,13 @@ export function NewsMapPlayfield() {
           {collisionRects.map((rect, index) => (
             <div
               key={`news-collision-${index}`}
-              className="absolute border-2 border-cyan-300 bg-cyan-400/15 shadow-[0_0_16px_rgba(34,211,238,0.75),0_0_8px_rgba(168,85,247,0.4)]"
+              className="pointer-events-none absolute border-2 border-cyan-300 bg-cyan-400/20 shadow-[0_0_16px_rgba(34,211,238,0.75),0_0_8px_rgba(168,85,247,0.4)]"
               style={{
                 width: (rect.width / 100) * mapWidth,
                 height: (rect.height / 100) * mapHeight,
                 left: (rect.x / 100) * mapWidth,
                 top: (rect.y / 100) * mapHeight,
-                zIndex: -1,
+                zIndex: 2,
               }}
             />
           ))}
@@ -378,6 +378,7 @@ export function NewsMapPlayfield() {
                     height: tileHeight,
                     left: colIndex * tileWidth,
                     top: rowIndex * tileHeight,
+                    zIndex: 0,
                   }}
                   draggable={false}
                   loading={isPriority ? "eager" : "lazy"}
