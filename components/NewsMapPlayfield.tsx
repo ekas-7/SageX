@@ -401,21 +401,6 @@ export function NewsMapPlayfield({
               aria-hidden
             />
           ))}
-          <div
-            className="pointer-events-none absolute border-2 border-dashed border-fuchsia-400/90 bg-fuchsia-500/15 shadow-[0_0_12px_rgba(232,121,249,0.45)]"
-            style={{
-              width: (eZoneRect.width / 100) * mapWidth,
-              height: (eZoneRect.height / 100) * mapHeight,
-              left: (eZoneRect.x / 100) * mapWidth,
-              top: (eZoneRect.y / 100) * mapHeight,
-              zIndex: 2,
-            }}
-            aria-hidden
-          >
-            <span className="absolute left-1.5 top-2 max-w-[calc(100%-0.5rem)] rounded bg-black/55 px-1.5 py-0.5 text-[0.65rem] font-medium leading-tight text-fuchsia-100/95">
-              E · Open news
-            </span>
-          </div>
           {visibleRows.flatMap((rowIndex) =>
             visibleCols.map((colIndex) => {
               const row = rowIndex + 1;
