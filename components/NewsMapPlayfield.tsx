@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MapChunkLoaderOverlay } from "@/components/MapChunkLoaderOverlay";
 import newsMapCollisions from "@/src/data/newsMapCollisions.json";
+import newsMapEZone from "@/src/data/newsMapEZone.json";
 import { usePriorityChunkPreload } from "@/src/hooks/usePriorityChunkPreload";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 import {
@@ -51,7 +52,30 @@ const maxMapX = 100;
 const minMapY = 0;
 const maxMapY = 100;
 
-export function NewsMapPlayfield() {
+function pointInRect(
+  px: number,
+  py: number,
+  rect: CollisionRect
+) {
+  return (
+    px >= rect.x &&
+    px <= rect.x + rect.width &&
+    py >= rect.y &&
+    py <= rect.y + rect.height
+  );
+}
+
+type NewsMapPlayfieldProps = {
+  /** Fired once when the player presses E while standing in the news column. */
+  onOpenNewsPanel?: () => void;
+  /** When true, E does not open the panel (e.g. already open). */
+  newsPanelOpen?: boolean;
+};
+
+export function NewsMapPlayfield({
+  onOpenNewsPanel,
+  newsPanelOpen = false,
+}: NewsMapPlayfieldProps) {
   const router = useRouter();
   const mapRef = useRef<HTMLDivElement | null>(null);
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
@@ -135,6 +159,24 @@ export function NewsMapPlayfield() {
   }, []);
 
   const collisionRects = newsMapCollisions as CollisionRect[];
+  const eZoneRect = newsMapEZone as CollisionRect;
+  const inNewsEZone = useMemo(
+    () => pointInRect(position.x, position.y, eZoneRect),
+    [eZoneRect, position.x, position.y]
+  );
+
+  useEffect(() => {
+    if (!onOpenNewsPanel || newsPanelOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "e" && e.key !== "E") return;
+      if (e.repeat) return;
+      if (!inNewsEZone) return;
+      e.preventDefault();
+      onOpenNewsPanel();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [inNewsEZone, newsPanelOpen, onOpenNewsPanel]);
 
   const isColliding = useCallback(
     (nextX: number, nextY: number) => {
@@ -319,10 +361,11 @@ export function NewsMapPlayfield() {
 
   const footerLine = useMemo(
     () =>
-      profile
+      (profile
         ? `${profile.name} · AI investment news`
-        : "AI investment news",
-    [profile]
+        : "AI investment news") +
+      (inNewsEZone ? " · Press E" : ""),
+    [inNewsEZone, profile]
   );
 
   return (
@@ -357,6 +400,21 @@ export function NewsMapPlayfield() {
               }}
             />
           ))}
+          <div
+            className="pointer-events-none absolute border-2 border-dashed border-fuchsia-400/90 bg-fuchsia-500/15 shadow-[0_0_12px_rgba(232,121,249,0.45)]"
+            style={{
+              width: (eZoneRect.width / 100) * mapWidth,
+              height: (eZoneRect.height / 100) * mapHeight,
+              left: (eZoneRect.x / 100) * mapWidth,
+              top: (eZoneRect.y / 100) * mapHeight,
+              zIndex: 2,
+            }}
+            aria-hidden
+          >
+            <span className="absolute left-1.5 top-2 max-w-[calc(100%-0.5rem)] rounded bg-black/55 px-1.5 py-0.5 text-[0.65rem] font-medium leading-tight text-fuchsia-100/95">
+              E · Open news
+            </span>
+          </div>
           {visibleRows.flatMap((rowIndex) =>
             visibleCols.map((colIndex) => {
               const row = rowIndex + 1;

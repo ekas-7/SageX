@@ -35,7 +35,7 @@ const buildingZones = [
     id: "investment-news",
     label: "Investements and AI News",
     href: "/investment",
-    rect: { x: 30, y: 36, width: 14, height: 18 },
+    rect: { x: 40, y: 10, width: 30, height: 36 },
   },
   {
     id: "field",

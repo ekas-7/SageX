@@ -1,6 +1,5 @@
 [
   { "x": 4, "y": 4, "width": 24, "height": 34 },
-  { "x": 30, "y": 36, "width": 14, "height": 18 },
   { "x": 45, "y": 4, "width": 16, "height": 20 },
   { "x": 50, "y": 40, "width": 14, "height": 18 },
   { "x": 70, "y": 35, "width": 10, "height": 10 },

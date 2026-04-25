@@ -16,6 +16,7 @@ const SOURCE_LABELS: Record<XpSource, string> = {
   [XP_SOURCES.VIBE_SUBMIT]: "Vibe submission",
   [XP_SOURCES.VIBE_VOTE_RECEIVED]: "Vibe upvote",
   [XP_SOURCES.DAILY_LOGIN]: "Daily login",
+  [XP_SOURCES.DAILY_NEWS_READ]: "Daily news",
   [XP_SOURCES.STREAK_MILESTONE]: "Streak milestone",
   [XP_SOURCES.ONBOARDING_COMPLETE]: "Onboarding",
   [XP_SOURCES.FIELD_TRACK_STEP]: "Field track",

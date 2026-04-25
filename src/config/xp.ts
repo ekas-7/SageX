@@ -36,6 +36,8 @@ export const XP_SOURCES = {
   VIBE_SUBMIT: "vibe.submit",
   VIBE_VOTE_RECEIVED: "vibe.vote.received",
   DAILY_LOGIN: "daily.login",
+  /** Visiting the investment / news playfield; once per local calendar day. */
+  DAILY_NEWS_READ: "daily.news.read",
   STREAK_MILESTONE: "streak.milestone",
   ONBOARDING_COMPLETE: "onboarding.complete",
   FIELD_TRACK_STEP: "field.track.step",
@@ -57,6 +59,7 @@ export const XP_BASE_REWARDS: Record<XpSource, number> = {
   [XP_SOURCES.VIBE_SUBMIT]: 25,
   [XP_SOURCES.VIBE_VOTE_RECEIVED]: 5,
   [XP_SOURCES.DAILY_LOGIN]: 15,
+  [XP_SOURCES.DAILY_NEWS_READ]: 20,
   [XP_SOURCES.STREAK_MILESTONE]: 100,
   [XP_SOURCES.ONBOARDING_COMPLETE]: 75,
   [XP_SOURCES.FIELD_TRACK_STEP]: 35,
