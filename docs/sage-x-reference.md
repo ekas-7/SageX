@@ -58,3 +58,4 @@ Replace `:id` / `example-id` with real IDs where routes are dynamic.
 - **Player:** skin **1** uses [`skin-1-spritesheet.png`](../public/assests/skins/skin-1-spritesheet.png); other skins use static PNGs from onboarding.
 - **Companion pet:** [`petspritesheet.png`](../public/assests/skins/petspritesheet.png) (4×4 sheet), draw order under the player; behavior and layout constants in [`src/config/mapPet.ts`](../src/config/mapPet.ts) (offsets, `MAP_PET_HORIZ_FLIP` for which walk direction is mirrored, follow gap, display width).
 - **Tour:** [`AlisaTour`](../components/AlisaTour.tsx) (optional guided walkthrough).
+- **Investment & AI news:** [`/investment`](../app/investment/page.tsx) — after the intro video, the scene uses the same 4×6 grid and player controls as [`/map`](../app/map/page.tsx) ([`news_backgroung_chunks/`](../public/assests/background/investement/news_backgroung_chunks/) + [`NewsMapPlayfield`](../components/NewsMapPlayfield.tsx)).

@@ -42,6 +42,7 @@ Because if learning isn’t as engaging as a game, it won’t win the future.
 - **Player avatar:** if onboarding chose **skin 1**, the map uses the animated **skin-1 spritesheet**; otherwise a static skin PNG (see [Sprite sheet generation](#sprite-sheet-generation)).
 - **Companion pet:** a **4×4** [`petspritesheet.png`](public/assests/skins/petspritesheet.png) (2752×1536) renders under the player, synced to walk frame and direction. Tuning: [`src/config/mapPet.ts`](src/config/mapPet.ts) (`MAP_PET_FOLLOW_GAP_PX`, `MAP_PET_OFFSET_X` / `Y`, `MAP_PET_HORIZ_FLIP` for which horizontal walk is mirrored, `MAP_PET_BASE_WIDTH` for size).
 - **Alisa tour:** first visit (or `?tour=1` from the hub) runs [`components/AlisaTour.tsx`](components/AlisaTour.tsx) (guide NPC + dialogue).
+- **Investment / AI news** — [`/investment`](app/investment/page.tsx) after the intro video uses the same **4×6** chunk layout and **player movement** (WASD / arrows, Shift to run) as the world map: tiles in [`news_backgroung_chunks/`](public/assests/background/investement/news_backgroung_chunks/) (`row-*-column-*.png`), rendered in [`components/NewsMapPlayfield.tsx`](components/NewsMapPlayfield.tsx) (camera follows the player; optional collision list is empty by default).
 
 ## SAGEX AI (Solana) — optional
 
