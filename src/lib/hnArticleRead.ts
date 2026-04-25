@@ -1,4 +1,7 @@
-/** Persisted HN Algolia `objectID`s the player opened (localStorage). */
+/**
+ * UI-only: which HN story links the player opened. Does not call `/api/xp/award` and
+ * cannot grant XP — daily news XP is a separate once-per-day award by `sourceRef`.
+ */
 const KEY = "sagex.hnReadObjectIds";
 const MAX_IDS = 2000;
 

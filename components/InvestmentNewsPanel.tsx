@@ -74,6 +74,9 @@ export function InvestmentNewsPanel({ onClose }: InvestmentNewsPanelProps) {
     };
   }, []);
 
+  // Daily news XP: one grant per local calendar day (sourceRef `news-daily-YYYY-MM-DD`).
+  // Not tied to individual articles — re-clicking / re-opening cannot farm XP. Server
+  // enforces a unique (player, source, sourceRef) on XpEvent; duplicate responses get 0 XP.
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (loading || hits.length === 0) return;
@@ -87,14 +90,14 @@ export function InvestmentNewsPanel({ onClose }: InvestmentNewsPanelProps) {
         const stored = readStoredPlayer();
         if (!stored) return;
         const authed = await signInPlayer(stored);
-        const { ok, payload } = await postXpAward({
+        const { ok } = await postXpAward({
           playerId: authed.playerId,
           name: authed.name,
           source: XP_SOURCES.DAILY_NEWS_READ,
           sourceRef: `news-daily-${day}`,
           metadata: { page: "investment" },
         });
-        if (ok && payload?.ok) {
+        if (ok) {
           window.sessionStorage.setItem(DAILY_XP_SESSION, day);
         }
       } catch {

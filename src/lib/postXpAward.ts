@@ -25,6 +25,8 @@ type AwardResponse = { ok?: boolean; error?: string } & Partial<XpAwardResult>;
 
 /**
  * POST `/api/xp/award` and fire the global XP toast on a real grant.
+ * Duplicate / idempotent responses (same player + source + sourceRef) have `ok: true`
+ * and `duplicate: true`, `awarded: 0` — the DB unique index prevents double-grants.
  */
 export async function postXpAward(
   body: XpAwardBody
