@@ -1,0 +1,7 @@
+[
+  { "x": 0, "y": 0, "width": 100, "height": 5 },
+  { "x": 0, "y": 90, "width": 100, "height": 10 },
+  { "x": 0, "y": 5, "width": 7, "height": 85 },
+  { "x": 93, "y": 5, "width": 7, "height": 85 },
+  { "x": 38, "y": 32, "width": 24, "height": 16 }
+]

@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MapChunkLoaderOverlay } from "@/components/MapChunkLoaderOverlay";
+import newsMapCollisions from "@/src/data/newsMapCollisions.json";
 import { usePriorityChunkPreload } from "@/src/hooks/usePriorityChunkPreload";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 import {
@@ -42,8 +43,7 @@ type PlayerProfile = {
 
 type MovementDirection = "S" | "A" | "D" | "W";
 
-/** Investment news room: walkable; no blockers (tune with JSON later if needed). */
-const COLLISION_RECTS: { x: number; y: number; width: number; height: number }[] = [];
+type CollisionRect = { x: number; y: number; width: number; height: number };
 
 const PLAYER_MARKER = 80;
 const minMapX = 0;
@@ -134,13 +134,18 @@ export function NewsMapPlayfield() {
     };
   }, []);
 
-  const isColliding = useCallback((nextX: number, nextY: number) => {
-    return COLLISION_RECTS.some((rect) => {
-      const withinX = nextX >= rect.x && nextX <= rect.x + rect.width;
-      const withinY = nextY >= rect.y && nextY <= rect.y + rect.height;
-      return withinX && withinY;
-    });
-  }, []);
+  const collisionRects = newsMapCollisions as CollisionRect[];
+
+  const isColliding = useCallback(
+    (nextX: number, nextY: number) => {
+      return collisionRects.some((rect) => {
+        const withinX = nextX >= rect.x && nextX <= rect.x + rect.width;
+        const withinY = nextY >= rect.y && nextY <= rect.y + rect.height;
+        return withinX && withinY;
+      });
+    },
+    [collisionRects]
+  );
 
   const tileWidth = viewport.width > 0 ? viewport.width / VIEW_TILES_WIDE : 0;
   const tileHeight = tileWidth * chunkRatio;
@@ -339,6 +344,19 @@ export function NewsMapPlayfield() {
             zIndex: 1,
           }}
         >
+          {collisionRects.map((rect, index) => (
+            <div
+              key={`news-collision-${index}`}
+              className="absolute border-2 border-cyan-300 bg-cyan-400/15 shadow-[0_0_16px_rgba(34,211,238,0.75),0_0_8px_rgba(168,85,247,0.4)]"
+              style={{
+                width: (rect.width / 100) * mapWidth,
+                height: (rect.height / 100) * mapHeight,
+                left: (rect.x / 100) * mapWidth,
+                top: (rect.y / 100) * mapHeight,
+                zIndex: -1,
+              }}
+            />
+          ))}
           {visibleRows.flatMap((rowIndex) =>
             visibleCols.map((colIndex) => {
               const row = rowIndex + 1;
