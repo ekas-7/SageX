@@ -48,7 +48,7 @@ Because if learning isn’t as engaging as a game, it won’t win the future.
 
 Marketing-only surface for the community token; no wallet integration in-app.
 
-- **UI:** [`components/SagexTokenStrip.tsx`](components/SagexTokenStrip.tsx) on the **home** and **hub** pages when at least a mint, pump link, or DexScreener link is configured.
+- **UI:** [`components/SagexTokenStrip.tsx`](components/SagexTokenStrip.tsx) on the **hub** when at least a mint, pump link, or DexScreener link is configured.
 - **Config (build-time):** [`src/config/sagexToken.ts`](src/config/sagexToken.ts) — reads `NEXT_PUBLIC_SAGEX_TOKEN_MINT`, optional `NEXT_PUBLIC_SAGEX_PUMP_URL`, `NEXT_PUBLIC_SAGEX_DEX_SCREENER_URL`, `NEXT_PUBLIC_SAGEX_TOKEN_LABEL`.
 - **Indicative price:** `GET` `/api/token/quote` ([`app/api/token/quote/route.ts`](app/api/token/quote/route.ts)) — DexScreener proxy, cached; used by the strip when a mint is set.
 

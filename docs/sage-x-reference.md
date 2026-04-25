@@ -48,7 +48,7 @@ Replace `:id` / `example-id` with real IDs where routes are dynamic.
 
 ## SAGEX AI (Solana) — optional
 
-- **UI:** `SagexTokenStrip` on the landing and hub pages if [`getSagexTokenPublic()`](../src/config/sagexToken.ts) is configured (mint and/or link overrides). Source: [`src/config/sagexToken.ts`](../src/config/sagexToken.ts), [`components/SagexTokenStrip.tsx`](../components/SagexTokenStrip.tsx).
+- **UI:** `SagexTokenStrip` on the hub if [`getSagexTokenPublic()`](../src/config/sagexToken.ts) is configured (mint and/or link overrides). Source: [`src/config/sagexToken.ts`](../src/config/sagexToken.ts), [`components/SagexTokenStrip.tsx`](../components/SagexTokenStrip.tsx).
 - **Env (public, build):** `NEXT_PUBLIC_SAGEX_TOKEN_MINT`, optional `NEXT_PUBLIC_SAGEX_PUMP_URL`, `NEXT_PUBLIC_SAGEX_DEX_SCREENER_URL`, `NEXT_PUBLIC_SAGEX_TOKEN_LABEL` — see [`.env.local.example`](../.env.local.example).
 - **Quote API:** `GET` `/api/token/quote` — optional `?mint=`; default mint from `NEXT_PUBLIC_SAGEX_TOKEN_MINT`. Proxies [DexScreener](https://api.dexscreener.com/) latest price (cached on the server). No wallet or chain signing.
 
