@@ -23,6 +23,21 @@ export type StoredPlayer = {
 
 const STORAGE_KEY = "sagex.player";
 const ID_KEY = "sagex.playerId";
+const DEFAULT_AVATAR = "/assests/skins/skin-1.png";
+const DEFAULT_AVATAR_NAME = "Orion";
+const DEFAULT_SKILL = "Beginner";
+const DEFAULT_INTERESTS = ["product"];
+
+export function withPlayerDefaults(player: StoredPlayer): StoredPlayer {
+  return {
+    ...player,
+    name: player.name.trim() || "Pilot",
+    avatar: player.avatar ?? DEFAULT_AVATAR,
+    avatarName: player.avatarName ?? DEFAULT_AVATAR_NAME,
+    skill: player.skill ?? DEFAULT_SKILL,
+    interests: player.interests?.length ? player.interests : DEFAULT_INTERESTS,
+  };
+}
 
 function generateId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -44,9 +59,10 @@ export function readStoredPlayer(): StoredPlayer | null {
       parsed.playerId ||
       window.localStorage.getItem(ID_KEY) ||
       undefined;
-    return id
+    const stored = id
       ? ({ ...parsed, playerId: id } as StoredPlayer)
       : (parsed as StoredPlayer);
+    return withPlayerDefaults(stored);
   } catch {
     return null;
   }
@@ -54,8 +70,9 @@ export function readStoredPlayer(): StoredPlayer | null {
 
 export function writeStoredPlayer(player: StoredPlayer) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(player));
-  window.localStorage.setItem(ID_KEY, player.playerId);
+  const normalized = withPlayerDefaults(player);
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+  window.localStorage.setItem(ID_KEY, normalized.playerId);
 }
 
 /**

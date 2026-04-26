@@ -3,12 +3,18 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @next/next/no-img-element */
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MapChunkLoaderOverlay } from "@/components/MapChunkLoaderOverlay";
 import { usePriorityChunkPreload } from "@/src/hooks/usePriorityChunkPreload";
 import collisions from "../../src/data/mapCollisions.json";
-import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
+import {
+  readStoredPlayer,
+  signInPlayer,
+  withPlayerDefaults,
+  writeStoredPlayer,
+} from "@/src/lib/playerClient";
 import {
   MAP_PET_DIRECTION_ROWS,
   MAP_PET_FRAMES,
@@ -92,6 +98,7 @@ const MAIN_MAP_RATIO_SRC = "/assests/background/main_map_chunks/map_r1_c1.png";
 
 export default function MapPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const mapRef = useRef<HTMLDivElement | null>(null);
   const chunkRows = 4;
   const chunkCols = 6;
@@ -119,11 +126,22 @@ export default function MapPage() {
   const maxMapY = 100;
 
   useEffect(() => {
-    const stored = readStoredPlayer();
+    const sessionPlayerId = session?.user?.playerId;
+    const stored =
+      readStoredPlayer() ??
+      (sessionPlayerId
+        ? withPlayerDefaults({
+            playerId: sessionPlayerId,
+            name: session.user.name?.trim() || "Pilot",
+            avatar: session.user.image ?? undefined,
+          })
+        : null);
     if (!stored) {
+      if (status === "loading") return;
       router.replace("/onboarding");
       return;
     }
+    writeStoredPlayer(stored);
     // Show cached profile immediately for snappy UX.
     setProfile({
       playerId: stored.playerId ?? "",
@@ -160,7 +178,7 @@ export default function MapPage() {
         skill: next.skill ?? "",
       });
     });
-  }, [router]);
+  }, [router, session, status]);
 
   const getMainMapChunkUrl = useCallback((row1: number, col1: number) => {
     return `/assests/background/main_map_chunks/map_r${row1}_c${col1}.png`;

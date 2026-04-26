@@ -31,6 +31,11 @@ const defaultStats = () => ({
   lastStreakDate: new Date(),
 });
 
+const defaultProfileFields = () => ({
+  skill: "Beginner",
+  interests: ["product"],
+});
+
 export const PlayerRepository = {
   async findById(playerId: string) {
     await connectToDatabase();
@@ -81,6 +86,7 @@ export const PlayerRepository = {
   }) {
     await connectToDatabase();
     const playerId = randomUUID();
+    const defaults = defaultProfileFields();
     const doc = await PlayerModel.create({
       playerId,
       name: data.name.slice(0, 80),
@@ -88,7 +94,8 @@ export const PlayerRepository = {
       accountProvider: data.provider,
       accountId: data.providerAccountId,
       avatar: data.image,
-      interests: [],
+      skill: defaults.skill,
+      interests: defaults.interests,
       stats: defaultStats(),
     });
     return doc.toObject() as unknown as PlayerProfile;
