@@ -1,0 +1,219 @@
+{
+  "sheet": {
+    "src": "/assests/skins/skin-1-spritesheet.png",
+    "width": 3072,
+    "height": 5528,
+    "columns": 4,
+    "rows": 4,
+    "frameWidth": 768,
+    "frameHeight": 1382
+  },
+  "directions": [
+    {
+      "key": "S",
+      "name": "Down",
+      "row": 0,
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "key": "A",
+      "name": "Left",
+      "row": 1,
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "key": "D",
+      "name": "Right",
+      "row": 2,
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "key": "W",
+      "name": "Up",
+      "row": 3,
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "direction": "S",
+      "directionName": "Down",
+      "frame": 0,
+      "x": 0,
+      "y": 0,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/S-animation/mov1.png"
+    },
+    {
+      "direction": "S",
+      "directionName": "Down",
+      "frame": 1,
+      "x": 768,
+      "y": 0,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/S-animation/mov2.png"
+    },
+    {
+      "direction": "S",
+      "directionName": "Down",
+      "frame": 2,
+      "x": 1536,
+      "y": 0,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/S-animation/mov3.png"
+    },
+    {
+      "direction": "S",
+      "directionName": "Down",
+      "frame": 3,
+      "x": 2304,
+      "y": 0,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/S-animation/mov4.png"
+    },
+    {
+      "direction": "A",
+      "directionName": "Left",
+      "frame": 0,
+      "x": 0,
+      "y": 1382,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/A-animation/mov1.png"
+    },
+    {
+      "direction": "A",
+      "directionName": "Left",
+      "frame": 1,
+      "x": 768,
+      "y": 1382,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/A-animation/mov2.png"
+    },
+    {
+      "direction": "A",
+      "directionName": "Left",
+      "frame": 2,
+      "x": 1536,
+      "y": 1382,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/A-animation/mov3.png"
+    },
+    {
+      "direction": "A",
+      "directionName": "Left",
+      "frame": 3,
+      "x": 2304,
+      "y": 1382,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/A-animation/mov4.png"
+    },
+    {
+      "direction": "D",
+      "directionName": "Right",
+      "frame": 0,
+      "x": 0,
+      "y": 2764,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/D-animataion/mov1.png"
+    },
+    {
+      "direction": "D",
+      "directionName": "Right",
+      "frame": 1,
+      "x": 768,
+      "y": 2764,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/D-animataion/mov2.png"
+    },
+    {
+      "direction": "D",
+      "directionName": "Right",
+      "frame": 2,
+      "x": 1536,
+      "y": 2764,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/D-animataion/mov4.png"
+    },
+    {
+      "direction": "D",
+      "directionName": "Right",
+      "frame": 3,
+      "x": 2304,
+      "y": 2764,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/D-animataion/mov4.png"
+    },
+    {
+      "direction": "W",
+      "directionName": "Up",
+      "frame": 0,
+      "x": 0,
+      "y": 4146,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/W-animation/mov1.png"
+    },
+    {
+      "direction": "W",
+      "directionName": "Up",
+      "frame": 1,
+      "x": 768,
+      "y": 4146,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/W-animation/mov2.png"
+    },
+    {
+      "direction": "W",
+      "directionName": "Up",
+      "frame": 2,
+      "x": 1536,
+      "y": 4146,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/W-animation/mov3.png"
+    },
+    {
+      "direction": "W",
+      "directionName": "Up",
+      "frame": 3,
+      "x": 2304,
+      "y": 4146,
+      "width": 768,
+      "height": 1382,
+      "source": "public/assests/skins/skin-1-animations/W-animation/mov4.png"
+    }
+  ]
+}
