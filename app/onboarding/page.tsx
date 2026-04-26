@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import AvatarCard from "../../components/AvatarCard";
+import { OnboardingOAuthSection } from "../../components/OnboardingOAuthSection";
 import OnboardingStepper from "../../components/OnboardingStepper";
 import OnboardingSubmitSkeleton from "../../components/OnboardingSubmitSkeleton";
 import PreviewCard from "../../components/PreviewCard";
@@ -23,7 +24,10 @@ const STEPS = [
 ] as const;
 
 const STEP_COPY = [
-  { title: "Set up your account", hint: "Callsign and a password protect your progress." },
+  {
+    title: "Set up your account",
+    hint: "Use Google or GitHub below, or create a callsign and password.",
+  },
   { title: "Choose your look", hint: "Select the avatar other pilots will see in the hub." },
   { title: "Set your skill level", hint: "We’ll match mission pacing to your comfort." },
   { title: "What interests you?", hint: "Pick one or more so SageX can tailor content." },
@@ -229,7 +233,7 @@ export default function OnboardingPage() {
   const atReview = stepIndex === LAST_STEP;
 
   return (
-    <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden bg-[var(--background)] text-[var(--foreground)]">
+    <div className="relative flex h-[100dvh] min-h-0 flex-col overflow-x-hidden overflow-y-hidden bg-[var(--background)] text-[var(--foreground)]">
       <div className="pointer-events-none fixed inset-0 z-0 h-[100dvh] w-full min-h-[100dvh]">
         <video
           className="absolute inset-0 h-full w-full min-h-full min-w-full object-cover"
@@ -244,7 +248,7 @@ export default function OnboardingPage() {
       <div className="pointer-events-none fixed inset-0 z-[1] h-[100dvh] min-h-[100dvh] bg-black/45" />
       <div className="pointer-events-none fixed inset-0 z-[1] h-[100dvh] min-h-[100dvh] backdrop-blur-xs" />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col gap-2 px-3 py-3 sm:gap-3 sm:px-6 sm:py-4 md:max-w-4xl">
+      <div className="relative z-10 mx-auto flex min-h-0 w-full min-w-0 max-w-3xl flex-1 flex-col gap-2 px-3 py-3 sm:gap-3 sm:px-6 sm:py-4 md:max-w-4xl">
         <header className="shrink-0 text-center sm:text-left">
           <p className="page-label text-[0.7rem] sm:text-xs">Onboarding</p>
           <h1 className="page-title mt-1 text-xl leading-tight sm:text-2xl md:text-3xl">
@@ -259,8 +263,9 @@ export default function OnboardingPage() {
           <OnboardingStepper currentIndex={stepIndex} steps={STEPS} />
         </div>
 
+        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-28 [scrollbar-gutter:stable] sm:pb-32">
         <section
-          className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-2 overflow-y-auto sm:gap-3"
+          className="flex min-w-0 flex-col gap-2 sm:gap-3"
           aria-busy={submitting}
         >
           <div
@@ -294,6 +299,7 @@ export default function OnboardingPage() {
               <div className="glass-card flex w-full min-w-0 flex-col gap-3 rounded-2xl p-4 sm:gap-4 sm:p-5">
                 {stepIndex === 0 && (
                   <div className="flex flex-col gap-3 sm:gap-4">
+                    <OnboardingOAuthSection />
                     <label
                       className="flex flex-col gap-1.5 text-sm text-[var(--text-secondary)]"
                       htmlFor="pilot-name"
@@ -466,34 +472,42 @@ export default function OnboardingPage() {
             </p>
           )}
 
-          <div
-            className={`mx-auto mt-2 flex w-full max-w-2xl shrink-0 items-center border-t border-[var(--border-default)]/40 pt-3 sm:pt-4 ${
-              atReview ? "justify-start" : "justify-between"
-            }`}
+        </section>
+        </div>
+      </div>
+
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-30 border-t border-[var(--border-default)]/70 bg-[var(--background)]/90 px-3 py-2.5 shadow-[0_-8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md sm:px-6"
+        style={{ paddingBottom: "max(0.625rem, env(safe-area-inset-bottom))" }}
+        aria-label="Onboarding steps"
+      >
+        <div
+          className={`mx-auto flex w-full max-w-2xl items-center gap-3 ${
+            atReview ? "justify-start" : "justify-between"
+          }`}
+        >
+          <button
+            type="button"
+            onClick={goBack}
+            disabled={stepIndex === 0}
+            className="rounded-full border border-[var(--border-default)] bg-[var(--surface-1)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition enabled:hover:border-[var(--border-accent)] enabled:hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
           >
+            Back
+          </button>
+          {!atReview && (
             <button
               type="button"
-              onClick={goBack}
-              disabled={stepIndex === 0}
-              className="rounded-full border border-[var(--border-default)] bg-[var(--surface-1)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition enabled:hover:border-[var(--border-accent)] enabled:hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+              onClick={() => {
+                void goNext();
+              }}
+              disabled={checkingPilotName}
+              className="btn-primary min-w-[6.5rem] px-6 py-2.5 disabled:cursor-wait disabled:opacity-80"
             >
-              Back
+              {checkingPilotName ? "Checking…" : "Next"}
             </button>
-            {!atReview && (
-              <button
-                type="button"
-                onClick={() => {
-                  void goNext();
-                }}
-                disabled={checkingPilotName}
-                className="btn-primary min-w-[6.5rem] px-6 py-2.5 disabled:cursor-wait disabled:opacity-80"
-              >
-                {checkingPilotName ? "Checking…" : "Next"}
-              </button>
-            )}
-          </div>
-        </section>
-      </div>
+          )}
+        </div>
+      </nav>
     </div>
   );
 }
