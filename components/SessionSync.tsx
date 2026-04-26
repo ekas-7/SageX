@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { writeStoredPlayer } from "@/src/lib/playerClient";
 
 /**
- * When the user signs in with OAuth, mirror session identity into localStorage
+ * When the user signs in (OAuth or callsign + password), mirror session into localStorage
  * so existing client flows (playerId in API calls) stay consistent.
  */
 export function SessionSync() {

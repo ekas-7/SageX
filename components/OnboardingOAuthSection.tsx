@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 
-const CALLBACK = "/onboarding/guide";
+const DEFAULT_CALLBACK = "/onboarding/guide";
 
 function GoogleIcon() {
   return (
@@ -41,13 +41,22 @@ function GitHubIcon() {
   );
 }
 
-export function OnboardingOAuthSection() {
+type OnboardingOAuthSectionProps = {
+  /** Where OAuth should send the user after success (e.g. `/onboarding/guide` or `/hub`). */
+  callbackUrl?: string;
+  orDividerText?: string;
+};
+
+export function OnboardingOAuthSection({
+  callbackUrl = DEFAULT_CALLBACK,
+  orDividerText = "Or use email & password",
+}: OnboardingOAuthSectionProps) {
   const [busy, setBusy] = useState<"google" | "github" | null>(null);
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-3">
       <p className="text-center text-[0.65rem] font-medium uppercase tracking-widest text-[var(--text-secondary)] sm:text-xs">
-        Sign in with
+        Continue with
       </p>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
         <button
@@ -56,7 +65,7 @@ export function OnboardingOAuthSection() {
           disabled={busy !== null}
           onClick={() => {
             setBusy("google");
-            void signIn("google", { callbackUrl: CALLBACK });
+            void signIn("google", { callbackUrl });
           }}
           aria-label="Sign in with Google"
         >
@@ -75,7 +84,7 @@ export function OnboardingOAuthSection() {
           disabled={busy !== null}
           onClick={() => {
             setBusy("github");
-            void signIn("github", { callbackUrl: CALLBACK });
+            void signIn("github", { callbackUrl });
           }}
           aria-label="Sign in with GitHub"
         >
@@ -92,7 +101,7 @@ export function OnboardingOAuthSection() {
       <div className="relative flex items-center py-1">
         <div className="flex-1 border-t border-[var(--border-default)]" />
         <span className="shrink-0 px-3 text-center text-[0.65rem] text-[var(--text-muted)] sm:text-xs">
-          Or use email &amp; password
+          {orDividerText}
         </span>
         <div className="flex-1 border-t border-[var(--border-default)]" />
       </div>

@@ -147,13 +147,16 @@ export default function Home() {
               concepts, and unlock abilities as your space core evolves.
             </p>
 
-            <div className="home-reveal flex flex-col gap-4 sm:flex-row">
+            <div className="home-reveal flex flex-col gap-4 sm:flex-row sm:flex-wrap">
               <a href="/onboarding" className="btn-primary">
-                Start Journey
+                Start journey
               </a>
-              <button type="button" className="btn-ghost">
-                View Map Preview
-              </button>
+              <a href="/login" className="btn-ghost">
+                Sign in
+              </a>
+              <a href="/map" className="btn-ghost sm:ml-0">
+                View map preview
+              </a>
             </div>
           </header>
         </section>

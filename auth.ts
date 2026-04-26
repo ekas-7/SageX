@@ -1,6 +1,9 @@
 import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import { verifyPassword } from "@/src/lib/passwordHash";
+import { PlayerRepository } from "@/src/repositories/player.repo";
 import { findOrCreatePlayerForOAuth } from "@/src/services/oauthPlayer.service";
 
 function oauthAvatar(
@@ -16,9 +19,41 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Google({ allowDangerousEmailAccountLinking: true }),
     GitHub({ allowDangerousEmailAccountLinking: true }),
+    Credentials({
+      id: "credentials",
+      name: "Callsign",
+      credentials: {
+        callsign: { label: "Callsign" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.callsign || !credentials?.password) return null;
+        const callsign = String(credentials.callsign).trim();
+        const password = String(credentials.password);
+        if (!callsign) return null;
+        const player =
+          await PlayerRepository.findByCallsignForPasswordAuth(callsign);
+        if (!player?.passwordHash) return null;
+        const ok = await verifyPassword(password, player.passwordHash);
+        if (!ok) return null;
+        return {
+          id: player.playerId,
+          name: player.name,
+          image: player.avatar ?? undefined,
+        };
+      },
+    }),
   ],
   callbacks: {
     async jwt({ token, user, account, profile }) {
+      if (user && account && account.provider === "credentials") {
+        token.playerId = user.id;
+        token.name = user.name;
+        if (user.image) {
+          token.picture = user.image;
+        }
+        return token;
+      }
       if (account && profile) {
         const provider = account.provider;
         const providerAccountId = account.providerAccountId;

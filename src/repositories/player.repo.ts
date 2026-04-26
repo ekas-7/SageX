@@ -227,6 +227,23 @@ export const PlayerRepository = {
   /**
    * Another document with the same display name (trimmed, case-insensitive) and a different `playerId`.
    */
+  /**
+   * Case-insignificant callsign match, including `passwordHash` for credential login.
+   * Returns null if no row or the player was created without a password (OAuth-only).
+   */
+  async findByCallsignForPasswordAuth(rawName: string) {
+    await connectToDatabase();
+    const name = rawName.trim();
+    if (!name) return null;
+    const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const doc = await PlayerModel.findOne({
+      name: { $regex: new RegExp(`^${esc}$`, "i") },
+    })
+      .select("+passwordHash")
+      .lean();
+    return doc as (PlayerProfile & { passwordHash?: string }) | null;
+  },
+
   async existsOtherPlayerWithName(excludePlayerId: string, rawName: string) {
     await connectToDatabase();
     const name = rawName.trim();

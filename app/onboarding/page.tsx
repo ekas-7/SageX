@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import AvatarCard from "../../components/AvatarCard";
@@ -8,6 +9,10 @@ import OnboardingStepper from "../../components/OnboardingStepper";
 import OnboardingSubmitSkeleton from "../../components/OnboardingSubmitSkeleton";
 import PreviewCard from "../../components/PreviewCard";
 import SkillToggle from "../../components/SkillToggle";
+import {
+  type OnboardingInterestId,
+  ONBOARDING_INTERESTS,
+} from "@/src/data/onboardingInterests";
 import {
   buildOnboardingPayload,
   readStoredPlayer,
@@ -61,20 +66,11 @@ const avatars = [
   },
 ];
 const skillLevels = ["Beginner", "Builder", "Competitive"] as const;
-const interestOptions = [
-  { id: "product", label: "Product & UX" },
-  { id: "education", label: "Education" },
-  { id: "healthcare", label: "Healthcare" },
-  { id: "finance", label: "Finance" },
-  { id: "marketing", label: "Marketing" },
-  { id: "engineering", label: "Engineering" },
-] as const;
-
 const LAST_STEP = STEPS.length - 1;
 
 type SkillLevel = (typeof skillLevels)[number];
 type AvatarId = (typeof avatars)[number]["id"];
-type InterestId = (typeof interestOptions)[number]["id"];
+type InterestId = OnboardingInterestId;
 
 const UNAVAILABLE_NAME_MSG = "This callsign is not available.";
 
@@ -106,9 +102,9 @@ export default function OnboardingPage() {
   const passwordsMatch = pw.length > 0 && pw === passwordConfirm;
   const isFormValid = isNameValid && isPasswordValid && passwordsMatch;
   const activeAvatar = avatars.find((avatar) => avatar.id === selectedAvatar) ?? avatars[0];
-  const selectedInterestLabels = interestOptions
-    .filter((option) => interests.includes(option.id))
-    .map((option) => option.label);
+  const selectedInterestLabels = ONBOARDING_INTERESTS.filter((option) =>
+    interests.includes(option.id)
+  ).map((option) => option.label);
 
   const goBack = () => {
     setStepError(null);
@@ -300,6 +296,15 @@ export default function OnboardingPage() {
                 {stepIndex === 0 && (
                   <div className="flex flex-col gap-3 sm:gap-4">
                     <OnboardingOAuthSection />
+                    <p className="text-center text-xs text-[var(--text-muted)]">
+                      Already have a pilot?{" "}
+                      <Link
+                        className="font-medium text-[var(--sagex-accent)] hover:underline"
+                        href="/login"
+                      >
+                        Sign in
+                      </Link>
+                    </p>
                     <label
                       className="flex flex-col gap-1.5 text-sm text-[var(--text-secondary)]"
                       htmlFor="pilot-name"
@@ -430,7 +435,7 @@ export default function OnboardingPage() {
                   <div className="flex flex-col gap-3">
                     <p className={stepHeadingClass}>Interests</p>
                     <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                      {interestOptions.map((option) => {
+                      {ONBOARDING_INTERESTS.map((option) => {
                         const selected = interests.includes(option.id);
                         return (
                           <button
