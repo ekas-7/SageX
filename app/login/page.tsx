@@ -6,6 +6,8 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { OnboardingOAuthSection } from "@/components/OnboardingOAuthSection";
 
+const POST_LOGIN_PATH = "/map";
+
 export default function LoginPage() {
   const router = useRouter();
   const [callsign, setCallsign] = useState("");
@@ -27,7 +29,7 @@ export default function LoginPage() {
         callsign: t,
         password,
         redirect: false,
-        callbackUrl: "/hub",
+        callbackUrl: POST_LOGIN_PATH,
       });
       if (res?.error) {
         setError(
@@ -36,7 +38,7 @@ export default function LoginPage() {
         return;
       }
       if (res?.ok) {
-        router.push("/hub");
+        router.push(POST_LOGIN_PATH);
         router.refresh();
       }
     } finally {
@@ -71,7 +73,7 @@ export default function LoginPage() {
 
         <div className="glass-card flex flex-col gap-4 rounded-2xl p-5 sm:p-6">
           <OnboardingOAuthSection
-            callbackUrl="/hub"
+            callbackUrl={POST_LOGIN_PATH}
             orDividerText="Or sign in with your callsign"
           />
 
