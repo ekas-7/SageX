@@ -25,8 +25,7 @@ const PlayerSchema = new Schema(
     // Stable identifier (UUID). Generated client-side at onboarding.
     // This is the true primary key for player lookups going forward.
     playerId: { type: String, required: true, unique: true, index: true },
-    // Display name. No longer globally unique — two "Orion"s are allowed
-    // as long as they have different playerIds.
+    // Display name. Enforced unique (case-insensitive) in PlayerService; index supports lookups.
     name: { type: String, required: true, index: true },
     // OAuth / account linking (sparse — anonymous players have none)
     email: { type: String, sparse: true, unique: true, index: true },
@@ -35,6 +34,8 @@ const PlayerSchema = new Schema(
     avatar: { type: String },
     skill: { type: String },
     interests: { type: [String], default: [] },
+    // bcrypt hash only — never return to clients; see repository `.select("-passwordHash")` on reads.
+    passwordHash: { type: String, select: false },
     stats: { type: PlayerStatsSchema, default: () => ({}) },
   },
   { timestamps: true }

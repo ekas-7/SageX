@@ -11,6 +11,11 @@ type CreateData = {
   interests?: string[];
 };
 
+type UpsertData = CreateData & {
+  /** Pre-hashed server-side; never set from the client. */
+  passwordHash?: string;
+};
+
 const defaultStats = () => ({
   dailyStreak: 1,
   challengesCompleted: 0,
@@ -33,9 +38,9 @@ export const PlayerRepository = {
   },
 
   /**
-   * Legacy: lookup by name only. Returns the **first** match. Ambiguous
-   * with the new schema (duplicates allowed), so only use this for
-   * legacy-user rehydration, never for auth-sensitive operations.
+   * Legacy: lookup by name only (exact string). Returns the **first** match.
+   * Display names are unique case-insensitively for new signups; old data may
+   * still have duplicates — use `aggregateDuplicateNameReport` to audit.
    */
   async findByName(name: string) {
     await connectToDatabase();
@@ -109,7 +114,7 @@ export const PlayerRepository = {
    * and its parent (`stats`) in the same update. We therefore split the
    * operation in two: one upsert for profile fields, one patch for stats.
    */
-  async upsertById(data: CreateData) {
+  async upsertById(data: UpsertData) {
     await connectToDatabase();
     const now = new Date();
     const profileSet: Record<string, unknown> = {
@@ -119,6 +124,7 @@ export const PlayerRepository = {
     if (data.avatar !== undefined) profileSet.avatar = data.avatar;
     if (data.skill !== undefined) profileSet.skill = data.skill;
     if (data.interests !== undefined) profileSet.interests = data.interests;
+    if (data.passwordHash !== undefined) profileSet.passwordHash = data.passwordHash;
 
     // First op: ensure the doc exists with the right profile fields.
     // On insert, $setOnInsert provides the default stats block.
@@ -216,5 +222,49 @@ export const PlayerRepository = {
       { _id: mongoId },
       { $set: { playerId } }
     );
+  },
+
+  /**
+   * Another document with the same display name (trimmed, case-insensitive) and a different `playerId`.
+   */
+  async existsOtherPlayerWithName(excludePlayerId: string, rawName: string) {
+    await connectToDatabase();
+    const name = rawName.trim();
+    if (!name) return false;
+    const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const found = await PlayerModel.findOne({
+      playerId: { $ne: excludePlayerId },
+      name: { $regex: new RegExp(`^${esc}$`, "i") },
+    })
+      .select("playerId")
+      .lean();
+    return found != null;
+  },
+
+  /**
+   * Audit: names that appear on more than one player (case-insensitive, trimmed).
+   * Use `npm run db:duplicates` to print this from the project root.
+   */
+  async aggregateDuplicateNameReport() {
+    await connectToDatabase();
+    type Row = {
+      _id: string;
+      count: number;
+      playerIds: string[];
+      displayNames: string[];
+    };
+    return PlayerModel.aggregate<Row>([
+      { $match: { name: { $type: "string", $ne: "" } } },
+      {
+        $group: {
+          _id: { $toLower: { $trim: { input: "$name" } } },
+          count: { $sum: 1 },
+          playerIds: { $push: "$playerId" },
+          displayNames: { $addToSet: "$name" },
+        },
+      },
+      { $match: { count: { $gt: 1 } } },
+      { $sort: { count: -1, _id: 1 } },
+    ]).exec();
   },
 };

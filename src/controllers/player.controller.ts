@@ -3,7 +3,7 @@ import { PlayerOrchestrator } from "../orchestrators/player.orchestrator";
 import { PlayerService } from "../services/player.service";
 import { PlayerRepository } from "../repositories/player.repo";
 import {
-  playerProfileSchema,
+  playerProfileUpsertSchema,
   playerRehydrateSchema,
 } from "../vali/player.vali";
 
@@ -26,7 +26,7 @@ export const PlayerController = {
     if (session?.user?.playerId) {
       merged.playerId = session.user.playerId;
     }
-    const parsed = playerProfileSchema.safeParse(merged);
+    const parsed = playerProfileUpsertSchema.safeParse(merged);
     if (!parsed.success) {
       throw new Error(
         parsed.error.issues.map((i) => i.message).join("; ") ||

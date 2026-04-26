@@ -1,6 +1,8 @@
+import { hashPassword } from "../lib/passwordHash";
 import { PlayerRepository } from "../repositories/player.repo";
 import { XpService } from "./xp.service";
 import type { LeaderboardEntry, PlayerProfile } from "../types/player";
+import type { PlayerProfileUpsertInput } from "../vali/player.vali";
 
 const startOfDay = (date: Date) => {
   const normalized = new Date(date);
@@ -18,22 +20,31 @@ const diffInDays = (from: Date, to: Date) => {
  * PlayerService — profile operations keyed by stable playerId.
  * Identity is now:
  *   - playerId (UUID, required, unique) → true primary key
- *   - name (display only, may be duplicated across players)
+ *   - name (display; unique per case-insensitive match for other players)
  */
 export const PlayerService = {
   /**
    * Idempotent sign-in. Upserts the player by playerId, refreshes their
    * profile fields, advances the daily streak, and returns the full profile.
    */
-  async signIn(payload: {
-    playerId: string;
-    name: string;
-    avatar?: string;
-    skill?: string;
-    interests?: string[];
-  }) {
+  async signIn(payload: PlayerProfileUpsertInput) {
     if (!payload.playerId) {
       throw new Error("playerId is required");
+    }
+
+    const passwordHash =
+      payload.password !== undefined
+        ? await hashPassword(payload.password)
+        : undefined;
+
+    const nameTaken = await PlayerRepository.existsOtherPlayerWithName(
+      payload.playerId,
+      payload.name
+    );
+    if (nameTaken) {
+      throw new Error(
+        "This pilot name is already taken. Choose a different callsign."
+      );
     }
 
     // Atomic upsert so two onboarding calls can't race-duplicate a player.
@@ -43,6 +54,7 @@ export const PlayerService = {
       avatar: payload.avatar,
       skill: payload.skill,
       interests: payload.interests,
+      passwordHash,
     });
 
     const now = new Date();

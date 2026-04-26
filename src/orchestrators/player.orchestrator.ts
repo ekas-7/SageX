@@ -1,9 +1,9 @@
 import { PlayerService } from "../services/player.service";
-import type { PlayerProfileInput } from "../vali/player.vali";
+import type { PlayerProfileUpsertInput } from "../vali/player.vali";
 
 export const PlayerOrchestrator = {
   /** Sign-in / profile upsert keyed by stable playerId. */
-  async upsertProfile(payload: PlayerProfileInput) {
+  async upsertProfile(payload: PlayerProfileUpsertInput) {
     return PlayerService.signIn(payload);
   },
 

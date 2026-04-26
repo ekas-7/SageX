@@ -31,7 +31,7 @@ export const connectToDatabase = async () => {
       try {
         const coll = conn.connection.db?.collection("players");
         if (coll) {
-          // 1. Drop legacy `name_1` unique index — display names can repeat now.
+          // 1. Drop legacy `name_1` unique index — uniqueness is enforced in app code (case-insensitive).
           const indexes = await coll.indexes();
           const legacy = indexes.find(
             (idx) => idx.name === "name_1" && idx.unique === true

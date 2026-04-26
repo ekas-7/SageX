@@ -3,14 +3,31 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AvatarCard from "../../components/AvatarCard";
+import OnboardingStepper from "../../components/OnboardingStepper";
 import OnboardingSubmitSkeleton from "../../components/OnboardingSubmitSkeleton";
 import PreviewCard from "../../components/PreviewCard";
 import SkillToggle from "../../components/SkillToggle";
 import {
   buildOnboardingPayload,
-  signInPlayer,
+  signInPlayerStrict,
   writeStoredPlayer,
 } from "@/src/lib/playerClient";
+
+const STEPS = [
+  { id: "account", label: "Account" },
+  { id: "avatar", label: "Avatar" },
+  { id: "skill", label: "Skill" },
+  { id: "interests", label: "Interests" },
+  { id: "review", label: "Launch" },
+] as const;
+
+const STEP_COPY = [
+  { title: "Set up your account", hint: "Callsign and a password protect your progress." },
+  { title: "Choose your look", hint: "Select the avatar other pilots will see in the hub." },
+  { title: "Set your skill level", hint: "We’ll match mission pacing to your comfort." },
+  { title: "What interests you?", hint: "Pick one or more so SageX can tailor content." },
+  { title: "You’re ready", hint: "Review your pilot and enter AI City." },
+] as const;
 
 const avatars = [
   {
@@ -48,30 +65,78 @@ const interestOptions = [
   { id: "engineering", label: "Engineering" },
 ] as const;
 
+const LAST_STEP = STEPS.length - 1;
+
 type SkillLevel = (typeof skillLevels)[number];
 type AvatarId = (typeof avatars)[number]["id"];
 type InterestId = (typeof interestOptions)[number]["id"];
 
+const inputClass =
+  "h-10 rounded-xl border border-[var(--border-default)] bg-[var(--surface-1)] px-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition focus:border-[var(--border-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--sagex-accent)]/30 sm:h-11 sm:px-4";
+const labelRowClass =
+  "font-display text-[0.65rem] font-medium uppercase tracking-widest sm:text-xs";
+const stepHeadingClass = "font-display text-[0.7rem] font-medium uppercase tracking-widest text-[var(--text-secondary)] sm:text-xs";
+
 export default function OnboardingPage() {
   const router = useRouter();
+  const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [stepError, setStepError] = useState<string | null>(null);
   const [pilotName, setPilotName] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState<AvatarId>("orion");
   const [skillLevel, setSkillLevel] = useState<SkillLevel>("Beginner");
   const [interests, setInterests] = useState<InterestId[]>(["product"]);
   const trimmedName = pilotName.trim();
   const isNameValid = trimmedName.length > 0;
-  const activeAvatar = avatars.find((avatar) => avatar.id === selectedAvatar) ??
-    avatars[0];
+  const pw = password;
+  const isPasswordValid = pw.length >= 8;
+  const passwordsMatch = pw.length > 0 && pw === passwordConfirm;
+  const isFormValid = isNameValid && isPasswordValid && passwordsMatch;
+  const activeAvatar = avatars.find((avatar) => avatar.id === selectedAvatar) ?? avatars[0];
   const selectedInterestLabels = interestOptions
     .filter((option) => interests.includes(option.id))
     .map((option) => option.label);
 
+  const goBack = () => {
+    setStepError(null);
+    setStepIndex((i) => Math.max(0, i - 1));
+  };
+
+  const validateCurrentStep = (): boolean => {
+    setStepError(null);
+    if (stepIndex === 0) {
+      if (!isNameValid) {
+        setStepError("Enter a pilot name to continue.");
+        return false;
+      }
+      if (!isPasswordValid) {
+        setStepError("Use a password with at least 8 characters.");
+        return false;
+      }
+      if (!passwordsMatch) {
+        setStepError("Passwords do not match.");
+        return false;
+      }
+    }
+    if (stepIndex === 3 && interests.length === 0) {
+      setStepError("Select at least one interest.");
+      return false;
+    }
+    return true;
+  };
+
+  const goNext = () => {
+    if (!validateCurrentStep()) return;
+    setStepIndex((i) => Math.min(LAST_STEP, i + 1));
+  };
+
   const handleEnter = async () => {
     if (submitting) return;
-    if (!isNameValid) {
-      setSubmitError("Please enter a pilot name to continue.");
+    if (!isFormValid) {
+      setSubmitError("Please complete all required fields.");
       return;
     }
     setSubmitError(null);
@@ -85,35 +150,32 @@ export default function OnboardingPage() {
       interests,
     });
 
-    // Persist locally immediately so the UI feels instant.
-    writeStoredPlayer(draft);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("sagex.firstQuestCompleted", "false");
-    }
-
     try {
-      // Persist to the server. If this fails, we still let the user
-      // continue (signInPlayer is idempotent and will retry on next page).
-      await signInPlayer(draft);
+      const saved = await signInPlayerStrict(draft, { password: pw });
+      writeStoredPlayer(saved);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("sagex.firstQuestCompleted", "false");
+      }
       router.push("/onboarding/guide");
     } catch (err) {
       setSubmitError(
         err instanceof Error
           ? err.message
-          : "Couldn't save your pilot. You can continue, we'll try again."
+          : "Couldn't save your pilot. Please try again."
       );
-      // Still let them continue — their local profile is saved.
-      router.push("/onboarding/guide");
     } finally {
       setSubmitting(false);
     }
   };
 
+  const copy = STEP_COPY[stepIndex] ?? STEP_COPY[0];
+  const atReview = stepIndex === LAST_STEP;
+
   return (
-    <div className="relative flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
-      <div className="pointer-events-none absolute inset-0">
+    <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden bg-[var(--background)] text-[var(--foreground)]">
+      <div className="pointer-events-none fixed inset-0 z-0 h-[100dvh] w-full min-h-[100dvh]">
         <video
-          className="h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full min-h-full min-w-full object-cover"
           autoPlay
           muted
           loop
@@ -122,126 +184,220 @@ export default function OnboardingPage() {
           <source src="/assests/background/onboarding/hero.mp4" type="video/mp4" />
         </video>
       </div>
-      <div className="pointer-events-none absolute inset-0 bg-black/45" />
-      <div className="pointer-events-none absolute inset-0 backdrop-blur-xs" />
+      <div className="pointer-events-none fixed inset-0 z-[1] h-[100dvh] min-h-[100dvh] bg-black/45" />
+      <div className="pointer-events-none fixed inset-0 z-[1] h-[100dvh] min-h-[100dvh] backdrop-blur-xs" />
 
-      <div className="relative z-10 mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-6 px-6 pb-6 pt-10 sm:gap-8 sm:pt-14">
-        <header className="shrink-0 flex flex-col gap-3 sm:gap-4">
-          <p className="page-label">Onboarding</p>
-          <h1 className="page-title text-3xl md:text-5xl">
-            Choose your space identity.
+      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col gap-2 px-3 py-3 sm:gap-3 sm:px-6 sm:py-4 md:max-w-4xl">
+        <header className="shrink-0 text-center sm:text-left">
+          <p className="page-label text-[0.7rem] sm:text-xs">Onboarding</p>
+          <h1 className="page-title mt-1 text-xl leading-tight sm:text-2xl md:text-3xl">
+            {copy.title}
           </h1>
-          <p className="page-description max-w-2xl text-base">
-            Your avatar and skill level shape the pace of missions. You can
-            update this later inside the hub.
+          <p className="page-description mx-auto mt-1 max-w-2xl text-sm leading-snug sm:mx-0 sm:text-base">
+            {copy.hint}
           </p>
         </header>
 
+        <div className="shrink-0">
+          <OnboardingStepper currentIndex={stepIndex} steps={STEPS} />
+        </div>
+
         <section
-          className="grid min-h-0 flex-1 grid-cols-1 items-start gap-8 overflow-y-auto overscroll-contain pb-2 md:grid-cols-[3fr_2fr] md:overflow-y-auto"
+          className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-2 overflow-y-auto sm:gap-3"
           aria-busy={submitting}
         >
           <div
-            className={`glass-card flex w-full min-h-0 flex-col gap-6 rounded-2xl p-5 sm:gap-8 sm:p-6 md:max-h-[calc(100dvh-11rem)] md:overflow-y-auto ${submitting ? "pointer-events-none opacity-60" : ""}`}
+            className={`mx-auto w-full min-w-0 ${
+              atReview ? "max-w-xl" : "max-w-2xl"
+            } ${submitting && atReview ? "pointer-events-none opacity-60" : ""}`}
           >
-            <label
-              className="flex flex-col gap-2 text-sm text-[var(--text-secondary)]"
-              htmlFor="pilot-name"
-            >
-              <span className="font-display text-xs font-medium uppercase tracking-widest">
-                Pilot Name{" "}
-                <span className="text-rose-400" aria-hidden="true">
-                  *
-                </span>
-                <span className="sr-only">(required)</span>
-              </span>
-              <input
-                id="pilot-name"
-                name="pilotName"
-                value={pilotName}
-                onChange={(event) => setPilotName(event.target.value)}
-                placeholder="Enter your callsign"
-                required
-                aria-required="true"
-                autoComplete="nickname"
-                className="h-12 rounded-xl border border-[var(--border-default)] bg-[var(--surface-1)] px-4 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition focus:border-[var(--border-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--sagex-accent)]/30"
-              />
-            </label>
-
-            <div className="flex flex-col gap-4">
-              <p className="font-display text-xs font-medium uppercase tracking-widest text-[var(--text-secondary)]">Select Avatar</p>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {avatars.map((option) => (
-                  <AvatarCard
-                    key={option.id}
-                    name={option.name}
-                    imageSrc={option.src}
-                    selected={selectedAvatar === option.id}
-                    onSelect={() => setSelectedAvatar(option.id)}
+            {atReview ? (
+              <div className="flex min-h-0 flex-col gap-2">
+                {submitting ? (
+                  <OnboardingSubmitSkeleton />
+                ) : (
+                  <PreviewCard
+                    pilotName={trimmedName}
+                    avatarName={activeAvatar.name}
+                    avatarSrc={activeAvatar.src}
+                    avatarDescription={activeAvatar.desc}
+                    skillLevel={skillLevel}
+                    interests={selectedInterestLabels}
+                    onEnter={handleEnter}
+                    disabled={!isFormValid}
                   />
-                ))}
+                )}
+                {submitError && !submitting && (
+                  <p className="text-center text-sm text-rose-300" role="alert">
+                    {submitError}
+                  </p>
+                )}
               </div>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <p className="font-display text-xs font-medium uppercase tracking-widest text-[var(--text-secondary)]">Skill Level</p>
-              <SkillToggle
-                options={skillLevels}
-                value={skillLevel}
-                onChange={(value) => setSkillLevel(value as SkillLevel)}
-              />
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <p className="font-display text-xs font-medium uppercase tracking-widest text-[var(--text-secondary)]">Interests</p>
-              <div className="flex flex-wrap gap-2">
-                {interestOptions.map((option) => {
-                  const selected = interests.includes(option.id);
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => {
-                        setInterests((current) =>
-                          current.includes(option.id)
-                            ? current.filter((item) => item !== option.id)
-                            : [...current, option.id]
-                        );
-                      }}
-                      className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] transition ${
-                        selected
-                          ? "bg-[var(--sagex-accent)] text-[var(--surface-0)] shadow-[0_0_16px_var(--sagex-accent-glow)]"
-                          : "border border-[var(--border-default)] bg-[var(--surface-1)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
-                      }`}
+            ) : (
+              <div className="glass-card flex w-full min-w-0 flex-col gap-3 rounded-2xl p-4 sm:gap-4 sm:p-5">
+                {stepIndex === 0 && (
+                  <div className="flex flex-col gap-3 sm:gap-4">
+                    <label
+                      className="flex flex-col gap-1.5 text-sm text-[var(--text-secondary)]"
+                      htmlFor="pilot-name"
                     >
-                      {option.label}
-                    </button>
-                  );
-                })}
+                      <span className={labelRowClass}>
+                        Pilot Name <span className="text-rose-400" aria-hidden>
+                          *
+                        </span>
+                        <span className="sr-only">(required)</span>
+                      </span>
+                      <input
+                        id="pilot-name"
+                        name="pilotName"
+                        value={pilotName}
+                        onChange={(e) => setPilotName(e.target.value)}
+                        placeholder="Enter your callsign"
+                        required
+                        autoComplete="nickname"
+                        className={inputClass}
+                      />
+                    </label>
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
+                      <label
+                        className="flex flex-col gap-1.5 text-sm text-[var(--text-secondary)]"
+                        htmlFor="pilot-password"
+                      >
+                        <span className={labelRowClass}>
+                          Password <span className="text-rose-400" aria-hidden>
+                            *
+                          </span>
+                        </span>
+                        <input
+                          id="pilot-password"
+                          name="pilotPassword"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          autoComplete="new-password"
+                          placeholder="Min. 8 characters"
+                          className={inputClass}
+                        />
+                      </label>
+                      <label
+                        className="flex flex-col gap-1.5 text-sm text-[var(--text-secondary)]"
+                        htmlFor="pilot-password-confirm"
+                      >
+                        <span className={labelRowClass}>
+                          Confirm <span className="text-rose-400" aria-hidden>
+                            *
+                          </span>
+                        </span>
+                        <input
+                          id="pilot-password-confirm"
+                          name="pilotPasswordConfirm"
+                          type="password"
+                          value={passwordConfirm}
+                          onChange={(e) => setPasswordConfirm(e.target.value)}
+                          autoComplete="new-password"
+                          placeholder="Repeat password"
+                          className={inputClass}
+                        />
+                      </label>
+                    </div>
+                    <p className="text-[0.65rem] leading-snug text-[var(--text-muted)] sm:text-xs">
+                      Stored as a secure hash on the server — we never keep your password in
+                      the browser.
+                    </p>
+                  </div>
+                )}
+
+                {stepIndex === 1 && (
+                  <div className="flex flex-col gap-3">
+                    <p className={stepHeadingClass}>Select Avatar</p>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-3 md:grid-cols-4">
+                      {avatars.map((option) => (
+                        <AvatarCard
+                          key={option.id}
+                          name={option.name}
+                          imageSrc={option.src}
+                          selected={selectedAvatar === option.id}
+                          onSelect={() => setSelectedAvatar(option.id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {stepIndex === 2 && (
+                  <div className="flex flex-col gap-3">
+                    <p className={stepHeadingClass}>Skill Level</p>
+                    <SkillToggle
+                      options={skillLevels}
+                      value={skillLevel}
+                      onChange={(value) => setSkillLevel(value as SkillLevel)}
+                    />
+                  </div>
+                )}
+
+                {stepIndex === 3 && (
+                  <div className="flex flex-col gap-3">
+                    <p className={stepHeadingClass}>Interests</p>
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                      {interestOptions.map((option) => {
+                        const selected = interests.includes(option.id);
+                        return (
+                          <button
+                            key={option.id}
+                            type="button"
+                            onClick={() => {
+                              setInterests((current) =>
+                                current.includes(option.id)
+                                  ? current.filter((item) => item !== option.id)
+                                  : [...current, option.id]
+                              );
+                            }}
+                            className={`rounded-full px-3 py-2 text-left text-[0.65rem] font-semibold uppercase tracking-[0.12em] transition sm:px-4 sm:text-xs ${
+                              selected
+                                ? "bg-[var(--sagex-accent)] text-[var(--surface-0)] shadow-[0_0_16px_var(--sagex-accent-glow)]"
+                                : "border border-[var(--border-default)] bg-[var(--surface-1)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      Select one or more fields so SageX can tailor missions.
+                    </p>
+                  </div>
+                )}
               </div>
-              <p className="text-xs text-[var(--text-muted)]">
-                Select one or more fields so SageX can tailor missions.
-              </p>
-            </div>
+            )}
           </div>
 
-          <div className="flex min-h-0 w-full flex-col gap-3 md:sticky md:top-0 md:self-start">
-            {submitting ? (
-              <OnboardingSubmitSkeleton />
-            ) : (
-              <PreviewCard
-                pilotName={trimmedName}
-                avatarName={activeAvatar.name}
-                avatarSrc={activeAvatar.src}
-                avatarDescription={activeAvatar.desc}
-                skillLevel={skillLevel}
-                interests={selectedInterestLabels}
-                onEnter={handleEnter}
-                disabled={!isNameValid}
-              />
-            )}
-            {submitError && (
-              <p className="text-xs text-rose-300">{submitError}</p>
+          {!atReview && stepError && (
+            <p
+              className="mx-auto w-full max-w-2xl shrink-0 text-center text-sm text-rose-300"
+              role="alert"
+            >
+              {stepError}
+            </p>
+          )}
+
+          <div
+            className={`mx-auto mt-2 flex w-full max-w-2xl shrink-0 items-center border-t border-[var(--border-default)]/40 pt-3 sm:pt-4 ${
+              atReview ? "justify-start" : "justify-between"
+            }`}
+          >
+            <button
+              type="button"
+              onClick={goBack}
+              disabled={stepIndex === 0}
+              className="rounded-full border border-[var(--border-default)] bg-[var(--surface-1)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition enabled:hover:border-[var(--border-accent)] enabled:hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Back
+            </button>
+            {!atReview && (
+              <button type="button" onClick={goNext} className="btn-primary min-w-[6.5rem] px-6 py-2.5">
+                Next
+              </button>
             )}
           </div>
         </section>

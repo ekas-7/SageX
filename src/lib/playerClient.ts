@@ -106,11 +106,19 @@ type SignInOutcome = {
   error?: Error;
 };
 
+export type SignInOptions = {
+  /** Only for initial signup / password set. Never stored in localStorage. */
+  password?: string;
+};
+
 /**
  * Internal: does the actual sign-in fetch and returns both the resolved
  * player *and* whether the server actually persisted the record.
  */
-async function performSignIn(stored: StoredPlayer): Promise<SignInOutcome> {
+async function performSignIn(
+  stored: StoredPlayer,
+  options?: SignInOptions
+): Promise<SignInOutcome> {
   const withId = await ensurePlayerId(stored);
   try {
     const res = await fetch("/api/player", {
@@ -122,6 +130,9 @@ async function performSignIn(stored: StoredPlayer): Promise<SignInOutcome> {
         avatar: withId.avatar,
         skill: withId.skill,
         interests: withId.interests,
+        ...(options?.password != null && options.password !== ""
+          ? { password: options.password }
+          : {}),
       }),
     });
     const payload = (await res.json().catch(() => ({}))) as {
@@ -170,9 +181,10 @@ async function performSignIn(stored: StoredPlayer): Promise<SignInOutcome> {
  * on window captures the error for diagnostics.
  */
 export async function signInPlayer(
-  stored: StoredPlayer
+  stored: StoredPlayer,
+  options?: SignInOptions
 ): Promise<StoredPlayer> {
-  const outcome = await performSignIn(stored);
+  const outcome = await performSignIn(stored, options);
   if (outcome.error && typeof window !== "undefined") {
     (window as unknown as { __sagexLastSignInError?: Error }).__sagexLastSignInError =
       outcome.error;
@@ -186,9 +198,10 @@ export async function signInPlayer(
  * XP awards) so callers can retry or show an error.
  */
 export async function signInPlayerStrict(
-  stored: StoredPlayer
+  stored: StoredPlayer,
+  options?: SignInOptions
 ): Promise<StoredPlayer> {
-  const outcome = await performSignIn(stored);
+  const outcome = await performSignIn(stored, options);
   if (!outcome.serverPersisted) {
     throw outcome.error ?? new Error("Sign-in did not persist to server");
   }
