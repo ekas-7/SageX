@@ -6,19 +6,57 @@ import { verifyPassword } from "@/src/lib/passwordHash";
 import { PlayerRepository } from "@/src/repositories/player.repo";
 import { findOrCreatePlayerForOAuth } from "@/src/services/oauthPlayer.service";
 
+/**
+ * Support both Auth.js v5 names (AUTH_*_ID) and common legacy names
+ * (GOOGLE_CLIENT_ID, GITHUB_ID, etc.) so OAuth works across environments.
+ */
+const googleOAuth = {
+  clientId:
+    process.env.AUTH_GOOGLE_ID?.trim() ||
+    process.env.GOOGLE_CLIENT_ID?.trim() ||
+    undefined,
+  clientSecret:
+    process.env.AUTH_GOOGLE_SECRET?.trim() ||
+    process.env.GOOGLE_CLIENT_SECRET?.trim() ||
+    undefined,
+};
+
+const githubOAuth = {
+  clientId:
+    process.env.AUTH_GITHUB_ID?.trim() ||
+    process.env.GITHUB_ID?.trim() ||
+    process.env.GITHUB_CLIENT_ID?.trim() ||
+    undefined,
+  clientSecret:
+    process.env.AUTH_GITHUB_SECRET?.trim() ||
+    process.env.GITHUB_SECRET?.trim() ||
+    process.env.GITHUB_CLIENT_SECRET?.trim() ||
+    undefined,
+};
+
 function oauthAvatar(
   profile: unknown,
   user: { image?: string | null }
 ): string | undefined {
-  const p = profile as { picture?: string; avatar_url?: string };
-  return p.picture ?? p.avatar_url ?? user.image ?? undefined;
+  if (profile && typeof profile === "object") {
+    const p = profile as { picture?: string; avatar_url?: string };
+    return p.picture ?? p.avatar_url ?? user.image ?? undefined;
+  }
+  return user.image ?? undefined;
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
+  basePath: "/api/auth",
   providers: [
-    Google({ allowDangerousEmailAccountLinking: true }),
-    GitHub({ allowDangerousEmailAccountLinking: true }),
+    Google({
+      ...googleOAuth,
+      allowDangerousEmailAccountLinking: true,
+    }),
+    GitHub({
+      ...githubOAuth,
+      allowDangerousEmailAccountLinking: true,
+    }),
     Credentials({
       id: "credentials",
       name: "Callsign",
@@ -54,15 +92,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
         return token;
       }
-      if (account && profile) {
+      if (
+        user &&
+        account &&
+        account.provider !== "credentials" &&
+        account.provider !== "webauthn"
+      ) {
         const provider = account.provider;
         const providerAccountId = account.providerAccountId;
+        const prof = profile as { email?: string; name?: string } | undefined;
         const email =
-          (typeof profile.email === "string" && profile.email) ||
+          (typeof prof?.email === "string" && prof.email) ||
           (typeof user.email === "string" && user.email) ||
           null;
         const name =
-          (typeof profile.name === "string" && profile.name) ||
+          (typeof prof?.name === "string" && prof.name) ||
           (typeof user.name === "string" && user.name) ||
           "Pilot";
         const image = oauthAvatar(profile, user);

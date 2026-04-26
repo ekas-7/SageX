@@ -6,7 +6,7 @@ import { XpToastProvider } from "./XpToastProvider";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <SessionProvider>
+    <SessionProvider basePath="/api/auth">
       <XpToastProvider>{children}</XpToastProvider>
     </SessionProvider>
   );
