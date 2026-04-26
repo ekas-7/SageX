@@ -26,7 +26,7 @@ import {
 const CHUNK_DIR = "/assests/background/investement/news_backgroung_chunks";
 const CHUNK_ROWS = 4;
 const CHUNK_COLS = 6;
-const VIEW_TILES_WIDE = 6;
+const VIEW_TILES_WIDE = 3;
 const NEWS_PRELOAD_SPAWN = { x: 50, y: 60 } as const;
 const NEWS_RATIO_SRC = `${CHUNK_DIR}/row-1-column-1.png`;
 

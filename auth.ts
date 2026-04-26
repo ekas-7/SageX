@@ -7,6 +7,32 @@ import { PlayerRepository } from "@/src/repositories/player.repo";
 import { findOrCreatePlayerForOAuth } from "@/src/services/oauthPlayer.service";
 
 /**
+ * Auth.js requires a non-empty `secret` for cookies/JWT. If unset, every auth
+ * route returns error=Configuration ("problem with the server configuration").
+ * Production: set `AUTH_SECRET` (or `NEXTAUTH_SECRET`) in the environment.
+ * Local: we fall back in development only so the app works without a filled `.env`.
+ */
+const DEV_INSECURE_SECRET = "sagex-dev-only-not-for-production";
+
+/**
+ * @returns A secret to pass into NextAuth, or `undefined` so `setEnvDefaults`
+ * can still read `AUTH_SECRET` from the environment (only when we do not
+ * return a value here). Never return an empty string — that would block env merge.
+ */
+function resolveAuthSecret(): string | undefined {
+  const fromEnv =
+    process.env.AUTH_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim();
+  if (fromEnv) return fromEnv;
+  if (process.env.NODE_ENV === "development") {
+    console.warn(
+      "[auth] AUTH_SECRET / NEXTAUTH_SECRET not set — using a dev-only default. Add AUTH_SECRET to .env.local for stable sessions and to match production."
+    );
+    return DEV_INSECURE_SECRET;
+  }
+  return undefined;
+}
+
+/**
  * Support both Auth.js v5 names (AUTH_*_ID) and common legacy names
  * (GOOGLE_CLIENT_ID, GITHUB_ID, etc.) so OAuth works across environments.
  */
@@ -45,9 +71,12 @@ function oauthAvatar(
   return user.image ?? undefined;
 }
 
+const authSecret = resolveAuthSecret();
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   basePath: "/api/auth",
+  ...(authSecret ? { secret: authSecret } : {}),
   providers: [
     Google({
       ...googleOAuth,
