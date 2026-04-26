@@ -142,7 +142,7 @@ export default function Home() {
               ))}
             </h1>
 
-            <p className="home-reveal text-subtext-cinematic max-w-2xl">
+            <p className="home-reveal text-subtext-cinematic max-w-2xl text-white">
               Step into the AI City, complete quests generated from real AI
               concepts, and unlock abilities as your space core evolves.
             </p>

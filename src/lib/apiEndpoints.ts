@@ -23,6 +23,7 @@ export const API_ENDPOINTS: ApiEndpoint[] = [
   { path: "/api/livekit/token", methods: ["POST"], group: "livekit" },
   { path: "/api/opencode", methods: ["POST"], group: "opencode" },
   { path: "/api/player", methods: ["POST"], group: "player" },
+  { path: "/api/player/check-name", methods: ["GET"], group: "player" },
   { path: "/api/player/rehydrate", methods: ["POST"], group: "player" },
   { path: "/api/quests/first", methods: ["GET"], group: "quests" },
   { path: "/api/stats", methods: ["GET", "POST"], group: "stats" },

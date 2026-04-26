@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import AvatarCard from "../../components/AvatarCard";
 import OnboardingStepper from "../../components/OnboardingStepper";
 import OnboardingSubmitSkeleton from "../../components/OnboardingSubmitSkeleton";
@@ -9,6 +9,7 @@ import PreviewCard from "../../components/PreviewCard";
 import SkillToggle from "../../components/SkillToggle";
 import {
   buildOnboardingPayload,
+  readStoredPlayer,
   signInPlayerStrict,
   writeStoredPlayer,
 } from "@/src/lib/playerClient";
@@ -71,6 +72,8 @@ type SkillLevel = (typeof skillLevels)[number];
 type AvatarId = (typeof avatars)[number]["id"];
 type InterestId = (typeof interestOptions)[number]["id"];
 
+const UNAVAILABLE_NAME_MSG = "This callsign is not available.";
+
 const inputClass =
   "h-10 rounded-xl border border-[var(--border-default)] bg-[var(--surface-1)] px-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition focus:border-[var(--border-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--sagex-accent)]/30 sm:h-11 sm:px-4";
 const labelRowClass =
@@ -83,6 +86,9 @@ export default function OnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [stepError, setStepError] = useState<string | null>(null);
+  const [checkingPilotName, setCheckingPilotName] = useState(false);
+  /** Only for callsign availability / server check (shown under pilot name) — not password issues. */
+  const [pilotNameInlineError, setPilotNameInlineError] = useState<string | null>(null);
   const [pilotName, setPilotName] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -128,8 +134,52 @@ export default function OnboardingPage() {
     return true;
   };
 
-  const goNext = () => {
+  const checkPilotNameRemote = useCallback(async (): Promise<boolean> => {
+    if (!trimmedName) {
+      setPilotNameInlineError(null);
+      return true;
+    }
+    setCheckingPilotName(true);
+    setPilotNameInlineError(null);
+    try {
+      const params = new URLSearchParams();
+      params.set("name", trimmedName);
+      const existing = readStoredPlayer();
+      if (existing?.playerId) {
+        params.set("playerId", existing.playerId);
+      }
+      const res = await fetch(`/api/player/check-name?${params.toString()}`);
+      const data = (await res.json().catch(() => ({}))) as {
+        available?: boolean;
+        error?: string;
+      };
+      if (!res.ok || data.available === false) {
+        setPilotNameInlineError(UNAVAILABLE_NAME_MSG);
+        return false;
+      }
+      return true;
+    } catch {
+      setPilotNameInlineError(
+        "Couldn’t verify your callsign. Check your connection and try again."
+      );
+      return false;
+    } finally {
+      setCheckingPilotName(false);
+    }
+  }, [trimmedName]);
+
+  const goNext = async () => {
+    if (checkingPilotName) return;
     if (!validateCurrentStep()) return;
+
+    if (stepIndex === 0) {
+      if (pilotNameInlineError === UNAVAILABLE_NAME_MSG) {
+        return;
+      }
+      const ok = await checkPilotNameRemote();
+      if (!ok) return;
+    }
+
     setStepIndex((i) => Math.min(LAST_STEP, i + 1));
   };
 
@@ -158,11 +208,18 @@ export default function OnboardingPage() {
       }
       router.push("/onboarding/guide");
     } catch (err) {
-      setSubmitError(
-        err instanceof Error
-          ? err.message
-          : "Couldn't save your pilot. Please try again."
-      );
+      const msg = err instanceof Error ? err.message : "";
+      if (/(already taken|not available|NAME_TAKEN)/i.test(msg)) {
+        setStepIndex(0);
+        setPilotNameInlineError(UNAVAILABLE_NAME_MSG);
+        setSubmitError(null);
+      } else {
+        setSubmitError(
+          err instanceof Error
+            ? err.message
+            : "Couldn't save your pilot. Please try again."
+        );
+      }
     } finally {
       setSubmitting(false);
     }
@@ -251,12 +308,30 @@ export default function OnboardingPage() {
                         id="pilot-name"
                         name="pilotName"
                         value={pilotName}
-                        onChange={(e) => setPilotName(e.target.value)}
+                        onChange={(e) => {
+                          setPilotName(e.target.value);
+                          setPilotNameInlineError(null);
+                        }}
                         placeholder="Enter your callsign"
                         required
                         autoComplete="nickname"
-                        className={inputClass}
+                        aria-invalid={pilotNameInlineError === UNAVAILABLE_NAME_MSG}
+                        className={`${inputClass} ${
+                          pilotNameInlineError === UNAVAILABLE_NAME_MSG
+                            ? "border-rose-500/60"
+                            : ""
+                        }`}
                       />
+                      {checkingPilotName && stepIndex === 0 && (
+                        <p className="text-xs text-[var(--text-muted)]" aria-live="polite">
+                          Checking your callsign…
+                        </p>
+                      )}
+                      {pilotNameInlineError && !checkingPilotName && stepIndex === 0 && (
+                        <p className="text-xs text-rose-300" role="alert">
+                          {pilotNameInlineError}
+                        </p>
+                      )}
                     </label>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
                       <label
@@ -274,6 +349,11 @@ export default function OnboardingPage() {
                           type="password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
+                          onFocus={() => {
+                            if (stepIndex === 0 && trimmedName) {
+                              void checkPilotNameRemote();
+                            }
+                          }}
                           autoComplete="new-password"
                           placeholder="Min. 8 characters"
                           className={inputClass}
@@ -294,6 +374,11 @@ export default function OnboardingPage() {
                           type="password"
                           value={passwordConfirm}
                           onChange={(e) => setPasswordConfirm(e.target.value)}
+                          onFocus={() => {
+                            if (stepIndex === 0 && trimmedName) {
+                              void checkPilotNameRemote();
+                            }
+                          }}
                           autoComplete="new-password"
                           placeholder="Repeat password"
                           className={inputClass}
@@ -395,8 +480,15 @@ export default function OnboardingPage() {
               Back
             </button>
             {!atReview && (
-              <button type="button" onClick={goNext} className="btn-primary min-w-[6.5rem] px-6 py-2.5">
-                Next
+              <button
+                type="button"
+                onClick={() => {
+                  void goNext();
+                }}
+                disabled={checkingPilotName}
+                className="btn-primary min-w-[6.5rem] px-6 py-2.5 disabled:cursor-wait disabled:opacity-80"
+              >
+                {checkingPilotName ? "Checking…" : "Next"}
               </button>
             )}
           </div>

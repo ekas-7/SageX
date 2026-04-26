@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { auth } from "@/auth";
 import { PlayerOrchestrator } from "../orchestrators/player.orchestrator";
 import { PlayerService } from "../services/player.service";
@@ -35,6 +36,39 @@ export const PlayerController = {
     }
     const player = await PlayerOrchestrator.upsertProfile(parsed.data);
     return { ok: true, player };
+  },
+
+  /**
+   * GET /api/player/check-name — preflight: is this display name free for
+   * a *new* player, or for `playerId` if they are updating their own profile.
+   * Uses the same case-insensitive rule as `POST /api/player` upsert.
+   */
+  async checkPilotNameAvailable(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const name = searchParams.get("name")?.trim() ?? "";
+    const clientId = searchParams.get("playerId")?.trim();
+    if (!name) {
+      return { available: false as const, error: "Name is required" };
+    }
+    if (name.length > 100) {
+      return { available: false as const, error: "Name is too long" };
+    }
+    const excludeId =
+      clientId && clientId.length >= 8
+        ? clientId
+        : `new-onboarding-${randomUUID()}`;
+    const taken = await PlayerRepository.existsOtherPlayerWithName(
+      excludeId,
+      name
+    );
+    if (taken) {
+      return {
+        available: false as const,
+        error:
+          "This pilot name is already taken. Choose a different callsign.",
+      };
+    }
+    return { available: true as const };
   },
 
   /**
