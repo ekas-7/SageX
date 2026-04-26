@@ -2,35 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
-import { verifyPassword } from "@/src/lib/passwordHash";
-import { PlayerRepository } from "@/src/repositories/player.repo";
-import { findOrCreatePlayerForOAuth } from "@/src/services/oauthPlayer.service";
-
-/**
- * Auth.js requires a non-empty `secret` for cookies/JWT. If unset, every auth
- * route returns error=Configuration ("problem with the server configuration").
- * Production: set `AUTH_SECRET` (or `NEXTAUTH_SECRET`) in the environment.
- * Local: we fall back in development only so the app works without a filled `.env`.
- */
-const DEV_INSECURE_SECRET = "sagex-dev-only-not-for-production";
-
-/**
- * @returns A secret to pass into NextAuth, or `undefined` so `setEnvDefaults`
- * can still read `AUTH_SECRET` from the environment (only when we do not
- * return a value here). Never return an empty string — that would block env merge.
- */
-function resolveAuthSecret(): string | undefined {
-  const fromEnv =
-    process.env.AUTH_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim();
-  if (fromEnv) return fromEnv;
-  if (process.env.NODE_ENV === "development") {
-    console.warn(
-      "[auth] AUTH_SECRET / NEXTAUTH_SECRET not set — using a dev-only default. Add AUTH_SECRET to .env.local for stable sessions and to match production."
-    );
-    return DEV_INSECURE_SECRET;
-  }
-  return undefined;
-}
+import { getAuthSecret } from "@/src/lib/authEnv";
 
 /**
  * Support both Auth.js v5 names (AUTH_*_ID) and common legacy names
@@ -71,11 +43,14 @@ function oauthAvatar(
   return user.image ?? undefined;
 }
 
-const authSecret = resolveAuthSecret();
+const authSecret = getAuthSecret();
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   basePath: "/api/auth",
+  pages: {
+    signIn: "/login",
+  },
   ...(authSecret ? { secret: authSecret } : {}),
   providers: [
     Google({
@@ -98,6 +73,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const callsign = String(credentials.callsign).trim();
         const password = String(credentials.password);
         if (!callsign) return null;
+        const [{ verifyPassword }, { PlayerRepository }] = await Promise.all([
+          import("@/src/lib/passwordHash"),
+          import("@/src/repositories/player.repo"),
+        ]);
         const player =
           await PlayerRepository.findByCallsignForPasswordAuth(callsign);
         if (!player?.passwordHash) return null;
@@ -115,7 +94,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user, account, profile }) {
       if (user && account && account.provider === "credentials") {
         token.playerId = user.id;
-        token.name = user.name;
+        token.name = user.name ?? undefined;
         if (user.image) {
           token.picture = user.image;
         }
@@ -139,6 +118,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           (typeof user.name === "string" && user.name) ||
           "Pilot";
         const image = oauthAvatar(profile, user);
+        const { findOrCreatePlayerForOAuth } = await import(
+          "@/src/services/oauthPlayer.service"
+        );
         const player = await findOrCreatePlayerForOAuth({
           provider,
           providerAccountId,
