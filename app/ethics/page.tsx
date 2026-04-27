@@ -265,7 +265,7 @@ export default function EthicsPage() {
                 </div>
                 <div className="relative">
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-3)]">
-                    <div className="h-full rounded-full bg-gradient-to-r from-[var(--sagex-accent)] to-emerald-400 transition-all duration-700" style={{ width: `${progressPct}%` }} />
+                    <div className="progress-fill" style={{ width: `${progressPct}%` }} />
                   </div>
                   <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-between">
                     {categories.map((cat, i) => {

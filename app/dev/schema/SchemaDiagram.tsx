@@ -42,7 +42,7 @@ export function SchemaDiagram({ diagram }: { diagram: string }) {
   return (
     <div
       ref={containerRef}
-      className="overflow-x-auto rounded-lg border border-white/10 bg-zinc-950 p-4 text-sm"
+      className="surface-card-elevated overflow-x-auto rounded-2xl p-4 text-sm"
     />
   );
 }

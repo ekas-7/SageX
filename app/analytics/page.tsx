@@ -491,7 +491,7 @@ export default function AnalyticsPage() {
                       </div>
                       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--surface-3)]">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-[var(--sagex-accent)] to-emerald-400 transition-all duration-700"
+                          className="progress-fill"
                           style={{ width: `${pct}%` }}
                         />
                       </div>

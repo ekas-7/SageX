@@ -41,6 +41,9 @@ function GitHubIcon() {
   );
 }
 
+const providerButtonClass =
+  "surface-card flex min-h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-[var(--text-primary)] transition hover:border-[var(--border-accent)] hover:bg-[var(--surface-2)] disabled:opacity-60";
+
 type OnboardingOAuthSectionProps = {
   /** Where OAuth should send the user after success (e.g. `/onboarding/guide` or `/hub`). */
   callbackUrl?: string;
@@ -61,7 +64,7 @@ export function OnboardingOAuthSection({
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
         <button
           type="button"
-          className="flex min-h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-[var(--border-default)] bg-white px-3 py-2.5 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50 disabled:opacity-60"
+          className={providerButtonClass}
           disabled={busy !== null}
           onClick={() => {
             setBusy("google");
@@ -80,7 +83,7 @@ export function OnboardingOAuthSection({
         </button>
         <button
           type="button"
-          className="flex min-h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-60"
+          className={providerButtonClass}
           disabled={busy !== null}
           onClick={() => {
             setBusy("github");

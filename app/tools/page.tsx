@@ -106,7 +106,7 @@ export default function ToolsPage() {
           </div>
           <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-[var(--surface-3)]">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[var(--sagex-accent)] to-emerald-400 transition-all duration-700"
+              className="progress-fill"
               style={{ width: `${overallPct}%` }}
             />
           </div>
@@ -157,7 +157,7 @@ export default function ToolsPage() {
                   </div>
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-3)]">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-[var(--sagex-accent)] to-emerald-400 transition-all duration-700"
+                      className="progress-fill"
                       style={{ width: `${pct}%` }}
                     />
                   </div>

@@ -390,7 +390,7 @@ export function NewsMapPlayfield({
           {collisionRects.map((rect, index) => (
             <div
               key={`news-collision-${index}`}
-              className="pointer-events-none absolute border-2 border-cyan-300 bg-cyan-400/20 shadow-[0_0_16px_rgba(34,211,238,0.75),0_0_8px_rgba(168,85,247,0.4)]"
+              className="pointer-events-none absolute border-2 border-[var(--border-accent)] bg-[var(--sagex-accent-muted)] shadow-[0_0_16px_var(--sagex-accent-glow)]"
               style={{
                 width: (rect.width / 100) * mapWidth,
                 height: (rect.height / 100) * mapHeight,
