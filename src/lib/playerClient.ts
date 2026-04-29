@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  DEFAULT_SAGEX_AVATAR_DISPLAY_NAME,
+  DEFAULT_SAGEX_AVATAR_SRC,
+} from "@/src/config/playerAppearance";
+
 /**
  * Client-side player identity helper.
  *
@@ -23,8 +28,8 @@ export type StoredPlayer = {
 
 const STORAGE_KEY = "sagex.player";
 const ID_KEY = "sagex.playerId";
-const DEFAULT_AVATAR = "/assests/skins/skin-1.png";
-const DEFAULT_AVATAR_NAME = "Orion";
+const DEFAULT_AVATAR = DEFAULT_SAGEX_AVATAR_SRC;
+const DEFAULT_AVATAR_NAME = DEFAULT_SAGEX_AVATAR_DISPLAY_NAME;
 const DEFAULT_SKILL = "Beginner";
 const DEFAULT_INTERESTS = ["product"];
 

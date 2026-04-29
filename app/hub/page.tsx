@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { SignOutButton } from "../../components/SignOutButton";
 import { SagexTokenStrip } from "../../components/SagexTokenStrip";
+import { ALISA_TOUR_ENABLED } from "@/src/config/features";
 import { readStoredPlayer, signInPlayer } from "@/src/lib/playerClient";
 
 const buildings = [
@@ -101,13 +102,15 @@ export default function HubPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <SignOutButton />
-            <a
-              href="/map?tour=1"
-              className="btn-ghost text-xs"
-              title="Walk through the academy with Alisa again"
-            >
-              Replay Tour
-            </a>
+            {ALISA_TOUR_ENABLED ? (
+              <a
+                href="/map?tour=1"
+                className="btn-ghost text-xs"
+                title="Walk through the academy with Alisa again"
+              >
+                Replay Tour
+              </a>
+            ) : null}
           </div>
         </div>
         <p className="page-description max-w-2xl text-base">

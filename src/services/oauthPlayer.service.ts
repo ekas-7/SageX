@@ -9,7 +9,6 @@ export async function findOrCreatePlayerForOAuth(opts: {
   providerAccountId: string;
   email: string | null;
   name: string;
-  image?: string;
 }): Promise<PlayerProfile> {
   const existingAuth = await PlayerRepository.findByAuthAccount(
     opts.provider,
@@ -45,6 +44,5 @@ export async function findOrCreatePlayerForOAuth(opts: {
     providerAccountId: opts.providerAccountId,
     email: opts.email,
     name: opts.name || "Pilot",
-    image: opts.image,
   });
 }

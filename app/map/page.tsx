@@ -26,6 +26,7 @@ import {
   MAP_PET_OFFSET_Y,
   mapPetDisplayHeight,
 } from "@/src/config/mapPet";
+import { ALISA_TOUR_ENABLED } from "@/src/config/features";
 import AlisaTour from "../../components/AlisaTour";
 
 const TOUR_STORAGE_KEY = "sagex.tourCompleted";
@@ -152,19 +153,19 @@ export default function MapPage() {
     });
     setHydrated(true);
 
-    // Auto-start Alisa's tour the first time a player reaches /map,
-    // or whenever the URL carries ?tour=1 (used by the "Replay tour"
-    // button in the hub).
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const forced = params.get("tour") === "1";
-      const alreadyCompleted =
-        window.localStorage.getItem(TOUR_STORAGE_KEY) === "true";
-      if (forced || !alreadyCompleted) {
-        setTourActive(true);
+    // Alisa tour — gated by ALISA_TOUR_ENABLED in src/config/features.ts
+    if (ALISA_TOUR_ENABLED) {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const forced = params.get("tour") === "1";
+        const alreadyCompleted =
+          window.localStorage.getItem(TOUR_STORAGE_KEY) === "true";
+        if (forced || !alreadyCompleted) {
+          setTourActive(true);
+        }
+      } catch {
+        // localStorage disabled: don't run the tour.
       }
-    } catch {
-      // localStorage disabled: don't run the tour.
     }
 
     // Fire-and-forget sign-in so the backend has the player and any
@@ -624,7 +625,8 @@ export default function MapPage() {
               />
             )}
           </div>
-          {tourActive &&
+          {ALISA_TOUR_ENABLED &&
+            tourActive &&
             hydrated &&
             chunksReady &&
             mapWidth > 0 &&

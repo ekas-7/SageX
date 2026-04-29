@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import { getAuthSecret } from "@/src/lib/authEnv";
+import { DEFAULT_SAGEX_AVATAR_SRC } from "@/src/config/playerAppearance";
 
 /**
  * Support both Auth.js v5 names (AUTH_*_ID) and common legacy names
@@ -31,17 +32,6 @@ const githubOAuth = {
     process.env.GITHUB_CLIENT_SECRET?.trim() ||
     undefined,
 };
-
-function oauthAvatar(
-  profile: unknown,
-  user: { image?: string | null }
-): string | undefined {
-  if (profile && typeof profile === "object") {
-    const p = profile as { picture?: string; avatar_url?: string };
-    return p.picture ?? p.avatar_url ?? user.image ?? undefined;
-  }
-  return user.image ?? undefined;
-}
 
 const authSecret = getAuthSecret();
 
@@ -91,7 +81,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return {
           id: player.playerId,
           name: player.name,
-          image: player.avatar ?? undefined,
+          image: DEFAULT_SAGEX_AVATAR_SRC,
         };
       },
     }),
@@ -101,9 +91,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user && account && account.provider === "credentials") {
         token.playerId = user.id;
         token.name = user.name ?? undefined;
-        if (user.image) {
-          token.picture = user.image;
-        }
+        token.picture = DEFAULT_SAGEX_AVATAR_SRC;
         return token;
       }
       if (
@@ -123,7 +111,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           (typeof prof?.name === "string" && prof.name) ||
           (typeof user.name === "string" && user.name) ||
           "Pilot";
-        const image = oauthAvatar(profile, user);
         const { findOrCreatePlayerForOAuth } = await import(
           "@/src/services/oauthPlayer.service"
         );
@@ -134,7 +121,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             providerAccountId,
             email,
             name: name || "Pilot",
-            image,
           });
         } catch (error) {
           logOAuthCallbackError(error);
@@ -142,7 +128,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
         token.playerId = player.playerId;
         token.name = player.name;
-        token.picture = player.avatar ?? image;
+        token.picture = DEFAULT_SAGEX_AVATAR_SRC;
       }
       return token;
     },
@@ -152,7 +138,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           session.user.playerId = token.playerId as string;
         }
         if (token.name) session.user.name = token.name as string;
-        if (token.picture) session.user.image = token.picture as string;
+        session.user.image = DEFAULT_SAGEX_AVATAR_SRC;
       }
       return session;
     },

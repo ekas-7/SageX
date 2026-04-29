@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { PlayerModel } from "../models/player.model";
+import { DEFAULT_SAGEX_AVATAR_SRC } from "../config/playerAppearance";
 import { connectToDatabase } from "../lib/db";
 import type { PlayerProfile } from "../types/player";
 
@@ -82,7 +83,6 @@ export const PlayerRepository = {
     providerAccountId: string;
     email: string | null;
     name: string;
-    image?: string;
   }) {
     await connectToDatabase();
     const playerId = randomUUID();
@@ -93,7 +93,7 @@ export const PlayerRepository = {
       email: data.email ? data.email.trim().toLowerCase() : undefined,
       accountProvider: data.provider,
       accountId: data.providerAccountId,
-      avatar: data.image,
+      avatar: DEFAULT_SAGEX_AVATAR_SRC,
       skill: defaults.skill,
       interests: defaults.interests,
       stats: defaultStats(),

@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { auth } from "@/auth";
+import { DEFAULT_SAGEX_AVATAR_SRC } from "../config/playerAppearance";
 import { PlayerOrchestrator } from "../orchestrators/player.orchestrator";
 import { PlayerService } from "../services/player.service";
 import { PlayerRepository } from "../repositories/player.repo";
@@ -34,7 +35,10 @@ export const PlayerController = {
           "Invalid player profile"
       );
     }
-    const player = await PlayerOrchestrator.upsertProfile(parsed.data);
+    const player = await PlayerOrchestrator.upsertProfile({
+      ...parsed.data,
+      avatar: DEFAULT_SAGEX_AVATAR_SRC,
+    });
     return { ok: true, player };
   },
 
