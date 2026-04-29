@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "favicon": "node scripts/generate-favicon.mjs",
     "spritesheet:skin1": "node scripts/generate-skin1-spritesheet.mjs",
     "db:duplicates": "tsx --env-file=.env.local scripts/audit-duplicate-player-names.ts"
   },
@@ -35,6 +36,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "png-to-ico": "^3.0.1",
     "sharp": "^0.33.5",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
