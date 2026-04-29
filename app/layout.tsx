@@ -10,7 +10,7 @@ import fs from 'fs';
 import path from 'path';
 
 // compute a cache-busting query string from the favicon file mtime
-const faviconRel = '/assests/logo/main_logo.ico';
+const faviconRel = '/assests/logo.png';
 let faviconHref = faviconRel;
 try {
   const p = path.resolve(process.cwd(), `public${faviconRel}`);
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   icons: {
     icon: faviconHref,
     shortcut: faviconHref,
-    apple: '/assests/logo/main_logo.png',
+    apple: faviconHref,
   },
 };
 
@@ -58,7 +58,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href={faviconHref} />
         <link rel="shortcut icon" href={faviconHref} />
-        <link rel="apple-touch-icon" href="/assests/logo/main_logo.png" />
+        <link rel="apple-touch-icon" href={faviconHref} />
       </head>
       <body
         {...{"cz-shortcut-listen": "true"}}
