@@ -239,4 +239,30 @@ UserModel.find() ❌ anywhere except repository
 
 ---
 
-## 🔁 Example Flow (Create User)
+## 🗂️ Config files (`src/config/`)
+
+Shared constants that are imported across layers — not a separate architectural layer, just collocated configuration.
+
+| File | Purpose |
+|------|---------|
+| `playerAppearance.ts` | `DEFAULT_SAGEX_AVATAR_SRC`, `DEFAULT_SAGEX_AVATAR_DISPLAY_NAME` — single source of truth for player avatar defaults; imported by `auth.ts`, `player.controller.ts`, `player.repo.ts`, `playerClient.ts` |
+| `features.ts` | Feature flags (e.g. `ALISA_TOUR_ENABLED`); set here, read anywhere |
+| `mapPet.ts` | Pet sprite offsets, follow gap, flip rules for `/map` |
+| `sagexToken.ts` | Optional SAGEX community token display config (build-time env vars) |
+| `xp.ts` | XP milestone thresholds |
+| `env.ts` | Typed wrappers around process.env for server-side env access |
+
+---
+
+## 🔁 Example Flow (Upsert Player)
+
+```
+POST /api/player
+  → app/api/player/route.ts               (parse, return Response)
+  → src/controllers/player.controller.ts  (session check, format)
+  → src/vali/player.vali.ts               (Zod parse)
+  → src/orchestrators/player.orchestrator.ts
+  → src/services/player.service.ts
+  → src/repositories/player.repo.ts       (Mongoose upsert)
+  → MongoDB
+```
